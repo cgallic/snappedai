@@ -1,0 +1,14 @@
+import{za as d}from"./chunk-VRODSUQC.js";import"./chunk-27WMCVHA.js";import"./chunk-TRIYFLMU.js";import"./chunk-J4XA5VC7.js";import"./chunk-DQWLAPQA.js";import"./chunk-IUNAS73H.js";import"./chunk-2LKSWQ7Y.js";import"./chunk-H4HL2VJ5.js";import{a as f}from"./chunk-QKX6QMZS.js";import"./chunk-5ENLJTSW.js";import"./chunk-ZMW27YAP.js";import"./chunk-QW5UCU4W.js";import"./chunk-X6Z5FRDC.js";import"./chunk-X4RRAJ67.js";import"./chunk-FFV6ZRAV.js";import"./chunk-END3S5WW.js";import{a as s}from"./chunk-OABENO2E.js";import"./chunk-VQU4JTIB.js";import"./chunk-ZMU6KWZP.js";import"./chunk-YSZRDBUS.js";import"./chunk-UE7TCZBL.js";import"./chunk-PFY5DZIQ.js";import"./chunk-L4NFABLQ.js";import"./chunk-P3JRRYSB.js";import"./chunk-GUZFMB3D.js";import"./chunk-N3C6FBKY.js";import"./chunk-CTKHELYY.js";import"./chunk-2L6X42XL.js";import"./chunk-2P4HZW3J.js";import"./chunk-OR3XQXDJ.js";import{c as p}from"./chunk-HLSJ3VIL.js";import{db as i,m as o,na as h}from"./chunk-57EVB5FV.js";import"./chunk-44HH5QGP.js";import"./chunk-WVRYN4MY.js";import"./chunk-2LSP5LV2.js";import"./chunk-HLWWEHZK.js";import"./chunk-5JGASDWN.js";import"./chunk-ZDPKBPMV.js";import"./chunk-DYQ7BPYX.js";import"./chunk-NMTPXQAP.js";import"./chunk-SIWEHH3L.js";import"./chunk-N6SSDFMX.js";import"./chunk-YJCG6GWC.js";import"./chunk-W7IWPUIQ.js";import"./chunk-4SCKDS7G.js";import"./chunk-DJGGVTSJ.js";import"./chunk-FATTDLFQ.js";import"./chunk-2RWUL32J.js";import{a as n}from"./chunk-RWWUDPHX.js";import{Ca as e,Z as g,a as k,b as m}from"./chunk-LQZGQEJ6.js";import"./chunk-FNC6PQ53.js";import"./chunk-5QQLABHI.js";import{g as a,i as l,n as c}from"./chunk-WKJYWAXG.js";l();c();var u=a(k(),1);var t=a(m(),1),x=o(s).attrs({align:"center",justify:"space-between"})`
+  height: 100%;
+`,y=o(s).attrs({align:"center",justify:"center"})`
+  height: 100%;
+`,v=o.div`
+  width: 94px;
+  height: 94px;
+  position: relative;
+  border-radius: 100%;
+  background-color: ${r=>{switch(r.variant){case"warning":return n(e.colors.brand.yellowMoon,.1);case"danger":return n(e.colors.legacy.spotNegative,.1);default:return n(e.colors.brand.yellowMoon,.1)}}};
+`,H=o(f).attrs({align:"center",justify:"center"})`
+  height: 100%;
+`,N=o(i).attrs({size:28,weight:500,margin:"30px 0 10px 0",lineHeight:33})``,M=o(i).attrs({size:16,weight:400,color:e.colors.legacy.textDiminished,margin:"0 30px"})``,T=u.default.memo(r=>{let{t:w}=g(),{handleHideModalVisibility:C}=d();return(0,t.jsxs)(x,{children:[(0,t.jsxs)(y,{children:[(0,t.jsx)(v,{variant:r.variant,children:(0,t.jsx)(H,{children:(0,t.jsx)(h,{fill:r.variant==="danger"?e.colors.legacy.spotNegative:e.colors.brand.yellowMoon})})}),(0,t.jsx)(N,{children:r.title}),(0,t.jsx)(M,{children:r.message})]}),(0,t.jsx)(p,{onClick:()=>C("networkHealth"),children:w("commandClose")})]})}),W=T;export{T as NetworkHealth,W as default};
+//# sourceMappingURL=NetworkHealth-GDO75VY6.js.map

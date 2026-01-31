@@ -1,0 +1,32 @@
+{
+  "name": "snap-ai",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.32.1",
+    "@cryptoscan/pumpfun-sdk": "^1.3.1",
+    "@cryptoscan/solana-wallet-sdk": "^0.0.9",
+    "@farcaster/hub-nodejs": "^0.15.9",
+    "@noble/ed25519": "^3.0.0",
+    "@noble/hashes": "^2.0.1",
+    "@scure/bip32": "^2.0.1",
+    "@scure/bip39": "^2.0.1",
+    "@solana/web3.js": "^1.98.4",
+    "@x402/core": "^2.2.0",
+    "@x402/evm": "^2.2.0",
+    "@x402/express": "^2.2.0",
+    "@x402/svm": "^2.2.0",
+    "bs58": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "ethers": "^6.16.0",
+    "express": "^4.22.1",
+    "funsdk": "^0.4.1",
+    "pump.fun": "^1.0.4",
+    "pumpdotfun-sdk": "^1.4.2",
+    "puppeteer": "^24.36.1",
+    "tsx": "^4.21.0",
+    "tweetnacl": "^1.0.3",
+    "viem": "^2.45.0"
+  }
+}

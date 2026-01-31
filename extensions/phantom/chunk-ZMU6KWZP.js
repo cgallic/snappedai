@@ -1,0 +1,15 @@
+import{m as a}from"./chunk-57EVB5FV.js";import{a as i}from"./chunk-RWWUDPHX.js";import{Ca as t}from"./chunk-LQZGQEJ6.js";import{i as r,n as o}from"./chunk-WKJYWAXG.js";r();o();var m=a.div.attrs(e=>({color:e.color??t.colors.legacy.elementAccent,diameter:e.diameter??24,opacity:e.opacity??1}))`
+  height: ${e=>e.diameter}px;
+  width: ${e=>e.diameter}px;
+  margin: ${e=>e.margin};
+  background-color: ${e=>e.alpha&&e.color?i(e.color,e.alpha):e.color};
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: ${e=>e.opacity};
+  overflow: hidden;
+  ${e=>e.includeDarkBoxShadow?"box-shadow: inset 0px 0px 4px rgba(0, 0, 0, 0.25);":""}
+`;export{m as a};
+//# sourceMappingURL=chunk-ZMU6KWZP.js.map

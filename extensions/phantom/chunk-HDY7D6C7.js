@@ -1,0 +1,2 @@
+import{a as m,b as l}from"./chunk-LQZGQEJ6.js";import{a,g as r,i as d,n as c}from"./chunk-WKJYWAXG.js";d();c();var e=r(m(),1);var t=r(l(),1),f=a(({delay:o=300,children:s,delayedChildren:u})=>{let[R,i]=e.default.useState(!1);return(0,e.useEffect)(()=>{let n;return o&&(n=setTimeout(()=>{i(!0)},o)),()=>{n&&clearTimeout(n)}},[o]),(0,t.jsx)(t.Fragment,{children:R?u:s})},"DelayedRenderComponent");export{f as a};
+//# sourceMappingURL=chunk-HDY7D6C7.js.map

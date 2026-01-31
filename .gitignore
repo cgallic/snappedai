@@ -1,0 +1,7 @@
+node_modules/
+.env
+content/*.mp4
+content/*.mp3
+content/*.png
+data/
+*.log

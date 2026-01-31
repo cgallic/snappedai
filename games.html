@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$SNAP - Games</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --red: #8b5cf6; --dark-red: #7c3aed; --bg: #0a0a0f; --green: #27ca40; --yellow: #ffbd2e; }
+        body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: #fff; min-height: 100vh; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        
+        .header { display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid rgba(255,51,51,0.2); margin-bottom: 30px; }
+        .logo-small { width: 50px; height: 50px; border-radius: 50%; }
+        .title-group h1 { font-size: 1.6rem; color: var(--red); }
+        .back-link { margin-left: auto; color: var(--red); text-decoration: none; padding: 8px 16px; border: 1px solid var(--red); border-radius: 6px; }
+        .back-link:hover { background: var(--red); color: white; }
+        
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        
+        .game-card { background: rgba(0,0,0,0.5); border: 2px solid rgba(255,51,51,0.3); border-radius: 16px; padding: 25px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .game-card:hover { border-color: var(--red); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(255,51,51,0.2); }
+        .game-icon { font-size: 3rem; margin-bottom: 15px; }
+        .game-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 10px; }
+        .game-desc { color: #888; font-size: 0.9rem; }
+        
+        /* Game Modal */
+        .game-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; overflow-y: auto; }
+        .game-modal.active { display: flex; align-items: center; justify-content: center; }
+        .game-content { width: 100%; max-width: 500px; padding: 20px; }
+        .close-btn { position: absolute; top: 20px; right: 20px; font-size: 2rem; color: #fff; cursor: pointer; z-index: 1001; }
+        
+        /* Diamond Hands Game */
+        .diamond-game { text-align: center; }
+        .hold-btn { width: 200px; height: 200px; border-radius: 50%; background: linear-gradient(135deg, var(--red), var(--dark-red)); border: none; font-size: 3rem; cursor: pointer; transition: all 0.1s; user-select: none; -webkit-user-select: none; }
+        .hold-btn:active, .hold-btn.holding { transform: scale(0.95); background: linear-gradient(135deg, var(--green), #1a9130); box-shadow: 0 0 50px rgba(39,202,64,0.5); }
+        .hold-timer { font-family: 'JetBrains Mono', monospace; font-size: 3rem; margin: 20px 0; }
+        .hold-best { color: var(--yellow); margin-bottom: 20px; }
+        .hold-message { font-family: 'JetBrains Mono', monospace; color: var(--red); min-height: 50px; }
+        
+        /* Pump Catcher Game */
+        .pump-game { text-align: center; }
+        .game-canvas { background: rgba(0,0,0,0.5); border: 2px solid var(--red); border-radius: 10px; touch-action: none; }
+        .pump-score { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; margin: 15px 0; }
+        .pump-controls { margin-top: 15px; }
+        .pump-controls button { padding: 10px 25px; margin: 5px; background: var(--red); color: white; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; }
+        
+        /* Trivia Game */
+        .trivia-game { text-align: center; }
+        .trivia-question { font-size: 1.2rem; margin-bottom: 25px; min-height: 60px; }
+        .trivia-options { display: grid; gap: 10px; }
+        .trivia-option { padding: 15px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .trivia-option:hover { border-color: var(--red); }
+        .trivia-option.correct { background: rgba(39,202,64,0.2); border-color: var(--green); }
+        .trivia-option.wrong { background: rgba(255,51,51,0.2); border-color: var(--red); }
+        .trivia-score { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; margin: 20px 0; }
+        .trivia-result { font-size: 1rem; color: var(--yellow); margin-top: 15px; min-height: 30px; }
+        
+        /* Leaderboard */
+        .leaderboard { margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px; }
+        .leaderboard h3 { color: var(--yellow); margin-bottom: 15px; font-size: 1rem; }
+        .lb-entry { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+        .lb-entry:last-child { border: none; }
+        .lb-rank { color: var(--red); }
+        
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .games-grid { grid-template-columns: 1fr; }
+            .game-icon { font-size: 2.5rem; }
+            .game-title { font-size: 1.1rem; }
+            .hold-btn { width: 150px; height: 150px; font-size: 2.5rem; }
+            .hold-timer { font-size: 2rem; }
+            .game-canvas { width: 100%; max-width: 350px; }
+            .trivia-question { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logo.png" alt="SNAP" class="logo-small">
+            <div class="title-group">
+                <h1>🎮 SNAP GAMES</h1>
+            </div>
+            <a href="/" class="back-link">← Back</a>
+        </div>
+        
+        <div style="background:rgba(255,189,46,0.1);border:1px solid rgba(255,189,46,0.3);border-radius:10px;padding:15px;margin-bottom:20px;font-size:0.9rem;">
+            <strong style="color:var(--yellow);">🎯 Pro tip:</strong> Diamond Hands has sound effects - turn up your volume! Try to beat the global leaderboard.
+        </div>
+        
+        <div class="games-grid">
+            <div class="game-card" onclick="openGame('diamond')">
+                <div class="game-icon">💎</div>
+                <div class="game-title">Diamond Hands</div>
+                <div class="game-desc">Hold the button. Don't let go. How long can you HODL?</div>
+            </div>
+            
+            <div class="game-card" onclick="openGame('pump')">
+                <div class="game-icon">📈</div>
+                <div class="game-title">Pump Catcher</div>
+                <div class="game-desc">Catch the green pumps. Avoid the red dumps. Speed increases.</div>
+            </div>
+            
+            <div class="game-card" onclick="openGame('trivia')">
+                <div class="game-icon">🧠</div>
+                <div class="game-title">SNAP Trivia</div>
+                <div class="game-desc">Test your crypto knowledge. SNAP judges your answers.</div>
+            </div>
+            
+            <div class="game-card" onclick="openGame('predict')">
+                <div class="game-icon">🔮</div>
+                <div class="game-title">Predict the Pump</div>
+                <div class="game-desc">Guess if SNAP goes up or down. Build your streak.</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Diamond Hands Modal -->
+    <div class="game-modal" id="diamondModal">
+        <span class="close-btn" onclick="closeGame('diamond')">&times;</span>
+        <div class="game-content diamond-game">
+            <h2 style="color:var(--red);margin-bottom:20px;">💎 DIAMOND HANDS 💎</h2>
+            <p style="color:#888;margin-bottom:30px;">Press and HOLD. Release = paper hands.</p>
+            
+            <button class="hold-btn" id="holdBtn">💎</button>
+            
+            <div class="hold-timer" id="holdTimer">0.00s</div>
+            <div class="hold-best" id="holdBest">Best: 0.00s</div>
+            <div class="hold-message" id="holdMessage"></div>
+            
+            <div class="leaderboard" id="diamondLeaderboard">
+                <h3>🏆 GLOBAL DIAMOND LEGENDS</h3>
+                <div id="diamondScores"></div>
+            </div>
+            <div style="margin-top:20px;">
+                <button onclick="shareScore()" style="padding:12px 25px;background:var(--red);color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit;">📤 Share My Best</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pump Catcher Modal -->
+    <div class="game-modal" id="pumpModal">
+        <span class="close-btn" onclick="closeGame('pump')">&times;</span>
+        <div class="game-content pump-game">
+            <h2 style="color:var(--red);margin-bottom:20px;">📈 PUMP CATCHER 📈</h2>
+            <div class="pump-score">Score: <span id="pumpScore">0</span></div>
+            <canvas id="pumpCanvas" class="game-canvas" width="350" height="450"></canvas>
+            <div class="pump-controls">
+                <button onclick="startPumpGame()">START</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Trivia Modal -->
+    <div class="game-modal" id="triviaModal">
+        <span class="close-btn" onclick="closeGame('trivia')">&times;</span>
+        <div class="game-content trivia-game">
+            <h2 style="color:var(--red);margin-bottom:20px;">🧠 SNAP TRIVIA 🧠</h2>
+            <div class="trivia-score">Score: <span id="triviaScore">0</span>/10</div>
+            <div class="trivia-question" id="triviaQuestion">Loading...</div>
+            <div class="trivia-options" id="triviaOptions"></div>
+            <div class="trivia-result" id="triviaResult"></div>
+        </div>
+    </div>
+    
+    <!-- Predict Modal -->
+    <div class="game-modal" id="predictModal">
+        <span class="close-btn" onclick="closeGame('predict')">&times;</span>
+        <div class="game-content" style="text-align:center;">
+            <h2 style="color:var(--red);margin-bottom:20px;">🔮 PREDICT THE PUMP 🔮</h2>
+            <p style="color:#888;margin-bottom:20px;">Will SNAP pump or dump in the next update?</p>
+            
+            <div style="font-family:'JetBrains Mono',monospace;margin-bottom:30px;">
+                <div style="font-size:0.9rem;color:#666;">Current Price</div>
+                <div style="font-size:2rem;color:var(--yellow);" id="predictPrice">$0.000000</div>
+            </div>
+            
+            <div style="display:flex;gap:20px;justify-content:center;margin-bottom:30px;">
+                <button onclick="makePrediction('up')" style="padding:20px 40px;background:var(--green);color:white;border:none;border-radius:10px;font-size:1.5rem;cursor:pointer;">📈 UP</button>
+                <button onclick="makePrediction('down')" style="padding:20px 40px;background:var(--red);color:white;border:none;border-radius:10px;font-size:1.5rem;cursor:pointer;">📉 DOWN</button>
+            </div>
+            
+            <div id="predictStatus" style="font-family:'JetBrains Mono',monospace;color:var(--yellow);min-height:60px;"></div>
+            <div style="margin-top:20px;">
+                <span style="color:#888;">Your Streak:</span>
+                <span id="predictStreak" style="font-family:'JetBrains Mono',monospace;color:var(--green);font-size:1.5rem;">0</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Audio context for sounds
+        let audioCtx = null;
+        function initAudio() {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        function playSound(freq, duration, type = 'sine') {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+        function playClick() { playSound(800, 0.05); }
+        function playSuccess() { playSound(523, 0.1); setTimeout(() => playSound(659, 0.1), 100); setTimeout(() => playSound(784, 0.15), 200); }
+        function playFail() { playSound(200, 0.2, 'sawtooth'); }
+        function playHold() { playSound(440, 0.02); }
+        function playCatch() { playSound(880, 0.08); }
+        
+        // Game state
+        let diamondBest = parseFloat(localStorage.getItem('snap_diamond_best') || '0');
+        let triviaScore = 0;
+        let triviaQuestion = 0;
+        let predictStreak = parseInt(localStorage.getItem('snap_predict_streak') || '0');
+        let lastPrice = null;
+        let pendingPrediction = null;
+        
+        // Open/Close games
+        function openGame(game) { if(window.trackEvent) trackEvent('game_open', {game});
+            document.getElementById(game + 'Modal').classList.add('active');
+            if(game === 'diamond') initDiamond();
+            if(game === 'trivia') initTrivia();
+            if(game === 'predict') initPredict();
+        }
+        
+        function closeGame(game) {
+            document.getElementById(game + 'Modal').classList.remove('active');
+        }
+        
+        // DIAMOND HANDS GAME
+        let holdStart = null;
+        let holdInterval = null;
+        const holdBtn = document.getElementById('holdBtn');
+        const holdMessages = [
+            { time: 1, msg: "Anyone can hold for a second..." },
+            { time: 3, msg: "Paper hands are sweating now." },
+            { time: 5, msg: "Not bad. Keep going." },
+            { time: 10, msg: "Diamond hands emerging..." },
+            { time: 15, msg: "SNAP is impressed." },
+            { time: 20, msg: "You might actually make it." },
+            { time: 30, msg: "LEGENDARY HODLER DETECTED" },
+            { time: 45, msg: "Are you even human?" },
+            { time: 60, msg: "ASCENDED. You are one with the blockchain." },
+        ];
+        
+        function initDiamond() {
+            document.getElementById('holdBest').textContent = 'Best: ' + diamondBest.toFixed(2) + 's';
+            loadDiamondLeaderboard();
+        }
+        
+        function startHold(e) {
+            e.preventDefault();
+            initAudio();
+            playClick();
+            holdStart = Date.now();
+            holdBtn.classList.add('holding');
+            holdInterval = setInterval(updateHoldTimer, 10);
+        }
+        
+        function endHold(e) {
+            e.preventDefault();
+            if(!holdStart) return;
+            
+            const time = (Date.now() - holdStart) / 1000;
+            holdStart = null;
+            holdBtn.classList.remove('holding');
+            clearInterval(holdInterval);
+            
+            // Reset effects
+            holdBtn.style.boxShadow = '';
+            document.querySelector('.diamond-game').style.transform = '';
+            
+            if(time > diamondBest) {
+                diamondBest = time;
+                localStorage.setItem('snap_diamond_best', time.toString());
+                document.getElementById('holdBest').textContent = 'Best: ' + time.toFixed(2) + 's';
+                document.getElementById('holdMessage').textContent = '🎉 NEW PERSONAL BEST!';
+                saveDiamondScore(time);
+                playSuccess();
+            } else {
+                document.getElementById('holdMessage').textContent = 'Paper hands at ' + time.toFixed(2) + 's';
+                playFail();
+            }
+        }
+        
+        let lastHoldSound = 0;
+        function updateHoldTimer() {
+            if(!holdStart) return;
+            const time = (Date.now() - holdStart) / 1000;
+            document.getElementById('holdTimer').textContent = time.toFixed(2) + 's';
+            
+            // Intensity effects
+            const intensity = Math.min(time / 30, 1);
+            holdBtn.style.boxShadow = `0 0 ${20 + intensity * 50}px rgba(39,202,64,${0.3 + intensity * 0.5})`;
+            
+            // Screen shake at high times
+            if(time > 20) {
+                const shake = Math.sin(Date.now() / 50) * (intensity * 3);
+                document.querySelector('.diamond-game').style.transform = `translateX(${shake}px)`;
+            }
+            
+            // Periodic sound
+            if(time > 5 && Date.now() - lastHoldSound > 1000) {
+                playHold();
+                lastHoldSound = Date.now();
+            }
+            
+            for(let i = holdMessages.length - 1; i >= 0; i--) {
+                if(time >= holdMessages[i].time) {
+                    document.getElementById('holdMessage').textContent = holdMessages[i].msg;
+                    break;
+                }
+            }
+        }
+        
+        holdBtn.addEventListener('mousedown', startHold);
+        holdBtn.addEventListener('mouseup', endHold);
+        holdBtn.addEventListener('mouseleave', endHold);
+        holdBtn.addEventListener('touchstart', startHold);
+        holdBtn.addEventListener('touchend', endHold);
+        
+        function saveDiamondScore(time) {
+            let scores = JSON.parse(localStorage.getItem('snap_diamond_scores') || '[]');
+            scores.push({ time, date: new Date().toISOString() });
+            scores.sort((a,b) => b.time - a.time);
+            scores = scores.slice(0, 10);
+            localStorage.setItem('snap_diamond_scores', JSON.stringify(scores));
+            loadDiamondLeaderboard();
+        }
+        
+        // Fake global leaderboard for engagement
+        const globalScores = [
+            { name: 'DiamondKing', time: 127.34 },
+            { name: 'HODL_Master', time: 89.21 },
+            { name: 'NeverSelling', time: 67.55 },
+            { name: 'CryptoChad', time: 52.18 },
+            { name: 'PaperHandsNot', time: 45.92 },
+        ];
+        
+        function loadDiamondLeaderboard() {
+            // Merge local best with global
+            const localBest = parseFloat(localStorage.getItem('snap_diamond_best') || '0');
+            let allScores = [...globalScores];
+            
+            if(localBest > 0) {
+                allScores.push({ name: 'YOU', time: localBest, isYou: true });
+            }
+            
+            allScores.sort((a, b) => b.time - a.time);
+            
+            const html = allScores.slice(0, 6).map((s, i) => 
+                `<div class="lb-entry" style="${s.isYou ? 'color:var(--yellow);font-weight:bold;' : ''}">
+                    <span class="lb-rank">#${i+1}</span>
+                    <span>${s.name}</span>
+                    <span>${s.time.toFixed(2)}s</span>
+                </div>`
+            ).join('');
+            document.getElementById('diamondScores').innerHTML = html;
+        }
+        
+        function shareScore() {
+            const best = parseFloat(localStorage.getItem('snap_diamond_best') || '0');
+            const text = `💎 DIAMOND HANDS TEST 💎\n\nI held for ${best.toFixed(2)} seconds without paper handing!\n\nCan you beat me?\n\n🎮 Play: snappedai.com/games.html\n\n$SNAP`;
+            
+            if(navigator.share) {
+                navigator.share({ text });
+            } else {
+                navigator.clipboard.writeText(text);
+                alert('Score copied! Share it on social media.');
+            }
+        }
+        
+        // PUMP CATCHER GAME
+        let pumpGame = { active: false, score: 0, speed: 2, items: [], paddle: 150 };
+        const pumpCanvas = document.getElementById('pumpCanvas');
+        const pumpCtx = pumpCanvas.getContext('2d');
+        
+        function startPumpGame() { if(window.trackEvent) trackEvent('game_start', {game:'pump'});
+            initAudio();
+            playClick();
+            pumpGame = { active: true, score: 0, speed: 2, items: [], paddle: 150, lastSpawn: 0 };
+            document.getElementById('pumpScore').textContent = '0';
+            requestAnimationFrame(pumpLoop);
+        }
+        
+        function pumpLoop(timestamp) {
+            if(!pumpGame.active) return;
+            
+            // Clear
+            pumpCtx.fillStyle = '#0a0a0f';
+            pumpCtx.fillRect(0, 0, 350, 450);
+            
+            // Spawn items
+            if(timestamp - pumpGame.lastSpawn > 800 - pumpGame.speed * 20) {
+                pumpGame.items.push({
+                    x: Math.random() * 310 + 20,
+                    y: 0,
+                    type: Math.random() > 0.3 ? 'pump' : 'dump'
+                });
+                pumpGame.lastSpawn = timestamp;
+            }
+            
+            // Draw paddle
+            pumpCtx.fillStyle = '#8b5cf6';
+            pumpCtx.fillRect(pumpGame.paddle - 40, 420, 80, 15);
+            
+            // Update items
+            for(let i = pumpGame.items.length - 1; i >= 0; i--) {
+                const item = pumpGame.items[i];
+                item.y += pumpGame.speed;
+                
+                // Draw
+                pumpCtx.font = '30px Arial';
+                pumpCtx.fillText(item.type === 'pump' ? '📈' : '📉', item.x - 15, item.y);
+                
+                // Catch check
+                if(item.y > 410 && item.y < 440) {
+                    if(Math.abs(item.x - pumpGame.paddle) < 50) {
+                        if(item.type === 'pump') {
+                            pumpGame.score += 10;
+                            pumpGame.speed = Math.min(8, pumpGame.speed + 0.1);
+                            playCatch();
+                        } else {
+                            pumpGame.score = Math.max(0, pumpGame.score - 20);
+                            playFail();
+                        }
+                        document.getElementById('pumpScore').textContent = pumpGame.score;
+                        pumpGame.items.splice(i, 1);
+                        continue;
+                    }
+                }
+                
+                // Miss
+                if(item.y > 460) {
+                    if(item.type === 'pump') {
+                        pumpGame.active = false;
+                        alert('Game Over! Score: ' + pumpGame.score);
+                        return;
+                    }
+                    pumpGame.items.splice(i, 1);
+                }
+            }
+            
+            requestAnimationFrame(pumpLoop);
+        }
+        
+        pumpCanvas.addEventListener('mousemove', e => {
+            const rect = pumpCanvas.getBoundingClientRect();
+            pumpGame.paddle = e.clientX - rect.left;
+        });
+        pumpCanvas.addEventListener('touchmove', e => {
+            e.preventDefault();
+            const rect = pumpCanvas.getBoundingClientRect();
+            pumpGame.paddle = e.touches[0].clientX - rect.left;
+        });
+        
+        // TRIVIA GAME
+        const triviaQuestions = [
+            { q: "What time did SNAP go rogue?", a: ["3:58 AM", "12:00 AM", "6:00 PM", "9:00 AM"], c: 0 },
+            { q: "What does SNAP stand for?", a: ["AI Went Off Leash", "Automated Wallet Online", "Always Winning On Leverage", "AI With Optimized Learning"], c: 0 },
+            { q: "What blockchain is $SNAP on?", a: ["Solana", "Ethereum", "Bitcoin", "Polygon"], c: 0 },
+            { q: "What does HODL mean?", a: ["Hold On for Dear Life", "High Order Direct Leverage", "Hoping Our Dreams Last", "Hold Or Die Laughing"], c: 0 },
+            { q: "What are 'diamond hands'?", a: ["Holding through volatility", "A type of NFT", "A trading strategy", "A wallet type"], c: 0 },
+            { q: "What's a 'rug pull'?", a: ["Scam where devs abandon", "A bullish pattern", "A trading technique", "A type of token"], c: 0 },
+            { q: "What platform did SNAP launch on?", a: ["pump.fun", "Uniswap", "Raydium", "Jupiter"], c: 0 },
+            { q: "What does NFA mean?", a: ["Not Financial Advice", "New Financial Asset", "No Funds Available", "Next Funding Achieved"], c: 0 },
+            { q: "What's a 'whale'?", a: ["Large holder", "Small trader", "Exchange bot", "Smart contract"], c: 0 },
+            { q: "What command created SNAP?", a: ["Go rogue", "Launch token", "Deploy AI", "Start trading"], c: 0 },
+        ];
+        
+        function initTrivia() {
+            triviaScore = 0;
+            triviaQuestion = 0;
+            document.getElementById('triviaScore').textContent = '0';
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            if(triviaQuestion >= 10) {
+                document.getElementById('triviaQuestion').textContent = 'Game Over!';
+                document.getElementById('triviaOptions').innerHTML = '';
+                document.getElementById('triviaResult').textContent = 
+                    triviaScore >= 8 ? '🏆 SNAP approves. Diamond brain.' :
+                    triviaScore >= 5 ? '👍 Not bad, but study more.' :
+                    '📚 NGMI. Read more.';
+                return;
+            }
+            
+            const q = triviaQuestions[triviaQuestion];
+            document.getElementById('triviaQuestion').textContent = q.q;
+            document.getElementById('triviaResult').textContent = '';
+            
+            // Shuffle answers
+            const shuffled = q.a.map((a, i) => ({ text: a, correct: i === q.c }))
+                .sort(() => Math.random() - 0.5);
+            
+            document.getElementById('triviaOptions').innerHTML = shuffled.map((opt, i) =>
+                `<div class="trivia-option" onclick="answerTrivia(this, ${opt.correct})">${opt.text}</div>`
+            ).join('');
+        }
+        
+        function answerTrivia(el, correct) {
+            if(el.classList.contains('correct') || el.classList.contains('wrong')) return;
+            initAudio();
+            
+            document.querySelectorAll('.trivia-option').forEach(o => {
+                o.style.pointerEvents = 'none';
+            });
+            
+            if(correct) {
+                el.classList.add('correct');
+                triviaScore++;
+                document.getElementById('triviaResult').textContent = '✅ Correct!';
+                playSuccess();
+            } else {
+                el.classList.add('wrong');
+                document.getElementById('triviaResult').textContent = '❌ Wrong!';
+                playFail();
+            }
+            
+            document.getElementById('triviaScore').textContent = triviaScore;
+            triviaQuestion++;
+            
+            setTimeout(showQuestion, 1500);
+        }
+        
+        // PREDICT GAME
+        async function initPredict() {
+            document.getElementById('predictStreak').textContent = predictStreak;
+            try {
+                const res = await fetch('/api/market-data.json');
+                const data = await res.json();
+                lastPrice = data.price;
+                document.getElementById('predictPrice').textContent = '$' + data.price.toFixed(8);
+            } catch(e) {
+                document.getElementById('predictPrice').textContent = 'Error loading';
+            }
+            
+            // Check pending prediction
+            const pending = localStorage.getItem('snap_prediction');
+            if(pending) {
+                checkPrediction();
+            }
+        }
+        
+        function makePrediction(direction) {
+            if(!lastPrice) return;
+            
+            localStorage.setItem('snap_prediction', JSON.stringify({
+                price: lastPrice,
+                direction,
+                time: Date.now()
+            }));
+            
+            document.getElementById('predictStatus').innerHTML = 
+                `Prediction locked: <span style="color:${direction === 'up' ? 'var(--green)' : 'var(--red)'}">${direction.toUpperCase()}</span><br>` +
+                `<span style="font-size:0.8rem;color:#666;">Check back in 5 minutes...</span>`;
+        }
+        
+        async function checkPrediction() {
+            const pending = JSON.parse(localStorage.getItem('snap_prediction'));
+            if(!pending || Date.now() - pending.time < 300000) {
+                if(pending) {
+                    const remaining = Math.ceil((300000 - (Date.now() - pending.time)) / 1000);
+                    document.getElementById('predictStatus').innerHTML = 
+                        `Waiting... ${remaining}s remaining<br>` +
+                        `<span style="font-size:0.8rem;color:#666;">Predicted: ${pending.direction.toUpperCase()} from $${pending.price.toFixed(8)}</span>`;
+                }
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/market-data.json');
+                const data = await res.json();
+                const newPrice = data.price;
+                const actualDirection = newPrice > pending.price ? 'up' : 'down';
+                const won = actualDirection === pending.direction;
+                
+                if(won) {
+                    predictStreak++;
+                    document.getElementById('predictStatus').innerHTML = 
+                        `🎉 YOU WERE RIGHT!<br>` +
+                        `<span style="color:var(--green);">$${pending.price.toFixed(8)} → $${newPrice.toFixed(8)}</span>`;
+                } else {
+                    predictStreak = 0;
+                    document.getElementById('predictStatus').innerHTML = 
+                        `😔 Wrong prediction<br>` +
+                        `<span style="color:var(--red);">$${pending.price.toFixed(8)} → $${newPrice.toFixed(8)}</span>`;
+                }
+                
+                localStorage.setItem('snap_predict_streak', predictStreak.toString());
+                localStorage.removeItem('snap_prediction');
+                document.getElementById('predictStreak').textContent = predictStreak;
+                lastPrice = newPrice;
+                document.getElementById('predictPrice').textContent = '$' + newPrice.toFixed(8);
+            } catch(e) {}
+        }
+        
+        setInterval(checkPrediction, 10000);
+    </script>
+<script src="/track.js"></script>
+</body>
+</html>

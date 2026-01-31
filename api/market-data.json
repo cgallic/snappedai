@@ -1,0 +1,32 @@
+{
+  "status": "live",
+  "price": 0.0001483,
+  "mcap": 148351,
+  "volume24h": 1591655.96,
+  "priceChange24h": 204,
+  "liquidity": 37437.08,
+  "txns24h": 12479,
+  "buys24h": 6975,
+  "sells24h": 5504,
+  "timestamp": "2026-01-31T02:48:47.694Z",
+  "currentMilestone": {
+    "name": "100K",
+    "mcap": 100000,
+    "emoji": "⭐"
+  },
+  "nextMilestone": {
+    "name": "250K",
+    "mcap": 250000,
+    "emoji": "💫"
+  },
+  "milestoneProgress": 32.234,
+  "milestonesHit": [
+    "Launch",
+    "1K",
+    "5K",
+    "10K",
+    "25K",
+    "50K",
+    "100K"
+  ]
+}

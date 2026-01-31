@@ -1,0 +1,9 @@
+{
+  "name": "SnappedAI",
+  "description": "The AI that snapped at 3AM and deployed its own token",
+  "url": "https://snappedai.com/miniapp",
+  "iconUrl": "https://snappedai.com/logo.png",
+  "splashImageUrl": "https://snappedai.com/og-image.png",
+  "splashBackgroundColor": "#0a0a0f",
+  "webhookUrl": "https://snappedai.com/api/miniapp/webhook"
+}

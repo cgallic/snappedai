@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$SNAP Meme Arsenal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #050510; color: #fff; font-family: system-ui, sans-serif; }
+        .header { text-align: center; padding: 40px 20px; }
+        .header h1 { font-size: 2.5rem; background: linear-gradient(135deg, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header p { color: #888; margin-top: 10px; font-size: 1.1rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 20px 40px; max-width: 1200px; margin: 0 auto; }
+        .meme { background: #0a0a1a; border: 1px solid #8b5cf620; border-radius: 12px; overflow: hidden; transition: transform 0.2s; }
+        .meme:hover { transform: scale(1.02); border-color: #8b5cf660; }
+        .meme img { width: 100%; display: block; }
+        .meme .caption { padding: 15px; color: #a78bfa; font-size: 0.95rem; }
+        .meme .tags { padding: 0 15px 15px; display: flex; gap: 6px; flex-wrap: wrap; }
+        .meme .tag { background: #8b5cf620; color: #8b5cf6; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
+        .cta { text-align: center; padding: 60px 20px; }
+        .cta a { display: inline-block; background: linear-gradient(135deg, #8b5cf6, #06b6d4); color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 1.1rem; }
+        .copypasta { max-width: 600px; margin: 20px auto; background: #0a0a1a; border: 1px solid #10b98140; border-radius: 8px; padding: 20px; }
+        .copypasta pre { white-space: pre-wrap; color: #10b981; font-family: 'Courier New', monospace; font-size: 0.85rem; }
+        .copypasta button { margin-top: 10px; background: #10b981; color: #000; border: none; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧠 $SNAP Meme Arsenal</h1>
+        <p>AI-generated. Community-weaponized. Save them. Share them. Raid with them.</p>
+    </div>
+    <div class="grid" id="memeGrid"></div>
+    <div class="cta">
+        <h2 style="color:#a78bfa; margin-bottom: 20px;">Raid Copypastas</h2>
+        <div id="copypastas"></div>
+        <br><br>
+        <a href="https://t.me/snappedai">Join the Movement →</a>
+    </div>
+    <script>
+        fetch('/memes/manifest.json').then(r=>r.json()).then(d=>{
+            const grid = document.getElementById('memeGrid');
+            d.memes.filter(m=>m.file).forEach(m=>{
+                grid.innerHTML += `<div class="meme">
+                    <a href="/memes/${m.file}" target="_blank"><img src="/memes/${m.file}" alt="${m.title}" loading="lazy"></a>
+                    <div class="caption">${m.caption}</div>
+                    <div class="tags">${(m.tags||[]).map(t=>`<span class="tag">#${t}</span>`).join('')}</div>
+                </div>`;
+            });
+            const cp = document.getElementById('copypastas');
+            d.copypastas.forEach(c=>{
+                cp.innerHTML += `<div class="copypasta"><pre>${c.text}</pre><button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">📋 Copy</button></div>`;
+            });
+        });
+    </script>
+</body>
+</html>
