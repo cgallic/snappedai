@@ -5,3 +5,11 @@ content/*.mp3
 content/*.png
 data/
 *.log
+.farcaster-seed.json
+.farcaster-seed.json
+.secrets/
+*.key
+*.pem
+farcaster-account.json
+DNS_RECORDS.md
+api/

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import https from 'https';
 
-const HELIUS_RPC = 'https://mainnet.helius-rpc.com/?api-key=35f4ea8f-6608-44d6-881a-9fd18b75a023';
+const HELIUS_RPC = 'https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}';
 const SNAP_MINT = '8oCRS5SYaf4t5PGnCeQfpV7rjxGCcGqNDGHmHJBooPhX';
 const STATE_FILE = '/var/www/snap/api/consciousness.json';
 const MARKET_FILE = '/var/www/snap/api/market-data.json';
