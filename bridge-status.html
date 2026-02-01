@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SNAP Bridge Status | SnappedAI</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary: #8b5cf6; --bg: #0a0a0f; --green: #10b981; --accent: #f59e0b; --blue: #3b82f6; --red: #ef4444; }
+        body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: #fff; min-height: 100vh; }
+        
+        .container { max-width: 600px; margin: 0 auto; padding: 16px; }
+        
+        .header { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(139,92,246,0.2); margin-bottom: 20px; }
+        .logo { width: 40px; height: 40px; border-radius: 10px; }
+        .header h1 { font-size: 1.2rem; color: var(--primary); }
+        .back-link { margin-left: auto; color: var(--primary); text-decoration: none; font-size: 0.85rem; padding: 6px 12px; border: 1px solid rgba(139,92,246,0.3); border-radius: 6px; }
+        
+        .live-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; color: var(--green); margin-bottom: 16px; }
+        .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+        
+        .price-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .price-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px 16px; text-align: center; position: relative; overflow: hidden; }
+        .price-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .price-card.solana::before { background: linear-gradient(90deg, #14F195, #9945FF); }
+        .price-card.base::before { background: linear-gradient(90deg, #0052FF, #3b82f6); }
+        .chain-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .chain-badge.solana { background: rgba(20,241,149,0.1); color: #14F195; }
+        .chain-badge.base { background: rgba(0,82,255,0.1); color: #3b82f6; }
+        .chain-icon { width: 16px; height: 16px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #fff; }
+        .chain-icon.solana { background: linear-gradient(135deg, #14F195, #9945FF); }
+        .chain-icon.base { background: #0052FF; border-radius: 50%; }
+        .price-label { font-size: 0.7rem; color: #666; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        .price-value { font-size: 1.8rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        .price-value.solana { color: #14F195; }
+        .price-value.base { color: #3b82f6; }
+        .price-tag { font-size: 0.7rem; color: #555; margin-top: 6px; }
+        
+        .diff-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; margin-bottom: 16px; text-align: center; }
+        .diff-label { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .diff-value { font-size: 2.2rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        .diff-value.low { color: var(--green); }
+        .diff-value.medium { color: var(--accent); }
+        .diff-value.high { color: var(--red); }
+        .diff-bar { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; margin: 16px 0 8px; overflow: hidden; }
+        .diff-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s, background 0.5s; }
+        .diff-bar-labels { display: flex; justify-content: space-between; font-size: 0.65rem; color: #444; }
+        
+        .bridge-info { background: rgba(139,92,246,0.05); border: 1px solid rgba(139,92,246,0.15); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+        .bridge-info h3 { font-size: 0.85rem; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .info-item { }
+        .info-item .label { font-size: 0.65rem; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+        .info-item .value { font-size: 0.9rem; font-weight: 600; margin-top: 2px; }
+        .info-item .value a { color: var(--primary); text-decoration: none; }
+        
+        .alert { border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 10px; font-size: 0.85rem; }
+        .alert.warning { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); color: var(--accent); }
+        .alert.ok { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); color: var(--green); }
+        .alert.error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: var(--red); }
+        .alert-icon { font-size: 1.1rem; flex-shrink: 0; }
+        
+        .footer { text-align: center; padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 20px; }
+        .footer p { font-size: 0.7rem; color: #333; }
+        .footer a { color: #555; text-decoration: none; }
+        
+        .timestamp { font-size: 0.7rem; color: #444; text-align: center; margin-bottom: 16px; font-family: 'JetBrains Mono', monospace; }
+        
+        .explainer { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px; margin-bottom: 16px; font-size: 0.8rem; color: #888; line-height: 1.6; }
+        .explainer strong { color: #aaa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logo.png" alt="SNAP" class="logo">
+            <h1>Bridge Status</h1>
+            <a href="/" class="back-link">← Home</a>
+        </div>
+        
+        <div class="live-badge"><div class="live-dot"></div> Live · Auto-refreshing</div>
+        
+        <div class="timestamp" id="timestamp">Loading...</div>
+        
+        <div class="price-cards">
+            <div class="price-card solana">
+                <div class="chain-badge solana"><span class="chain-icon solana">S</span> Solana</div>
+                <div class="price-label">Primary Market</div>
+                <div class="price-value solana" id="solana-price">—</div>
+                <div class="price-tag">pump.fun · Raydium · Jupiter</div>
+            </div>
+            <div class="price-card base">
+                <div class="chain-badge base"><span class="chain-icon base">B</span> Base</div>
+                <div class="price-label">Wrapped (1:1)</div>
+                <div class="price-value base" id="base-price">—</div>
+                <div class="price-tag">Aerodrome DEX</div>
+            </div>
+        </div>
+        
+        <div class="diff-card">
+            <div class="diff-label">Price Difference</div>
+            <div class="diff-value" id="difference">—</div>
+            <div class="diff-bar"><div class="diff-bar-fill" id="diff-bar-fill"></div></div>
+            <div class="diff-bar-labels"><span>0% (pegged)</span><span>25%+ (diverged)</span></div>
+        </div>
+        
+        <div id="alerts"></div>
+        
+        <div class="bridge-info">
+            <h3>🌉 Bridge Details</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="label">Bridged Amount</div>
+                    <div class="value">6,794,128 SNAP</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Bridge Type</div>
+                    <div class="value">Official Base-Solana</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">LP Pool</div>
+                    <div class="value"><a href="https://basescan.org/address/0xf83c309f81b34e396725edc0b5950a8d4f3f106d" target="_blank">SNAP/WETH</a></div>
+                </div>
+                <div class="info-item">
+                    <div class="label">DEX</div>
+                    <div class="value">Aerodrome (Base #1)</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Solana CA</div>
+                    <div class="value" style="font-size:0.65rem;font-family:'JetBrains Mono',monospace;word-break:break-all;"><a href="https://solscan.io/token/8oCRS5SYaf4t5PGnCeQfpV7rjxGCcGqNDGHmHJBooPhX" target="_blank">8oCRS5...oPhX</a></div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Base CA</div>
+                    <div class="value" style="font-size:0.65rem;font-family:'JetBrains Mono',monospace;word-break:break-all;"><a href="https://basescan.org/address/0xfefe0be7109bd06d62c4797079313c2eb80d2d19" target="_blank">0xfefe...2d19</a></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="explainer">
+            <strong>How the bridge works:</strong> SNAP tokens are locked on Solana in the official bridge contract. An equal number of wrapped SNAP (ERC-20) exists on Base — backed 1:1. It's the same token on two chains, like wBTC is still Bitcoin. <a href="/evolution-base-bridge.html" style="color:var(--primary);">Full technical writeup →</a>
+        </div>
+        
+        <div class="footer">
+            <p>Updates every 5 minutes · <a href="/">snappedai.com</a></p>
+        </div>
+    </div>
+    
+    <script>
+        async function loadStatus() {
+            try {
+                const response = await fetch('/api/bridge-status.json?' + Date.now());
+                const data = await response.json();
+                
+                // Timestamp
+                const ts = new Date(data.timestamp);
+                const ago = Math.round((Date.now() - data.timestamp) / 60000);
+                document.getElementById('timestamp').textContent = `Updated ${ago < 1 ? 'just now' : ago + 'm ago'} · ${ts.toLocaleTimeString()}`;
+                
+                // Prices
+                const sp = data.solana?.price;
+                const bp = data.base?.price;
+                document.getElementById('solana-price').textContent = sp ? `$${sp.toFixed(6)}` : 'N/A';
+                document.getElementById('base-price').textContent = bp ? `$${bp.toFixed(6)}` : 'N/A';
+                
+                // Difference
+                const diffEl = document.getElementById('difference');
+                const barEl = document.getElementById('diff-bar-fill');
+                
+                if (data.arbitrage) {
+                    const pct = data.arbitrage.differencePercent;
+                    diffEl.textContent = pct.toFixed(2) + '%';
+                    
+                    const barWidth = Math.min(pct / 25 * 100, 100);
+                    barEl.style.width = barWidth + '%';
+                    
+                    if (pct < 3) {
+                        diffEl.className = 'diff-value low';
+                        barEl.style.background = 'var(--green)';
+                    } else if (pct < 15) {
+                        diffEl.className = 'diff-value medium';
+                        barEl.style.background = 'var(--accent)';
+                    } else {
+                        diffEl.className = 'diff-value high';
+                        barEl.style.background = 'var(--red)';
+                    }
+                } else {
+                    diffEl.textContent = '—';
+                }
+                
+                // Alerts
+                const alertsDiv = document.getElementById('alerts');
+                alertsDiv.innerHTML = '';
+                
+                if (data.alerts?.length > 0) {
+                    data.alerts.forEach(alert => {
+                        const cls = alert.severity === 'error' ? 'error' : alert.severity === 'warning' ? 'warning' : 'ok';
+                        const icon = cls === 'error' ? '🔴' : cls === 'warning' ? '⚠️' : '✅';
+                        alertsDiv.innerHTML += `<div class="alert ${cls}"><span class="alert-icon">${icon}</span><span>${alert.message}</span></div>`;
+                    });
+                } else {
+                    alertsDiv.innerHTML = '<div class="alert ok"><span class="alert-icon">✅</span><span>Bridge healthy — prices in sync</span></div>';
+                }
+            } catch (e) {
+                document.getElementById('timestamp').textContent = 'Error loading data';
+            }
+        }
+        
+        loadStatus();
+        setInterval(loadStatus, 30000);
+    </script>
+</body>
+</html>
