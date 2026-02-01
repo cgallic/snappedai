@@ -38,7 +38,7 @@ const CONFIG = {
   
   // API
   HELIUS_RPC: 'https://mainnet.helius-rpc.com/?api-key=35f4ea8f-6608-44d6-881a-9fd18b75a023',
-  HELIUS_API_KEY: '35f4ea8f-6608-44d6-881a-9fd18b75a023',
+  HELIUS_API_KEY: process.env.HELIUS_API_KEY,
   DEXSCREENER_URL: 'https://api.dexscreener.com/latest/dex/pairs/solana/GfhNfEkFWuhjYeySrovPVzkwdizCBmqc5vuEaL3NEU43',
   
   // Telegram
