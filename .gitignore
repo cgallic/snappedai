@@ -33,3 +33,7 @@ last_price.txt
 # Deploy
 deploy.sh
 deploy.log
+butterfly.db
+butterfly.db-shm
+butterfly.db-wal
+osint/
