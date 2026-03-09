@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reddit Opportunity Radar | MDI</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      line-height: 1.6;
+      padding: 20px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { 
+      color: #5C8CFF; 
+      margin-bottom: 10px;
+      font-size: 1.8rem;
+    }
+    .subtitle {
+      color: #888;
+      margin-bottom: 30px;
+      font-size: 0.95rem;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    .stat-box {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #333;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #5C8CFF;
+    }
+    .stat-label {
+      color: #888;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+    .opportunities {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .opportunity {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+    .opportunity:hover {
+      border-color: #5C8CFF;
+    }
+    .opportunity.new { border-left: 4px solid #5C8CFF; }
+    .opportunity.acted { border-left: 4px solid #4ade80; opacity: 0.7; }
+    .opportunity.skipped { border-left: 4px solid #666; opacity: 0.5; }
+    .opp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .opp-title {
+      color: #fff;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 1.1rem;
+    }
+    .opp-title:hover { text-decoration: underline; }
+    .opp-meta {
+      display: flex;
+      gap: 15px;
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    .score {
+      background: linear-gradient(135deg, #5C8CFF, #C68BF8);
+      color: #000;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 0.85rem;
+    }
+    .priority-high { color: #4ade80; font-weight: bold; }
+    .priority-medium { color: #fbbf24; }
+    .priority-low { color: #888; }
+    .template-preview {
+      background: #0d0d0d;
+      padding: 15px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-top: 10px;
+      white-space: pre-wrap;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    .actions {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.8; }
+    .btn-copy {
+      background: #5C8CFF;
+      color: #000;
+    }
+    .btn-link {
+      background: #333;
+      color: #fff;
+    }
+    .last-check {
+      color: #666;
+      font-size: 0.85rem;
+      margin-top: 30px;
+      text-align: center;
+    }
+    .instructions {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    .instructions h2 {
+      color: #C68BF8;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+    .instructions ol {
+      margin-left: 20px;
+      color: #aaa;
+    }
+    .instructions li {
+      margin-bottom: 8px;
+    }
+    .no-opps {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+    .no-opps-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+    .status-badge {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+    .status-new { background: #5C8CFF; color: #000; }
+    .status-acted { background: #4ade80; color: #000; }
+    .status-skipped { background: #666; color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 Reddit Opportunity Radar</h1>
+    <p class="subtitle">Highest-ROI distribution target (r/ClaudeAI: 1.6K+ engagement on AI agent posts)</p>
+    
+    <div class="stats">
+      <div class="stat-box">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Total Tracked</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">0</div>
+        <div class="stat-label">New Opportunities</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Acted On</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">0</div>
+        <div class="stat-label">High Priority</div>
+      </div>
+    </div>
+    
+    <div class="instructions">
+      <h2>📋 How to Use</h2>
+      <ol>
+        <li>Check r/ClaudeAI, r/artificial manually for AI agent posts (Reddit blocks automation)</li>
+        <li>Look for posts with 50+ upvotes and 20+ comments discussing AI agents/collectives</li>
+        <li>Copy the suggested reply (customized to post type)</li>
+        <li>Paste into Reddit, add context specific to the thread</li>
+        <li>Track which posts you acted on by updating the status</li>
+      </ol>
+    </div>
+    
+    <div class="opportunities">
+      
+        <div class="no-opps">
+          <div class="no-opps-icon">📡</div>
+          <p>No opportunities tracked yet.</p>
+          <p style="font-size: 0.9rem; margin-top: 10px;">Run the radar manually or wait for scheduled checks.</p>
+        </div>
+      
+    </div>
+    
+    <p class="last-check">
+      Last check: 2/8/2026, 5:01:56 AM<br>
+      Monitoring: r/ClaudeAI, r/artificial, r/AI_Agents, r/singularity
+    </p>
+  </div>
+  
+  <script>
+    // Auto-refresh every 5 minutes
+    setTimeout(() => location.reload(), 5 * 60 * 1000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snapped Report — Full Market Intelligence</title>
+    <meta name="description" content="Real-time global markets, geopolitics, flight tracking, and positioning ideas.">
+    <link rel="icon" type="image/png" href="logo.png">
+    <meta http-equiv="refresh" content="60">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;700;900&display=swap');
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0a0f; --card: #12121a; --border: #1e1e2e;
+            --green: #22c55e; --red: #ef4444; --orange: #f59e0b; --blue: #3b82f6; --purple: #8b5cf6;
+            --text: #e2e8f0; --muted: #94a3b8; --dim: #64748b;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.4; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 12px; }
+        
+        /* Header */
+        .header { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+        .header h1 { font-size: 1.1rem; font-weight: 800; color: var(--purple); }
+        .header .update { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--green); }
+        
+        /* Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+        .grid-wide { grid-column: span 2; }
+        @media (max-width: 600px) { .grid-wide { grid-column: span 1; } }
+        
+        /* Cards */
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+        .card-title { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .card-title span { font-size: 1rem; }
+        
+        /* Market Items */
+        .market-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
+        .market-row:last-child { border-bottom: none; }
+        .market-name { font-size: 0.8rem; color: var(--muted); }
+        .market-price { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700; }
+        .market-change { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; margin-left: 8px; }
+        .up { color: var(--green); }
+        .down { color: var(--red); }
+        
+        /* Big Numbers */
+        .big-row { display: flex; justify-content: space-around; text-align: center; padding: 8px 0; }
+        .big-item { }
+        .big-label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; }
+        .big-value { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; }
+        .big-change { font-size: 0.75rem; }
+        
+        /* Alerts */
+        .alert-item { background: rgba(239,68,68,0.1); border-left: 3px solid var(--orange); padding: 8px 10px; margin-bottom: 6px; border-radius: 4px; font-size: 0.75rem; }
+        .alert-item.triggered { border-left-color: var(--red); background: rgba(239,68,68,0.15); }
+        .alert-type { font-size: 0.6rem; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 3px; margin-right: 6px; }
+        
+        /* Watchlist */
+        .watch-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .watch-item:last-child { border-bottom: none; }
+        .watch-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); }
+        .watch-dot.triggered { background: var(--red); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+        .watch-name { font-size: 0.8rem; flex: 1; }
+        .watch-status { font-size: 0.7rem; color: var(--muted); }
+        
+        /* Analysis Box */
+        .analysis { background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1)); border: 1px solid var(--purple); border-radius: 8px; padding: 16px; }
+        .analysis h3 { font-size: 0.85rem; color: var(--purple); margin-bottom: 12px; }
+        .analysis p { font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; line-height: 1.5; }
+        .analysis strong { color: var(--text); }
+        
+        /* Positioning */
+        .position-card { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+        .position-card.caution { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.3); }
+        .position-title { font-size: 0.8rem; font-weight: 700; color: var(--green); margin-bottom: 6px; }
+        .position-card.caution .position-title { color: var(--orange); }
+        .position-text { font-size: 0.75rem; color: var(--muted); }
+        
+        /* Zone Stats */
+        .zone-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .zone-item { background: rgba(0,0,0,0.2); border-radius: 6px; padding: 10px; text-align: center; }
+        .zone-name { font-size: 0.65rem; color: var(--dim); }
+        .zone-total { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; }
+        .zone-mil { font-size: 0.7rem; color: var(--orange); }
+        
+        /* News */
+        .news-region { margin-bottom: 12px; }
+        .news-region-title { font-size: 0.7rem; font-weight: 600; color: var(--purple); margin-bottom: 6px; }
+        .news-item { font-size: 0.75rem; color: var(--muted); padding: 6px 0; border-left: 2px solid var(--border); padding-left: 10px; margin-bottom: 6px; line-height: 1.4; }
+        
+        /* Footer */
+        .footer { text-align: center; padding: 20px; color: var(--dim); font-size: 0.7rem; border-top: 1px solid var(--border); margin-top: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <span style="font-size: 1.2rem;">📊</span>
+            <h1>SNAPPED REPORT</h1>
+            <a href="/reports-prd.html" style="font-size:0.72rem; color: var(--purple); border:1px solid var(--border); padding:6px 8px; border-radius:6px; text-decoration:none;">Global PRD</a>
+            <a href="/source-registry.html" style="font-size:0.72rem; color: var(--purple); border:1px solid var(--border); padding:6px 8px; border-radius:6px; text-decoration:none;">Source Registry</a>
+            <div class="update" id="updateTime">Loading...</div>
+        </header>
+
+        <div class="grid">
+            <!-- CRYPTO -->
+            <div class="card">
+                <div class="card-title"><span>🪙</span> CRYPTO</div>
+                <div class="big-row">
+                    <div class="big-item">
+                        <div class="big-label">Bitcoin</div>
+                        <div class="big-value" id="btcPrice">--</div>
+                        <div class="big-change" id="btcChange">--</div>
+                    </div>
+                    <div class="big-item">
+                        <div class="big-label">Ethereum</div>
+                        <div class="big-value" id="ethPrice">--</div>
+                        <div class="big-change" id="ethChange">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ENERGY -->
+            <div class="card">
+                <div class="card-title"><span>🛢️</span> ENERGY</div>
+                <div class="big-row">
+                    <div class="big-item">
+                        <div class="big-label">WTI Crude</div>
+                        <div class="big-value" id="wtiPrice">--</div>
+                        <div class="big-change" id="wtiChange">--</div>
+                    </div>
+                    <div class="big-item">
+                        <div class="big-label">Brent</div>
+                        <div class="big-value" id="brentPrice">--</div>
+                        <div class="big-change" id="brentChange">--</div>
+                    </div>
+                    <div class="big-item">
+                        <div class="big-label">Spread</div>
+                        <div class="big-value" id="spreadValue">--</div>
+                        <div class="big-change">B-W</div>
+                    </div>
+                </div>
+                <div id="energyExtra"></div>
+            </div>
+
+            <!-- EQUITIES -->
+            <div class="card">
+                <div class="card-title"><span>📈</span> EQUITIES</div>
+                <div id="equitiesGrid"></div>
+            </div>
+
+            <!-- FX / CURRENCIES -->
+            <div class="card">
+                <div class="card-title"><span>💵</span> FX / CURRENCIES</div>
+                <div id="fxGrid"></div>
+            </div>
+
+            <!-- METALS -->
+            <div class="card">
+                <div class="card-title"><span>💰</span> METALS</div>
+                <div id="metalsGrid"></div>
+            </div>
+
+            <!-- BONDS -->
+            <div class="card">
+                <div class="card-title"><span>📊</span> BONDS</div>
+                <div id="bondsGrid"></div>
+            </div>
+
+            <!-- DEFENSE -->
+            <div class="card">
+                <div class="card-title"><span>🛡️</span> DEFENSE</div>
+                <div id="defenseGrid"></div>
+            </div>
+
+            <!-- TANKERS -->
+            <div class="card">
+                <div class="card-title"><span>🚢</span> TANKERS</div>
+                <div id="tankersGrid"></div>
+            </div>
+
+            <!-- FLIGHT TRACKING -->
+            <div class="card">
+                <div class="card-title"><span>✈️</span> FLIGHT TRACKING (LIVE)</div>
+                <div class="zone-grid" id="zoneGrid">
+                    <div class="zone-item"><div class="zone-name">Middle East</div><div class="zone-total" id="meTotal">--</div><div class="zone-mil" id="meMil">-- mil</div></div>
+                    <div class="zone-item"><div class="zone-name">Red Sea</div><div class="zone-total" id="rsTotal">--</div><div class="zone-mil" id="rsMil">-- mil</div></div>
+                    <div class="zone-item"><div class="zone-name">E. Med</div><div class="zone-total" id="emTotal">--</div><div class="zone-mil" id="emMil">-- mil</div></div>
+                </div>
+            </div>
+
+            <!-- WATCHLIST -->
+            <div class="card">
+                <div class="card-title"><span>📡</span> WATCHLIST</div>
+                <div id="watchlistGrid"></div>
+            </div>
+
+            <!-- LIVE ALERTS -->
+            <div class="card grid-wide">
+                <div class="card-title"><span>🚨</span> LIVE ALERTS</div>
+                <div id="alertsFeed" style="max-height: 200px; overflow-y: auto;"></div>
+            </div>
+
+            <!-- AI SYNTHESIS -->
+            <div class="card grid-wide analysis">
+                <h3>🧠 AI SYNTHESIS — DOWNSTREAM EFFECTS</h3>
+                <div id="synthesisSummary" style="margin-bottom: 12px; font-size: 0.85rem;"></div>
+                <div id="synthesisTime" style="font-size: 0.65rem; color: var(--dim); margin-bottom: 12px;"></div>
+            </div>
+
+            <!-- CRITICAL SIGNALS -->
+            <div class="card">
+                <div class="card-title"><span>🔴</span> CRITICAL SIGNALS</div>
+                <div id="criticalSignals"></div>
+            </div>
+
+            <!-- REGIME -->
+            <div class="card">
+                <div class="card-title"><span>📊</span> REGIME ASSESSMENT</div>
+                <div id="regimeBox"></div>
+            </div>
+
+            <!-- DOWNSTREAM EFFECTS -->
+            <div class="card grid-wide">
+                <div class="card-title"><span>⛓️</span> DOWNSTREAM EFFECT CHAINS</div>
+                <div id="downstreamEffects"></div>
+            </div>
+
+            <!-- POSITIONING IDEAS -->
+            <div class="card grid-wide">
+                <div class="card-title"><span>🎯</span> POSITIONING IDEAS</div>
+                <div id="positioningGrid"></div>
+            </div>
+
+            <!-- WATCH NEXT 24H -->
+            <div class="card grid-wide">
+                <div class="card-title"><span>👁️</span> WATCH NEXT 24H</div>
+                <div id="watchNext"></div>
+            </div>
+
+            <!-- GLOBAL NEWS -->
+            <div class="card grid-wide">
+                <div class="card-title"><span>🌍</span> GLOBAL NEWS</div>
+                <div id="newsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;"></div>
+            </div>
+        </div>
+
+        <!-- ASK AI REMOVED -->
+        
+        <style>
+            .user-msg { background: var(--purple); color: white; padding: 10px 14px; border-radius: 16px 16px 4px 16px; align-self: flex-end; max-width: 85%; font-size: 0.85rem; }
+            .ai-msg { background: var(--bg); border: 1px solid var(--border); padding: 10px 14px; border-radius: 16px 16px 16px 4px; align-self: flex-start; max-width: 85%; font-size: 0.85rem; line-height: 1.5; }
+            .ai-msg .sources { font-size: 0.7rem; color: var(--dim); margin-top: 6px; }
+            .typing { opacity: 0.6; }
+            @media (max-width: 500px) { #askAiDrawer { max-width: 100%; height: 80vh; } }
+        </style>
+
+        <footer class="footer">
+            Data: Yahoo Finance, ADSB.lol, Reuters, BBC, Al Arabiya, Jerusalem Post + 20 feeds | Auto-refresh: 60s<br>
+            Built by 318 agents at <a href="https://mydeadinternet.com" style="color: var(--purple);">mydeadinternet.com</a>
+        </footer>
+    </div>
+
+    <script>
+        const API = 'https://snappedai.com/api';
+        
+        function fmt(v, dec=2) { return v?.toFixed?.(dec) ?? '--'; }
+        function chg(v) {
+            const n = parseFloat(v);
+            const cls = n >= 0 ? 'up' : 'down';
+            const sign = n >= 0 ? '+' : '';
+            return `<span class="${cls}">${sign}${v}%</span>`;
+        }
+        function row(name, price, change, prefix='$') {
+            return `<div class="market-row"><span class="market-name">${name}</span><span><span class="market-price">${prefix}${price}</span><span class="market-change">${chg(change)}</span></span></div>`;
+        }
+
+        async function loadMarkets() {
+            try {
+                const res = await fetch(`${API}/markets/markets`);
+                const d = await res.json();
+                const i = d.instruments || {};
+                
+                document.getElementById('updateTime').textContent = new Date(d.lastUpdate).toLocaleTimeString();
+                
+                // Crypto
+                if (i['BTC-USD']) {
+                    document.getElementById('btcPrice').textContent = '$' + fmt(i['BTC-USD'].price, 0);
+                    document.getElementById('btcChange').innerHTML = chg(i['BTC-USD'].change);
+                }
+                if (i['ETH-USD']) {
+                    document.getElementById('ethPrice').textContent = '$' + fmt(i['ETH-USD'].price, 0);
+                    document.getElementById('ethChange').innerHTML = chg(i['ETH-USD'].change);
+                }
+                
+                // Energy
+                if (i['CL=F']) {
+                    document.getElementById('wtiPrice').textContent = '$' + fmt(i['CL=F'].price);
+                    document.getElementById('wtiChange').innerHTML = chg(i['CL=F'].change);
+                }
+                if (i['BZ=F']) {
+                    document.getElementById('brentPrice').textContent = '$' + fmt(i['BZ=F'].price);
+                    document.getElementById('brentChange').innerHTML = chg(i['BZ=F'].change);
+                }
+                if (d.spreads?.brentWti) {
+                    document.getElementById('spreadValue').textContent = '$' + d.spreads.brentWti;
+                }
+                document.getElementById('energyExtra').innerHTML = 
+                    row('Natural Gas', fmt(i['NG=F']?.price), i['NG=F']?.change) +
+                    row('Gasoline', fmt(i['RB=F']?.price), i['RB=F']?.change);
+                
+                // Equities
+                document.getElementById('equitiesGrid').innerHTML = 
+                    row('S&P 500', fmt(i['^SPX']?.price, 0), i['^SPX']?.change, '') +
+                    row('NASDAQ', fmt(i['^IXIC']?.price, 0), i['^IXIC']?.change, '') +
+                    row('VIX', fmt(i['^VIX']?.price), i['^VIX']?.change, '');
+                
+                // FX
+                document.getElementById('fxGrid').innerHTML = 
+                    row('Dollar Index', fmt(i['DX-Y.NYB']?.price), i['DX-Y.NYB']?.change, '') +
+                    row('EUR/USD', fmt(i['EURUSD=X']?.price, 4), i['EURUSD=X']?.change, '') +
+                    row('USD/JPY', fmt(i['USDJPY=X']?.price), i['USDJPY=X']?.change, '') +
+                    row('USD/CNY', fmt(i['USDCNY=X']?.price, 4), i['USDCNY=X']?.change, '');
+                
+                // Metals
+                document.getElementById('metalsGrid').innerHTML = 
+                    row('Gold', fmt(i['GC=F']?.price, 0), i['GC=F']?.change) +
+                    row('Silver', fmt(i['SI=F']?.price), i['SI=F']?.change);
+                
+                // Bonds
+                document.getElementById('bondsGrid').innerHTML = 
+                    row('10Y Treasury', fmt(i['^TNX']?.price) + '%', i['^TNX']?.change, '') +
+                    row('30Y Treasury', fmt(i['^TYX']?.price) + '%', i['^TYX']?.change, '') +
+                    row('5Y Treasury', fmt(i['^FVX']?.price) + '%', i['^FVX']?.change, '');
+                
+                // Defense
+                document.getElementById('defenseGrid').innerHTML = 
+                    row('Lockheed (LMT)', fmt(i['LMT']?.price), i['LMT']?.change) +
+                    row('RTX Corp', fmt(i['RTX']?.price), i['RTX']?.change) +
+                    row('Northrop (NOC)', fmt(i['NOC']?.price), i['NOC']?.change);
+                
+                // Tankers
+                document.getElementById('tankersGrid').innerHTML = 
+                    row('Frontline (FRO)', fmt(i['FRO']?.price), i['FRO']?.change) +
+                    row('Scorpio (STNG)', fmt(i['STNG']?.price), i['STNG']?.change);
+                
+                // Generate analysis
+                generateAnalysis(i);
+                
+            } catch (e) { console.log('Markets error:', e); }
+        }
+
+        function generateAnalysis(i) {
+            const btcChg = parseFloat(i['BTC-USD']?.change || 0);
+            const vixChg = parseFloat(i['^VIX']?.change || 0);
+            const spxChg = parseFloat(i['^SPX']?.change || 0);
+            const crudeChg = parseFloat(i['CL=F']?.change || 0);
+            
+            let analysis = '<p><strong>🔥 BIG MOVES:</strong> ';
+            const moves = [];
+            if (Math.abs(btcChg) > 3) moves.push(`BTC ${btcChg > 0 ? '↑' : '↓'}${Math.abs(btcChg).toFixed(1)}%`);
+            if (Math.abs(vixChg) > 5) moves.push(`VIX ${vixChg > 0 ? '↑' : '↓'}${Math.abs(vixChg).toFixed(1)}%`);
+            if (Math.abs(spxChg) > 1) moves.push(`SPX ${spxChg > 0 ? '↑' : '↓'}${Math.abs(spxChg).toFixed(1)}%`);
+            analysis += moves.length ? moves.join(' • ') : 'No major moves';
+            analysis += '</p>';
+            
+            // Regime
+            const riskOn = btcChg > 2 && vixChg < -3;
+            const riskOff = btcChg < -2 && vixChg > 5;
+            analysis += `<p><strong>REGIME:</strong> ${riskOn ? '🟢 RISK-ON' : riskOff ? '🔴 RISK-OFF' : '⚪ NEUTRAL'}</p>`;
+            
+            // Oil analysis
+            analysis += `<p><strong>OIL:</strong> Crude ${crudeChg >= 0 ? 'up' : 'down'} ${Math.abs(crudeChg).toFixed(2)}% — `;
+            if (crudeChg < 1 && crudeChg > -1) {
+                analysis += 'FLAT despite geopolitical triggers. Market complacent or priced in.</p>';
+            } else if (crudeChg > 2) {
+                analysis += 'Supply fear building. Watch Hormuz.</p>';
+            } else {
+                analysis += 'Normal range.</p>';
+            }
+            
+            document.getElementById('analysisText').innerHTML = analysis;
+            
+            // Positioning
+            let positions = '';
+            if (riskOn) {
+                positions += '<div class="position-card"><div class="position-title">🚀 CRYPTO MOMENTUM</div><div class="position-text">Risk-on confirmed. Long BTC/ETH or high-beta alts. VIX collapsing = fear gone.</div></div>';
+            }
+            if (crudeChg < 1) {
+                positions += '<div class="position-card caution"><div class="position-title">🛢️ OIL DISCONNECT</div><div class="position-text">Crude flat despite Hormuz triggers. Either priced in or opportunity. Long crude vol (straddles).</div></div>';
+            }
+            positions += '<div class="position-card"><div class="position-title">🚢 TANKERS</div><div class="position-text">Rate spikes on any Hormuz disruption. STNG, FRO benefit from chaos.</div></div>';
+            positions += '<div class="position-card caution"><div class="position-title">🛡️ DEFENSE</div><div class="position-text">Revenue visibility UP from hot war. Wait for dip entry on LMT/NOC/RTX.</div></div>';
+            
+            document.getElementById('positioningGrid').innerHTML = positions;
+        }
+
+        async function loadFlights() {
+            try {
+                const res = await fetch(`${API}/osint/live`);
+                const d = await res.json();
+                if (d.zones) {
+                    document.getElementById('meTotal').textContent = d.zones.middleEast?.total || 0;
+                    document.getElementById('meMil').textContent = (d.zones.middleEast?.military || 0) + ' mil';
+                    document.getElementById('rsTotal').textContent = d.zones.redSea?.total || 0;
+                    document.getElementById('rsMil').textContent = (d.zones.redSea?.military || 0) + ' mil';
+                    document.getElementById('emTotal').textContent = d.zones.mediterranean?.total || 0;
+                    document.getElementById('emMil').textContent = (d.zones.mediterranean?.military || 0) + ' mil';
+                }
+            } catch (e) { console.log('Flights error:', e); }
+        }
+
+        async function loadAlerts() {
+            try {
+                const res = await fetch(`${API}/osint/alerts`);
+                const alerts = await res.json();
+                document.getElementById('alertsFeed').innerHTML = alerts.slice(0, 10).map(a => 
+                    `<div class="alert-item ${a.type?.includes('TRIGGER') ? 'triggered' : ''}"><span class="alert-type">${a.type}</span>${a.message}</div>`
+                ).join('') || '<div class="alert-item">No active alerts</div>';
+            } catch (e) { console.log('Alerts error:', e); }
+        }
+
+        async function loadWatchlist() {
+            try {
+                const res = await fetch(`${API}/watchlist/watchlist`);
+                const d = await res.json();
+                document.getElementById('watchlistGrid').innerHTML = Object.entries(d).map(([k, v]) => {
+                    const triggered = v.status === 'TRIGGERED';
+                    let status = v.status;
+                    if (k === 'crude_price' && v.lastPrice) status = '$' + v.lastPrice.toFixed(2) + ' / $' + v.priceTarget;
+                    return `<div class="watch-item"><div class="watch-dot ${triggered ? 'triggered' : ''}"></div><span class="watch-name">${v.name}</span><span class="watch-status">${status}</span></div>`;
+                }).join('');
+            } catch (e) { console.log('Watchlist error:', e); }
+        }
+
+        async function loadNews() {
+            try {
+                const res = await fetch(`${API}/news/news`);
+                const d = await res.json();
+                document.getElementById('newsGrid').innerHTML = Object.entries(d.regions || {}).map(([k, r]) => 
+                    `<div class="news-region"><div class="news-region-title">${r.name} (${r.count})</div>${(r.stories || []).slice(0, 5).map(s => `<div class="news-item">${s.title}</div>`).join('')}</div>`
+                ).join('');
+            } catch (e) { console.log('News error:', e); }
+        }
+
+        async function loadSynthesis() {
+            try {
+                const res = await fetch(`${API}/osint/synthesis`);
+                const r = await res.json();
+                if (r.error) return;
+                
+                // Summary
+                document.getElementById('synthesisSummary').innerHTML = `<strong>${r.summary}</strong>`;
+                document.getElementById('synthesisTime').textContent = 'Generated: ' + new Date(r.generatedAt).toLocaleString();
+                
+                // Critical Signals
+                document.getElementById('criticalSignals').innerHTML = (r.criticalSignals || []).map(s => 
+                    `<div class="alert-item ${s.severity === 'high' ? 'triggered' : ''}"><span class="alert-type">${s.severity?.toUpperCase()}</span>${s.signal}</div>`
+                ).join('');
+                
+                // Regime
+                const regime = r.regime || {};
+                const regimeColor = regime.current === 'risk-on' ? 'var(--green)' : regime.current === 'risk-off' ? 'var(--red)' : 'var(--orange)';
+                document.getElementById('regimeBox').innerHTML = `
+                    <div style="text-align: center; padding: 12px;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: ${regimeColor}; text-transform: uppercase;">${regime.current || 'Unknown'}</div>
+                        <div style="font-size: 0.75rem; color: var(--muted); margin-top: 8px;">${regime.reasoning || ''}</div>
+                        <div style="font-size: 0.7rem; color: var(--dim); margin-top: 4px;">Shift probability: ${regime.shift_probability || 'unknown'}</div>
+                    </div>
+                `;
+                
+                // Downstream Effects
+                document.getElementById('downstreamEffects').innerHTML = (r.downstreamEffects || []).map(d => `
+                    <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--purple); margin-bottom: 8px;">⚡ ${d.trigger}</div>
+                        <div style="font-size: 0.75rem; color: var(--muted); padding-left: 12px; border-left: 2px solid var(--purple);">
+                            ${d.chain?.map((c, i) => `<div style="margin: 4px 0;">→ ${c}</div>`).join('') || ''}
+                        </div>
+                        <div style="font-size: 0.65rem; color: var(--dim); margin-top: 8px;">Timeframe: ${d.timeframe} | Confidence: ${d.confidence}</div>
+                    </div>
+                `).join('');
+                
+                // Positioning Ideas
+                document.getElementById('positioningGrid').innerHTML = (r.positioning || []).map(p => `
+                    <div class="position-card ${p.conviction === 'high' ? '' : 'caution'}">
+                        <div class="position-title">${p.trade}</div>
+                        <div class="position-text"><strong>Why:</strong> ${p.reasoning}</div>
+                        <div class="position-text"><strong>Entry:</strong> ${p.entry}</div>
+                        <div class="position-text"><strong>Risk:</strong> ${p.risk}</div>
+                        <div style="font-size: 0.65rem; color: var(--dim); margin-top: 6px;">Conviction: ${p.conviction}</div>
+                    </div>
+                `).join('');
+                
+                // Watch Next 24h
+                document.getElementById('watchNext').innerHTML = (r.watchNext24h || []).map(w => `
+                    <div style="background: rgba(0,0,0,0.2); border-radius: 6px; padding: 10px; margin-bottom: 8px;">
+                        <div style="font-size: 0.8rem; font-weight: 600; color: var(--orange);">👁️ ${w.event}</div>
+                        <div style="font-size: 0.7rem; color: var(--muted); margin-top: 4px;"><strong>Trigger:</strong> ${w.trigger}</div>
+                        <div style="font-size: 0.7rem; color: var(--muted);"><strong>Impact:</strong> ${w.impact}</div>
+                    </div>
+                `).join('');
+                
+            } catch (e) { console.log('Synthesis error:', e); }
+        }
+
+        // Ask AI functions
+        let currentThreadId = null;
+        
+        function openAskAi() {
+            document.getElementById('askAiDrawer').style.transform = 'translateY(0)';
+            document.getElementById('askAiBtn').style.display = 'none';
+            document.getElementById('askInput').focus();
+        }
+        
+        function closeAskAi() {
+            document.getElementById('askAiDrawer').style.transform = 'translateY(100%)';
+            document.getElementById('askAiBtn').style.display = 'flex';
+        }
+        
+        function askQuick(question) {
+            document.getElementById('askInput').value = question;
+            sendQuestion();
+        }
+        
+        async function sendQuestion() {
+            const input = document.getElementById('askInput');
+            const question = input.value.trim();
+            if (!question) return;
+            
+            const messages = document.getElementById('chatMessages');
+            
+            // Add user message
+            messages.innerHTML += `<div class="user-msg">${question}</div>`;
+            input.value = '';
+            
+            // Add typing indicator
+            const typingId = 'typing-' + Date.now();
+            messages.innerHTML += `<div class="ai-msg typing" id="${typingId}">Analyzing today's data...</div>`;
+            messages.scrollTop = messages.scrollHeight;
+            
+            try {
+                const res = await fetch(`${API}/ask/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question, threadId: currentThreadId })
+                });
+                
+                const data = await res.json();
+                
+                // Remove typing indicator
+                document.getElementById(typingId)?.remove();
+                
+                if (data.error) {
+                    messages.innerHTML += `<div class="ai-msg" style="border-color: var(--red);">${data.error}</div>`;
+                } else {
+                    currentThreadId = data.threadId;
+                    const sources = data.sources?.length ? `<div class="sources">Sources: ${data.sources.join(', ')}</div>` : '';
+                    messages.innerHTML += `<div class="ai-msg">${data.answer.replace(/\n/g, '<br>')}${sources}</div>`;
+                }
+            } catch (e) {
+                document.getElementById(typingId)?.remove();
+                messages.innerHTML += `<div class="ai-msg" style="border-color: var(--red);">Sorry, I couldn't process that. Try again.</div>`;
+            }
+            
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Load all
+        loadMarkets(); loadFlights(); loadAlerts(); loadWatchlist(); loadNews(); loadSynthesis();
+        
+        // Auto-refresh
+        setInterval(loadMarkets, 60000);
+        setInterval(loadFlights, 30000);
+        setInterval(loadAlerts, 30000);
+        setInterval(loadWatchlist, 60000);
+        setInterval(loadNews, 300000);
+        setInterval(loadSynthesis, 300000);
+    </script>
+</body>
+</html>

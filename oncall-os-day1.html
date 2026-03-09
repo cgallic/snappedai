@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>On-Call OS — Day 1 Build Checklist</title>
+  <style>
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0b0f14;color:#eaf1f8;margin:0}
+    .wrap{max-width:980px;margin:0 auto;padding:28px 18px 72px}
+    h1{font-size:30px;margin:0 0 8px}
+    h2{font-size:20px;margin:22px 0 10px}
+    .muted{color:#9fb0c4}
+    .card{background:#121923;border:1px solid #273649;border-radius:12px;padding:16px;margin:14px 0}
+    ul{line-height:1.6}
+    code{background:#0b131d;border:1px solid #294057;padding:2px 6px;border-radius:6px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>On-Call OS — Day 1 Build Checklist</h1>
+    <p class="muted">Gemini Live Agent Challenge • Scope: emotional demo + auditability layer</p>
+
+    <div class="card">
+      <h2>0) Scope Lock (30 min)</h2>
+      <ul>
+        <li>One incident only: <b>latency spike + 5xx surge</b></li>
+        <li>3 agents only: <b>Historian / Impact Assessor / Triage Lead</b></li>
+        <li>One output: incident summary + top 3 hypotheses + next 3 actions</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>1) Repo + Skeleton</h2>
+      <ul>
+        <li>Create repo: <code>oncall-os</code></li>
+        <li>Folders: <code>apps/web</code>, <code>apps/api</code>, <code>agents/</code>, <code>docs/</code></li>
+        <li>README with hackathon goal + setup stub</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>2) GCP Baseline</h2>
+      <ul>
+        <li>Create GCP project + enable Gemini/Vertex, Cloud Run, Logging</li>
+        <li>Deploy hello-world API to Cloud Run</li>
+        <li>Capture proof screenshot: service URL + logs</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>3) Gemini Live Wiring</h2>
+      <ul>
+        <li>Add <code>/live/session</code> endpoint</li>
+        <li>Mic stream input (text fallback acceptable Day 1)</li>
+        <li>Stream assistant response</li>
+        <li>Support interruption/cancel</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>4) Agent Orchestration Stub</h2>
+      <ul>
+        <li>Add <code>/incident/analyze</code></li>
+        <li>Run parallel roles: Historian, Impact, Triage</li>
+        <li>Merge to structured JSON response</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>5) Flight Recorder v0</h2>
+      <ul>
+        <li>Log each step: timestamp, role, input summary, output summary, confidence</li>
+        <li>Render timeline in demo UI</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>6) UI Shell</h2>
+      <ul>
+        <li>Left: live transcript + mic status</li>
+        <li>Right: hypotheses + recommended actions cards</li>
+        <li>Bottom: Flight Recorder trace timeline</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>7) End-of-Day Success Test</h2>
+      <ul>
+        <li>Input: “Latency up 4x, 5xx at 12%, started 20 min ago after deploy.”</li>
+        <li>Output: 3 hypotheses, 3 actions, visible multi-agent trace, live URL on GCP</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>8) Required Artifacts (Day 1)</h2>
+      <ul>
+        <li>Public repo pushed</li>
+        <li>App screenshot</li>
+        <li>GCP proof screenshot</li>
+        <li>Short status update posted</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

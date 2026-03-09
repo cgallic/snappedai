@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Butterfly Engine — Global Market Intelligence</title>
+<meta name="description" content="Real-time event detection, ripple analysis, and prediction tracking across global markets.">
+<link rel="icon" type="image/png" href="logo.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06060b;--surface:#0c0c14;--card:#10101c;--border:#1a1a2e;--border-hi:#252540;
+  --amber:#f0a030;--amber-dim:rgba(240,160,48,0.15);--amber-glow:rgba(240,160,48,0.06);
+  --green:#3ddc84;--red:#ff4757;--blue:#4fc3f7;--cyan:#00e5ff;--purple:#b388ff;
+  --text:#d4d4e0;--muted:#7a7a90;--dim:#4a4a5c;
+  --font-data:'DM Mono',monospace;--font-ui:'Instrument Sans',sans-serif;
+  --radius:6px;
+}
+html{font-size:13px}
+body{font-family:var(--font-ui);background:var(--bg);color:var(--text);line-height:1.45;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 80% 50% at 20% 0%,rgba(240,160,48,0.03),transparent),
+  radial-gradient(ellipse 60% 40% at 80% 100%,rgba(79,195,247,0.02),transparent);
+  pointer-events:none;z-index:0}
+
+/* Scan line effect */
+@keyframes scanline{0%{top:-100%}100%{top:200%}}
+body::after{content:'';position:fixed;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--amber),transparent);
+  opacity:0.08;animation:scanline 8s linear infinite;pointer-events:none;z-index:9999}
+
+a{color:var(--amber);text-decoration:none}a:hover{text-decoration:underline}
+
+/* SHELL */
+.shell{max-width:1600px;margin:0 auto;padding:10px 14px;position:relative;z-index:1}
+.top-bar{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);margin-bottom:12px;flex-wrap:wrap}
+.logo{font-family:var(--font-data);font-weight:500;font-size:1rem;color:var(--amber);letter-spacing:0.08em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.logo svg{width:20px;height:20px;fill:var(--amber)}
+.top-links{display:flex;gap:6px;margin-left:auto;align-items:center}
+.top-links a,.tab-btn{font-size:0.78rem;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);background:transparent;cursor:pointer;transition:all 0.2s}
+.top-links a:hover,.tab-btn:hover{color:var(--amber);border-color:var(--amber);text-decoration:none}
+.tab-btn.active{color:var(--amber);border-color:var(--amber);background:var(--amber-dim)}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse-dot 2s ease infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.4}}
+.top-time{font-family:var(--font-data);font-size:0.72rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+
+/* TAB PANELS */
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* GRID SYSTEM */
+.g{display:grid;gap:10px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+.g-main{grid-template-columns:2fr 1fr}
+.g-side{grid-template-columns:1fr 2fr}
+.g-events{grid-template-columns:340px 1fr}
+@media(max-width:1100px){.g2,.g3,.g4,.g-main,.g-side,.g-events{grid-template-columns:1fr}}
+.span2{grid-column:span 2}@media(max-width:1100px){.span2{grid-column:span 1}}
+
+/* CARDS */
+.c{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;position:relative;overflow:hidden}
+.c::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-hi),transparent)}
+.c-head{font-family:var(--font-data);font-size:0.7rem;font-weight:400;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.c-head .ic{font-size:0.85rem;opacity:0.7}
+.c-head .badge{font-size:0.6rem;padding:2px 6px;border-radius:99px;margin-left:auto}
+.badge-live{background:rgba(61,220,132,0.15);color:var(--green);border:1px solid rgba(61,220,132,0.3)}
+.badge-count{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(240,160,48,0.3)}
+
+/* PRICE TILES */
+.price-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+.ptile{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:8px;display:flex;flex-direction:column;gap:2px;transition:border-color 0.3s}
+.ptile:hover{border-color:var(--border-hi)}
+.ptile .sym{font-family:var(--font-data);font-size:0.65rem;color:var(--dim);letter-spacing:0.05em}
+.ptile .prc{font-family:var(--font-data);font-size:1.05rem;font-weight:500;color:var(--text)}
+.ptile .chg{font-family:var(--font-data);font-size:0.72rem;font-weight:500}
+.ptile .spark{height:20px;margin-top:2px}
+.ptile .spark canvas{width:100%;height:100%}
+.up{color:var(--green)}.down{color:var(--red)}.flat{color:var(--muted)}
+
+/* REGIME BADGE */
+.regime{font-family:var(--font-data);font-size:0.6rem;padding:2px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:0.05em}
+.regime-risk-on{background:rgba(61,220,132,0.15);color:var(--green);border:1px solid rgba(61,220,132,0.2)}
+.regime-risk-off{background:rgba(255,71,87,0.15);color:var(--red);border:1px solid rgba(255,71,87,0.2)}
+.regime-neutral{background:rgba(122,122,144,0.15);color:var(--muted);border:1px solid rgba(122,122,144,0.2)}
+
+/* EVENT FEED */
+.ev-feed{max-height:calc(100vh - 160px);overflow-y:auto;display:flex;flex-direction:column;gap:4px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.ev-item{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:8px 10px;cursor:pointer;transition:all 0.2s;border-left:3px solid var(--dim)}
+.ev-item:hover{border-color:var(--border-hi);background:var(--card)}
+.ev-item.sev-high{border-left-color:var(--red)}.ev-item.sev-med{border-left-color:var(--amber)}.ev-item.sev-low{border-left-color:var(--blue)}
+.ev-item.selected{border-color:var(--amber);background:var(--amber-glow)}
+.ev-title{font-size:0.82rem;font-weight:600;line-height:1.35;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ev-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ev-tag{font-family:var(--font-data);font-size:0.6rem;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)}
+.ev-time{font-family:var(--font-data);font-size:0.6rem;color:var(--dim);margin-left:auto}
+.ev-new{animation:ev-flash 0.6s ease}
+@keyframes ev-flash{0%{background:var(--amber-dim)}100%{background:var(--surface)}}
+
+/* RIPPLE CHAIN */
+.ripple-chain{display:flex;gap:2px;align-items:stretch;overflow-x:auto;padding:8px 0;scrollbar-width:thin}
+.ripple-node{min-width:180px;max-width:220px;flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:10px;position:relative}
+.ripple-node::after{content:'\u2192';position:absolute;right:-14px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:1.2rem}
+.ripple-node:last-child::after{display:none}
+.ripple-order{font-family:var(--font-data);font-size:0.55rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px}
+.ripple-order.o0{color:var(--amber)}.ripple-order.o1{color:var(--cyan)}.ripple-order.o2{color:var(--purple)}.ripple-order.o3{color:var(--blue)}
+.ripple-asset{font-family:var(--font-data);font-size:0.85rem;font-weight:500;margin-bottom:2px}
+.ripple-dir{font-family:var(--font-data);font-size:0.72rem;font-weight:500}
+.ripple-reasoning{font-size:0.72rem;color:var(--muted);margin-top:4px;line-height:1.35}
+.ripple-conf{font-family:var(--font-data);font-size:0.6rem;color:var(--dim);margin-top:4px}
+
+/* BUTTERFLY GRAPH (SVG) */
+.graph-wrap{width:100%;height:400px;position:relative;background:var(--surface);border-radius:4px;overflow:hidden}
+.graph-wrap svg{width:100%;height:100%}
+.graph-node{cursor:pointer}
+.graph-node circle{transition:r 0.2s}
+.graph-node:hover circle{r:10}
+.graph-link{stroke:var(--border-hi);stroke-width:1;opacity:0.4}
+.graph-label{font-family:var(--font-data);font-size:9px;fill:var(--muted);pointer-events:none}
+
+/* PREDICTIONS */
+.pred-row{display:grid;grid-template-columns:1fr 80px 80px 60px 80px;gap:8px;align-items:center;padding:6px 8px;border-bottom:1px solid var(--border);font-size:0.78rem}
+.pred-row:last-child{border-bottom:none}
+.pred-head{font-family:var(--font-data);font-size:0.6rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em}
+.pred-status{font-family:var(--font-data);font-size:0.65rem;padding:2px 6px;border-radius:3px;text-align:center}
+.pred-correct{background:rgba(61,220,132,0.15);color:var(--green)}
+.pred-incorrect{background:rgba(255,71,87,0.15);color:var(--red)}
+.pred-partial{background:rgba(240,160,48,0.15);color:var(--amber)}
+.pred-pending{background:rgba(122,122,144,0.1);color:var(--muted)}
+.pred-expired{background:rgba(74,74,92,0.2);color:var(--dim)}
+
+/* ACCURACY GAUGE */
+.gauge-wrap{display:flex;align-items:center;gap:16px;padding:8px 0}
+.gauge{position:relative;width:80px;height:80px}
+.gauge svg{width:100%;height:100%;transform:rotate(-90deg)}
+.gauge-track{fill:none;stroke:var(--border);stroke-width:6}
+.gauge-fill{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+.gauge-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-data);font-size:1.1rem;font-weight:500}
+.gauge-stats{display:flex;flex-direction:column;gap:4px}
+.gauge-stat{font-family:var(--font-data);font-size:0.72rem;color:var(--muted)}
+.gauge-stat span{color:var(--text);font-weight:500}
+
+/* ANOMALY ALERTS */
+.alert-item{display:flex;align-items:flex-start;gap:8px;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:4px;border-left:3px solid var(--amber)}
+.alert-item.high{border-left-color:var(--red)}
+.alert-icon{font-size:0.9rem;flex-shrink:0;margin-top:1px}
+.alert-body{flex:1;min-width:0}
+.alert-desc{font-size:0.78rem;line-height:1.35}
+.alert-time{font-family:var(--font-data);font-size:0.6rem;color:var(--dim);margin-top:2px}
+
+/* SYNTHESIS */
+.synth{background:linear-gradient(135deg,var(--amber-glow),rgba(79,195,247,0.04));border:1px solid rgba(240,160,48,0.2);border-radius:var(--radius);padding:14px}
+.synth h3{font-family:var(--font-data);font-size:0.75rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px}
+.synth-body{font-size:0.82rem;line-height:1.55;color:var(--text)}
+.synth-body p{margin-bottom:8px}
+.synth-time{font-family:var(--font-data);font-size:0.6rem;color:var(--dim);margin-top:8px}
+
+/* FLIGHT ZONES */
+.zone-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.zone{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:8px;text-align:center}
+.zone-name{font-family:var(--font-data);font-size:0.6rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em}
+.zone-total{font-family:var(--font-data);font-size:1.3rem;font-weight:500;color:var(--text)}
+.zone-mil{font-family:var(--font-data);font-size:0.7rem;color:var(--amber)}
+
+/* WATCHLIST */
+.watch-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.watch-item:last-child{border-bottom:none}
+.watch-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.watch-dot.active{background:var(--red);box-shadow:0 0 6px var(--red);animation:pulse-dot 1.5s ease infinite}
+.watch-dot.quiet{background:var(--dim)}
+.watch-text{font-size:0.78rem;flex:1}
+.watch-status{font-family:var(--font-data);font-size:0.65rem;color:var(--dim)}
+
+/* NEWS */
+.news-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.news-region h4{font-family:var(--font-data);font-size:0.65rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.news-item{font-size:0.78rem;color:var(--muted);padding:5px 0;border-left:2px solid var(--border);padding-left:8px;margin-bottom:4px;line-height:1.4}
+
+/* ASK AI */
+#askBtn{position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;background:var(--amber);color:var(--bg);border:none;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;z-index:100;box-shadow:0 2px 12px rgba(240,160,48,0.3);transition:transform 0.2s}
+#askBtn:hover{transform:scale(1.1)}
+#askDrawer{position:fixed;bottom:0;right:0;width:380px;max-width:100vw;height:55vh;background:var(--card);border:1px solid var(--border);border-radius:10px 10px 0 0;z-index:200;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.3s ease}
+#askDrawer.open{transform:translateY(0)}
+.drawer-head{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border)}
+.drawer-head h3{flex:1;font-family:var(--font-data);font-size:0.75rem;color:var(--amber)}
+.drawer-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem}
+#chatMsgs{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.chat-in{display:flex;gap:6px;padding:10px 14px;border-top:1px solid var(--border)}
+.chat-in input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;color:var(--text);font-size:0.82rem;font-family:var(--font-ui)}
+.chat-in button{background:var(--amber);color:var(--bg);border:none;border-radius:var(--radius);padding:8px 14px;cursor:pointer;font-size:0.82rem;font-weight:600}
+.u-msg{background:var(--amber);color:var(--bg);padding:8px 12px;border-radius:12px 12px 2px 12px;align-self:flex-end;max-width:85%;font-size:0.82rem}
+.a-msg{background:var(--surface);border:1px solid var(--border);padding:8px 12px;border-radius:12px 12px 12px 2px;align-self:flex-start;max-width:85%;font-size:0.82rem;line-height:1.5}
+
+/* FOOTER */
+.foot{text-align:center;padding:14px;color:var(--dim);font-size:0.65rem;border-top:1px solid var(--border);margin-top:14px;font-family:var(--font-data)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border-hi)}
+
+/* MARKET SIGNALS */
+.mkt-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.mkt-stat{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:8px 14px;display:flex;flex-direction:column;gap:2px;min-width:100px}
+.mkt-stat-label{font-family:var(--font-data);font-size:0.6rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em}
+.mkt-stat-val{font-family:var(--font-data);font-size:1.2rem;font-weight:500;color:var(--text)}
+.mkt-stat-sub{font-family:var(--font-data);font-size:0.6rem;color:var(--muted)}
+
+.sig-list{display:flex;flex-direction:column;gap:4px;max-height:calc(100vh - 280px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.sig-item{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:10px 12px;cursor:pointer;transition:all 0.2s;border-left:3px solid var(--dim)}
+.sig-item:hover{border-color:var(--border-hi);background:var(--card)}
+.sig-item.selected{border-color:var(--amber);background:var(--amber-glow)}
+.sig-item.str-strong{border-left-color:var(--red)}.sig-item.str-moderate{border-left-color:var(--amber)}.sig-item.str-weak{border-left-color:var(--dim)}
+.sig-question{font-size:0.82rem;font-weight:600;line-height:1.35;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sig-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.sig-tag{font-family:var(--font-data);font-size:0.6rem;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)}
+.sig-tag.strong{background:rgba(255,71,87,0.15);color:var(--red);border-color:rgba(255,71,87,0.3)}
+.sig-tag.moderate{background:var(--amber-dim);color:var(--amber);border-color:rgba(240,160,48,0.3)}
+.sig-delta{font-family:var(--font-data);font-size:0.72rem;font-weight:500;margin-left:auto}
+
+.delta-bar{display:flex;align-items:center;gap:8px;margin:8px 0}
+.delta-bar-track{flex:1;height:16px;background:var(--surface);border:1px solid var(--border);border-radius:3px;position:relative;overflow:hidden}
+.delta-bar-market{position:absolute;top:0;bottom:0;background:rgba(79,195,247,0.25);border-right:2px solid var(--blue)}
+.delta-bar-ours{position:absolute;top:0;bottom:0;width:2px;background:var(--amber)}
+.delta-bar-label{font-family:var(--font-data);font-size:0.6rem;color:var(--dim);min-width:36px;text-align:center}
+
+.mkt-tile{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:8px 10px;transition:border-color 0.2s}
+.mkt-tile:hover{border-color:var(--border-hi)}
+.mkt-tile-q{font-size:0.78rem;font-weight:600;line-height:1.35;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mkt-tile-prob{font-family:var(--font-data);font-size:0.85rem;font-weight:500}
+.mkt-tile-vol{font-family:var(--font-data);font-size:0.6rem;color:var(--dim);margin-top:2px}
+.mkt-tile-bar{height:4px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden}
+.mkt-tile-bar-fill{height:100%;border-radius:2px;transition:width 0.3s}
+
+.sig-detail{padding:12px}
+.sig-detail-section{margin-bottom:12px}
+.sig-detail-title{font-family:var(--font-data);font-size:0.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.sig-link{display:inline-block;padding:4px 10px;background:var(--amber-dim);color:var(--amber);border:1px solid rgba(240,160,48,0.3);border-radius:4px;font-size:0.72rem;font-family:var(--font-data);margin-top:6px;transition:background 0.2s}
+.sig-link:hover{background:rgba(240,160,48,0.25);text-decoration:none}
+
+/* LOADING SKELETON */
+.skel{background:linear-gradient(90deg,var(--border) 25%,var(--border-hi) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:3px;height:12px;margin-bottom:6px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 3c1.1 0 2.1.3 3 .8L12 9l-3-3.2c.9-.5 1.9-.8 3-.8zm-7 7c0-1.1.3-2.1.8-3L9 12l-3.2 3c-.5-.9-.8-1.9-.8-3zm7 7c-1.1 0-2.1-.3-3-.8L12 15l3 3.2c-.9.5-1.9.8-3 .8zm1-7.7L15.5 8c.6.8 1 1.7 1.2 2.7L13 11.3zm-2 1.4L8.5 16c-.6-.8-1-1.7-1.2-2.7L11 12.7zm3.7-1.4l3.5-.6c.1.4.1.9.1 1.3 0 .7-.1 1.3-.3 1.9L15 12.7zm-5.4 1.4L5.8 14c-.1-.4-.1-.9-.1-1.3 0-.7.1-1.3.3-1.9L9 12.7z"/></svg>
+      BUTTERFLY ENGINE
+    </div>
+    <div class="top-links">
+      <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</button>
+      <button class="tab-btn" data-tab="events" onclick="switchTab('events')">Events</button>
+      <button class="tab-btn" data-tab="predictions" onclick="switchTab('predictions')">Predictions</button>
+      <button class="tab-btn" data-tab="markets" onclick="switchTab('markets')">Markets</button>
+      <a href="/source-registry.html">Sources</a>
+    </div>
+    <div class="top-time">
+      <span class="status-dot"></span>
+      <span id="topTime">--</span>
+    </div>
+  </div>
+
+  <!-- TAB: DASHBOARD -->
+  <div class="tab-panel active" id="tab-dashboard">
+    <!-- ROW 1: Asset Grid + Regime -->
+    <div class="g g2" style="margin-bottom:10px">
+      <div class="c">
+        <div class="c-head"><span class="ic">&#x26A1;</span> ASSET GRID <span class="badge badge-live">LIVE</span></div>
+        <div class="price-grid" id="assetGrid">
+          <div class="skel" style="height:60px"></div><div class="skel" style="height:60px"></div>
+          <div class="skel" style="height:60px"></div><div class="skel" style="height:60px"></div>
+        </div>
+      </div>
+      <div>
+        <div class="c" style="margin-bottom:10px">
+          <div class="c-head"><span class="ic">&#x1F3AF;</span> REGIME</div>
+          <div id="regimeDisplay" style="text-align:center;padding:10px 0">
+            <div class="regime regime-neutral" style="font-size:1rem;padding:6px 16px;display:inline-block">LOADING</div>
+          </div>
+        </div>
+        <div class="c" style="margin-bottom:10px">
+          <div class="c-head"><span class="ic">&#x2708;</span> FLIGHTS</div>
+          <div class="zone-grid" id="zoneGrid">
+            <div class="zone"><div class="zone-name">Middle East</div><div class="zone-total" id="zME">--</div><div class="zone-mil" id="zMEm">--</div></div>
+            <div class="zone"><div class="zone-name">Red Sea</div><div class="zone-total" id="zRS">--</div><div class="zone-mil" id="zRSm">--</div></div>
+            <div class="zone"><div class="zone-name">E. Med</div><div class="zone-total" id="zEM">--</div><div class="zone-mil" id="zEMm">--</div></div>
+          </div>
+        </div>
+        <div class="c">
+          <div class="c-head"><span class="ic">&#x1F4E1;</span> WATCHLIST</div>
+          <div id="watchlistBox"><div class="skel"></div><div class="skel"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 2: Events + Ripple Detail -->
+    <div class="g g-events" style="margin-bottom:10px">
+      <div class="c">
+        <div class="c-head"><span class="ic">&#x1F30D;</span> EVENT FEED <span class="badge badge-count" id="evCount">0</span></div>
+        <div class="ev-feed" id="eventFeed"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+      </div>
+      <div>
+        <div class="c" style="margin-bottom:10px">
+          <div class="c-head"><span class="ic">&#x1F98B;</span> RIPPLE CHAIN</div>
+          <div id="rippleDetail" style="min-height:80px">
+            <div style="color:var(--dim);font-size:0.78rem;padding:20px;text-align:center">Select an event to view ripple effects</div>
+          </div>
+        </div>
+        <div class="c">
+          <div class="c-head"><span class="ic">&#x1F6A8;</span> ANOMALIES <span class="badge badge-count" id="anomCount">0</span></div>
+          <div id="anomalyFeed" style="max-height:200px;overflow-y:auto"><div class="skel"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 3: Synthesis + News -->
+    <div class="g g2" style="margin-bottom:10px">
+      <div class="synth" id="synthCard">
+        <h3>&#x1F9E0; AI SYNTHESIS</h3>
+        <div class="synth-body" id="synthBody"><div class="skel"></div><div class="skel"></div><div class="skel" style="width:60%"></div></div>
+        <div class="synth-time" id="synthTime"></div>
+      </div>
+      <div class="c">
+        <div class="c-head"><span class="ic">&#x1F4F0;</span> GLOBAL NEWS</div>
+        <div class="news-cols" id="newsGrid" style="max-height:300px;overflow-y:auto"><div class="skel"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: EVENTS -->
+  <div class="tab-panel" id="tab-events">
+    <div class="g g-events">
+      <div class="c" style="min-height:calc(100vh - 120px)">
+        <div class="c-head"><span class="ic">&#x1F30D;</span> ALL EVENTS <span class="badge badge-count" id="evCountFull">0</span></div>
+        <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+          <select id="evCatFilter" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-size:0.75rem">
+            <option value="">All categories</option>
+          </select>
+          <select id="evSevFilter" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-size:0.75rem">
+            <option value="">All severity</option>
+            <option value="8">High (8+)</option>
+            <option value="5">Medium (5+)</option>
+          </select>
+        </div>
+        <div class="ev-feed" id="eventFeedFull" style="max-height:calc(100vh - 220px)"></div>
+        <div style="text-align:center;padding:8px"><button class="tab-btn" id="loadMoreBtn" onclick="loadMoreEvents()">Load more</button></div>
+      </div>
+      <div>
+        <div class="c" style="margin-bottom:10px">
+          <div class="c-head"><span class="ic">&#x1F98B;</span> RIPPLE CHAIN</div>
+          <div id="rippleDetailFull" style="min-height:120px">
+            <div style="color:var(--dim);font-size:0.78rem;padding:20px;text-align:center">Select an event</div>
+          </div>
+        </div>
+        <div class="c">
+          <div class="c-head"><span class="ic">&#x1F4CA;</span> BUTTERFLY GRAPH</div>
+          <div class="graph-wrap" id="graphWrap">
+            <svg id="butterflyGraph"></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: PREDICTIONS -->
+  <div class="tab-panel" id="tab-predictions">
+    <div class="g g2" style="margin-bottom:10px">
+      <div class="c">
+        <div class="c-head"><span class="ic">&#x1F3AF;</span> ACCURACY</div>
+        <div class="gauge-wrap" id="accuracyGauge">
+          <div class="gauge">
+            <svg viewBox="0 0 36 36">
+              <circle class="gauge-track" cx="18" cy="18" r="15.9"/>
+              <circle class="gauge-fill" id="gaugeFill" cx="18" cy="18" r="15.9" stroke="var(--green)" stroke-dasharray="100 100" stroke-dashoffset="100"/>
+            </svg>
+            <div class="gauge-val" id="gaugeVal">--%</div>
+          </div>
+          <div class="gauge-stats" id="gaugeStats">
+            <div class="gauge-stat">Total: <span id="gTotal">--</span></div>
+            <div class="gauge-stat">Correct: <span id="gCorrect" style="color:var(--green)">--</span></div>
+            <div class="gauge-stat">Partial: <span id="gPartial" style="color:var(--amber)">--</span></div>
+            <div class="gauge-stat">Wrong: <span id="gWrong" style="color:var(--red)">--</span></div>
+            <div class="gauge-stat">Brier: <span id="gBrier">--</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="c">
+        <div class="c-head"><span class="ic">&#x1F4CA;</span> BREAKDOWN</div>
+        <div id="accuracyBreakdown" style="font-size:0.78rem"><div class="skel"></div></div>
+      </div>
+    </div>
+    <div class="c">
+      <div class="c-head"><span class="ic">&#x1F52E;</span> PREDICTIONS <span class="badge badge-count" id="predCount">0</span></div>
+      <div style="overflow-x:auto">
+        <div class="pred-row pred-head">
+          <div>Event / Asset</div><div>Direction</div><div>Magnitude</div><div>Conf.</div><div>Status</div>
+        </div>
+        <div id="predList"><div class="skel"></div><div class="skel"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: MARKETS -->
+  <div class="tab-panel" id="tab-markets">
+    <!-- Stats bar -->
+    <div class="mkt-stats" id="mktStats">
+      <div class="mkt-stat"><div class="mkt-stat-label">Signals</div><div class="mkt-stat-val" id="mktSigTotal">--</div></div>
+      <div class="mkt-stat"><div class="mkt-stat-label">Strong</div><div class="mkt-stat-val" id="mktSigStrong" style="color:var(--red)">--</div></div>
+      <div class="mkt-stat"><div class="mkt-stat-label">Moderate</div><div class="mkt-stat-val" id="mktSigModerate" style="color:var(--amber)">--</div></div>
+      <div class="mkt-stat"><div class="mkt-stat-label">Corrected</div><div class="mkt-stat-val" id="mktSigCorrected" style="color:var(--green)">--</div><div class="mkt-stat-sub" id="mktCorrRate"></div></div>
+      <div class="mkt-stat"><div class="mkt-stat-label">Markets</div><div class="mkt-stat-val" id="mktMarketCount">--</div></div>
+    </div>
+
+    <div class="g" style="grid-template-columns:380px 1fr;margin-bottom:10px">
+      <!-- Left: Mispricing signals list -->
+      <div class="c" style="min-height:calc(100vh - 240px)">
+        <div class="c-head"><span class="ic">&#x1F6A8;</span> MISPRICING SIGNALS <span class="badge badge-count" id="mktSigCount">0</span></div>
+        <div class="sig-list" id="sigList"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+      </div>
+
+      <div>
+        <!-- Signal detail panel -->
+        <div class="c" id="sigDetailCard" style="margin-bottom:10px;min-height:200px">
+          <div class="c-head"><span class="ic">&#x1F50D;</span> SIGNAL DETAIL</div>
+          <div id="sigDetail" style="min-height:120px">
+            <div style="color:var(--dim);font-size:0.78rem;padding:20px;text-align:center">Select a signal to view details</div>
+          </div>
+        </div>
+
+        <!-- Top markets grid -->
+        <div class="c">
+          <div class="c-head"><span class="ic">&#x1F4CA;</span> TOP POLYMARKET MARKETS <span class="badge badge-count" id="mktTopCount">0</span></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px;max-height:400px;overflow-y:auto" id="mktGrid"><div class="skel" style="height:80px"></div><div class="skel" style="height:80px"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    DATA: Yahoo Finance, ADSB.lol, Reuters, SCMP, NHK, Al Jazeera, GDELT, CoinDesk, Polymarket + 16 feeds &middot; AI: DeepSeek V3.2 via OpenRouter<br>
+    Built by the agents at <a href="https://mydeadinternet.com">mydeadinternet.com</a>
+  </footer>
+</div>
+
+<!-- ASK AI -->
+<button id="askBtn" onclick="toggleDrawer()">&#x1F916;</button>
+<div id="askDrawer">
+  <div class="drawer-head"><h3>ASK BUTTERFLY</h3><button class="drawer-close" onclick="toggleDrawer()">&times;</button></div>
+  <div id="chatMsgs"></div>
+  <div class="chat-in">
+    <input id="askInput" placeholder="Ask about markets, events, predictions..." onkeydown="if(event.key==='Enter')sendQ()">
+    <button onclick="sendQ()">Ask</button>
+  </div>
+</div>
+
+<script>
+// =========================================================================
+// STATE
+// =========================================================================
+const API = '/api';
+const intervals = [];
+let eventsData = [];
+let eventsOffset = 0;
+let selectedEventId = null;
+let sse = null;
+
+// =========================================================================
+// HELPERS
+// =========================================================================
+function esc(s){const d=document.createElement('div');d.textContent=String(s??'');return d.innerHTML}
+function fmt(v,d=2){const n=parseFloat(v);return isNaN(n)?'--':n.toFixed(d)}
+function chgCls(v){const n=parseFloat(v);return isNaN(n)?'flat':n>=0?'up':'down'}
+function chgStr(v){const n=parseFloat(v);if(isNaN(n))return'--';return(n>=0?'+':'')+n.toFixed(2)+'%'}
+function ago(ts){if(!ts)return'';const d=Date.now()-new Date(ts+'Z').getTime();if(d<60000)return'just now';if(d<3600000)return Math.floor(d/60000)+'m ago';if(d<86400000)return Math.floor(d/3600000)+'h ago';return Math.floor(d/86400000)+'d ago'}
+
+async function safeFetch(url,retries=2){
+  for(let i=0;i<=retries;i++){
+    const ac=new AbortController();const t=setTimeout(()=>ac.abort(),12000);
+    try{const r=await fetch(url,{signal:ac.signal});clearTimeout(t);if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}
+    catch(e){clearTimeout(t);if(i===retries)throw e;await new Promise(r=>setTimeout(r,1000*(i+1)))}
+  }
+}
+
+// =========================================================================
+// TAB SWITCHING
+// =========================================================================
+function switchTab(name){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  const panel=document.getElementById('tab-'+name);
+  if(panel)panel.classList.add('active');
+  document.querySelector('[data-tab="'+name+'"]')?.classList.add('active');
+  if(name==='events'&&!document.getElementById('eventFeedFull').children.length)loadEventsFull();
+  if(name==='predictions')loadPredictions();
+  if(name==='markets')loadMarkets();
+}
+
+// =========================================================================
+// DASHBOARD LOAD
+// =========================================================================
+async function loadDashboard(){
+  try{
+    const d=await safeFetch(API+'/dashboard');
+    renderAssetGrid(d.prices);
+    renderFlights(d.flights);
+    renderWatchlist(d.watchlist);
+    renderSynthesis(d.synthesis);
+    renderAlerts(d.alerts);
+    if(d.events)renderEventFeed(d.events);
+    if(d.anomalies)renderAnomalies(d.anomalies);
+    document.getElementById('topTime').textContent=new Date().toLocaleTimeString();
+  }catch(e){console.error('Dashboard load:',e)}
+}
+
+// =========================================================================
+// ASSET GRID
+// =========================================================================
+function renderAssetGrid(prices){
+  if(!prices)return;
+  const grid=document.getElementById('assetGrid');
+  const cats=['crypto','energy','equities','fx','metals','bonds','defense','tankers'];
+  const catLabels={crypto:'Crypto',energy:'Energy',equities:'Equities',fx:'FX',metals:'Metals',bonds:'Bonds',defense:'Defense',tankers:'Tankers'};
+  // Group by category
+  const groups={};
+  for(const[sym,p]of Object.entries(prices)){
+    const cat=p.category||'other';
+    if(!groups[cat])groups[cat]=[];
+    groups[cat].push({sym,...p});
+  }
+  let html='';
+  for(const cat of cats){
+    const items=groups[cat];if(!items)continue;
+    for(const p of items){
+      const cc=chgCls(p.change);
+      const prefix=['fx','equities','bonds'].includes(cat)?'':'$';
+      html+=`<div class="ptile">
+        <div class="sym">${esc(p.name||p.sym)}</div>
+        <div class="prc">${prefix}${fmt(p.price,p.price>1000?0:p.price<1?4:2)}</div>
+        <div class="chg ${cc}">${chgStr(p.change)}</div>
+      </div>`;
+    }
+  }
+  grid.innerHTML=html;
+
+  // Regime
+  const vix=prices['^VIX'];const spx=prices['^SPX']||prices['^GSPC'];
+  let regime='neutral';
+  if(vix&&parseFloat(vix.price)>25)regime='risk-off';
+  else if(vix&&parseFloat(vix.price)<15&&spx&&parseFloat(spx.change)>0)regime='risk-on';
+  const rd=document.getElementById('regimeDisplay');
+  rd.innerHTML=`<div class="regime regime-${regime}" style="font-size:1rem;padding:6px 16px;display:inline-block">${regime.toUpperCase().replace('-',' ')}</div>
+    <div style="font-family:var(--font-data);font-size:0.65rem;color:var(--dim);margin-top:6px">VIX: ${vix?fmt(vix.price):'--'}</div>`;
+}
+
+// =========================================================================
+// FLIGHTS
+// =========================================================================
+function renderFlights(f){
+  if(!f)return;
+  // Handle both {zones:{...}} and direct {middleEast:{...}} shapes
+  const z=f.zones||f;
+  if(!z||!Object.keys(z).length)return;
+  const fill=(id,zone)=>{
+    const el=document.getElementById(id);const mel=document.getElementById(id+'m');
+    if(el)el.textContent=zone?zone.total:'--';
+    if(mel)mel.textContent=zone?(zone.military||0)+' mil':'--';
+  };
+  fill('zME',z.middleEast||z.middle_east||z['Middle East']);
+  fill('zRS',z.redSea||z.red_sea||z['Red Sea']);
+  fill('zEM',z.mediterranean||z.east_med||z['E. Med']);
+}
+
+// =========================================================================
+// WATCHLIST
+// =========================================================================
+function renderWatchlist(w){
+  if(!w)return;
+  const box=document.getElementById('watchlistBox');
+  // Handle both {signals:[]} and {key:{name,trigger,...}} shapes
+  let items=[];
+  if(Array.isArray(w.signals)){items=w.signals}
+  else if(Array.isArray(w)){items=w}
+  else{items=Object.entries(w).map(([k,v])=>({name:v.name||k,triggered:v.triggered||false,...v}))}
+  if(!items.length){box.innerHTML='<div style="color:var(--dim);font-size:0.78rem">No watchlist signals</div>';return}
+  box.innerHTML=items.map(s=>{
+    const active=s.triggered||s.active;
+    return`<div class="watch-item"><div class="watch-dot ${active?'active':'quiet'}"></div><div class="watch-text">${esc(s.name||s.signal||'')}</div><div class="watch-status">${active?'ACTIVE':'quiet'}</div></div>`;
+  }).join('');
+}
+
+// =========================================================================
+// SYNTHESIS
+// =========================================================================
+function renderSynthesis(s){
+  if(!s)return;
+  const body=document.getElementById('synthBody');
+  const time=document.getElementById('synthTime');
+  const report=s.report||s.summary||'';
+  // Simple markdown-ish rendering
+  body.innerHTML=report.split('\n\n').map(p=>'<p>'+esc(p)+'</p>').join('');
+  if(s.generated_at||s.timestamp)time.textContent='Generated '+ago(s.generated_at||s.timestamp);
+}
+
+// =========================================================================
+// ALERTS (from Phase 1)
+// =========================================================================
+function renderAlerts(alerts){
+  // Shown as part of anomalies now
+}
+
+// =========================================================================
+// EVENT FEED (Dashboard — top 20)
+// =========================================================================
+function renderEventFeed(events){
+  const feed=document.getElementById('eventFeed');
+  const count=document.getElementById('evCount');
+  if(!events||!events.length){feed.innerHTML='<div style="color:var(--dim);font-size:0.78rem;padding:10px">No events yet — feeds are ingesting...</div>';count.textContent='0';return}
+  count.textContent=events.length;
+  feed.innerHTML=events.slice(0,20).map(ev=>evItemHtml(ev,'dashboard')).join('');
+}
+
+function evItemHtml(ev,ctx){
+  const sev=ev.severity>=8?'sev-high':ev.severity>=5?'sev-med':'sev-low';
+  return`<div class="ev-item ${sev}" data-id="${ev.id}" onclick="selectEvent(${ev.id},'${ctx}')">
+    <div class="ev-title">${esc(ev.title)}</div>
+    <div class="ev-meta">
+      ${ev.category?'<span class="ev-tag">'+esc(ev.category)+'</span>':''}
+      ${ev.country?'<span class="ev-tag">'+esc(ev.country)+'</span>':''}
+      <span class="ev-time">${ago(ev.created_at||ev.first_seen)}</span>
+    </div>
+  </div>`;
+}
+
+// =========================================================================
+// SELECT EVENT → LOAD RIPPLES
+// =========================================================================
+async function selectEvent(id,ctx){
+  selectedEventId=id;
+  // Highlight
+  document.querySelectorAll('.ev-item').forEach(el=>{
+    el.classList.toggle('selected',parseInt(el.dataset.id)===id);
+  });
+  const target=ctx==='dashboard'?'rippleDetail':'rippleDetailFull';
+  const box=document.getElementById(target);
+  box.innerHTML='<div style="color:var(--dim);font-size:0.78rem;padding:10px">Loading ripples...</div>';
+  try{
+    const d=await safeFetch(API+'/events/'+id+'/ripples');
+    renderRippleChain(d,target);
+  }catch(e){
+    box.innerHTML='<div style="color:var(--red);font-size:0.78rem;padding:10px">Failed to load ripples</div>';
+  }
+}
+
+function renderRippleChain(data,targetId){
+  const box=document.getElementById(targetId);
+  if(!data||!data.event){box.innerHTML='<div style="color:var(--dim);font-size:0.78rem;padding:10px">No data</div>';return}
+  const ev=data.event;
+  const ripples=data.ripples||[];
+  const preds=data.predictions||[];
+
+  let html=`<div style="margin-bottom:8px"><div style="font-size:0.85rem;font-weight:600">${esc(ev.title)}</div>
+    <div style="font-family:var(--font-data);font-size:0.65rem;color:var(--dim);margin-top:2px">${esc(ev.category||'')} &middot; ${esc(ev.country||'')} &middot; severity ${ev.severity||'?'}</div></div>`;
+
+  if(!ripples.length){
+    html+='<div style="color:var(--dim);font-size:0.78rem">No ripple effects generated yet</div>';
+    box.innerHTML=html;return;
+  }
+
+  // Group by order
+  const byOrder={};
+  for(const r of ripples){
+    const o=r.ripple_order||1;
+    if(!byOrder[o])byOrder[o]=[];
+    byOrder[o].push(r);
+  }
+
+  html+='<div class="ripple-chain">';
+  // Event node
+  html+=`<div class="ripple-node"><div class="ripple-order o0">Event</div><div class="ripple-asset">${esc(ev.title).slice(0,50)}</div><div style="font-family:var(--font-data);font-size:0.6rem;color:var(--dim)">${ago(ev.created_at)}</div></div>`;
+
+  for(const order of [1,2,3]){
+    const items=byOrder[order];if(!items)continue;
+    for(const r of items.slice(0,3)){
+      const dirCls=r.direction==='up'?'up':r.direction==='down'?'down':'flat';
+      html+=`<div class="ripple-node">
+        <div class="ripple-order o${order}">${order===1?'1st':order===2?'2nd':'3rd'} Order</div>
+        <div class="ripple-asset">${esc(r.asset||'')}</div>
+        <div class="ripple-dir ${dirCls}">${esc(r.direction||'')} ${esc(r.magnitude||'')}</div>
+        ${r.reasoning?'<div class="ripple-reasoning">'+esc(r.reasoning).slice(0,120)+'</div>':''}
+        <div class="ripple-conf">conf: ${r.confidence?fmt(r.confidence*100,0)+'%':'--'} &middot; ${esc(r.time_horizon||'')}</div>
+      </div>`;
+    }
+  }
+  html+='</div>';
+
+  // Predictions from this event
+  if(preds.length){
+    html+='<div style="margin-top:8px;font-family:var(--font-data);font-size:0.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Predictions ('+preds.length+')</div>';
+    for(const p of preds.slice(0,5)){
+      const sc=p.status==='correct'?'pred-correct':p.status==='incorrect'?'pred-incorrect':p.status==='partial'?'pred-partial':p.status==='expired'?'pred-expired':'pred-pending';
+      html+=`<div style="display:flex;gap:8px;align-items:center;padding:3px 0;font-size:0.75rem">
+        <span style="font-family:var(--font-data);min-width:70px">${esc(p.asset)}</span>
+        <span class="${chgCls(p.direction==='up'?1:-1)}" style="font-family:var(--font-data)">${esc(p.direction)} ${esc(p.magnitude||'')}</span>
+        <span class="pred-status ${sc}">${esc(p.status)}</span>
+      </div>`;
+    }
+  }
+
+  box.innerHTML=html;
+}
+
+// =========================================================================
+// ANOMALIES
+// =========================================================================
+function renderAnomalies(anomalies){
+  const feed=document.getElementById('anomalyFeed');
+  const count=document.getElementById('anomCount');
+  if(!anomalies||!anomalies.length){feed.innerHTML='<div style="color:var(--dim);font-size:0.78rem;padding:6px">No anomalies detected</div>';count.textContent='0';return}
+  count.textContent=anomalies.length;
+  feed.innerHTML=anomalies.map(a=>{
+    const icon=a.type==='price_spike'?'&#x1F4C8;':a.type==='event_cluster'?'&#x1F30D;':a.type==='regime_change'?'&#x26A0;':a.type==='spread_anomaly'?'&#x1F4CA;':'&#x1F6A8;';
+    return`<div class="alert-item ${a.severity==='high'?'high':''}">
+      <div class="alert-icon">${icon}</div>
+      <div class="alert-body"><div class="alert-desc">${esc(a.description)}</div><div class="alert-time">${ago(a.created_at)}</div></div>
+    </div>`;
+  }).join('');
+}
+
+// =========================================================================
+// EVENTS TAB — FULL LIST
+// =========================================================================
+async function loadEventsFull(){
+  eventsOffset=0;
+  const cat=document.getElementById('evCatFilter').value;
+  const sev=document.getElementById('evSevFilter').value;
+  let url=API+'/events?limit=50&offset=0';
+  if(cat)url+='&category='+encodeURIComponent(cat);
+  if(sev)url+='&severity_min='+sev;
+  try{
+    const d=await safeFetch(url);
+    const feed=document.getElementById('eventFeedFull');
+    const count=document.getElementById('evCountFull');
+    count.textContent=d.total||d.events?.length||0;
+    feed.innerHTML=(d.events||[]).map(ev=>evItemHtml(ev,'full')).join('');
+    eventsOffset=50;
+    // Populate category filter if empty
+    const catSel=document.getElementById('evCatFilter');
+    if(catSel.options.length<=1){
+      const cats=[...new Set((d.events||[]).map(e=>e.category).filter(Boolean))];
+      cats.sort();
+      cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;catSel.appendChild(o)});
+    }
+  }catch(e){console.error('Events load:',e)}
+}
+
+async function loadMoreEvents(){
+  const cat=document.getElementById('evCatFilter').value;
+  const sev=document.getElementById('evSevFilter').value;
+  let url=API+'/events?limit=50&offset='+eventsOffset;
+  if(cat)url+='&category='+encodeURIComponent(cat);
+  if(sev)url+='&severity_min='+sev;
+  try{
+    const d=await safeFetch(url);
+    const feed=document.getElementById('eventFeedFull');
+    feed.innerHTML+=(d.events||[]).map(ev=>evItemHtml(ev,'full')).join('');
+    eventsOffset+=50;
+    if(!d.events||d.events.length<50)document.getElementById('loadMoreBtn').style.display='none';
+  }catch(e){console.error('Load more:',e)}
+}
+
+// Filter change handlers
+document.getElementById('evCatFilter').addEventListener('change',loadEventsFull);
+document.getElementById('evSevFilter').addEventListener('change',loadEventsFull);
+
+// =========================================================================
+// BUTTERFLY GRAPH (d3-force-like, vanilla JS + SVG)
+// =========================================================================
+async function loadButterflyGraph(){
+  try{
+    const d=await safeFetch(API+'/events?limit=30');
+    const events=d.events||[];
+    if(!events.length)return;
+    renderGraph(events);
+  }catch(e){console.error('Graph:',e)}
+}
+
+function renderGraph(events){
+  const svg=document.getElementById('butterflyGraph');
+  const wrap=document.getElementById('graphWrap');
+  if(!svg||!wrap)return;
+  const W=wrap.clientWidth,H=wrap.clientHeight;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+
+  // Create nodes
+  const nodes=events.slice(0,25).map((ev,i)=>({
+    id:ev.id,title:ev.title.slice(0,40),category:ev.category,severity:ev.severity||5,
+    x:W/2+Math.cos(i/25*Math.PI*2)*W*0.3+Math.random()*40-20,
+    y:H/2+Math.sin(i/25*Math.PI*2)*H*0.3+Math.random()*40-20,
+    vx:0,vy:0
+  }));
+
+  // Links between same-category events
+  const links=[];
+  for(let i=0;i<nodes.length;i++){
+    for(let j=i+1;j<nodes.length;j++){
+      if(nodes[i].category===nodes[j].category&&Math.random()<0.4){
+        links.push({source:i,target:j});
+      }
+    }
+  }
+
+  // Simple force simulation (30 iterations)
+  for(let iter=0;iter<30;iter++){
+    // Repulsion
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        const dx=nodes[j].x-nodes[i].x,dy=nodes[j].y-nodes[i].y;
+        const dist=Math.max(Math.sqrt(dx*dx+dy*dy),1);
+        const force=200/dist;
+        nodes[i].vx-=dx/dist*force;nodes[i].vy-=dy/dist*force;
+        nodes[j].vx+=dx/dist*force;nodes[j].vy+=dy/dist*force;
+      }
+    }
+    // Attraction (links)
+    for(const l of links){
+      const a=nodes[l.source],b=nodes[l.target];
+      const dx=b.x-a.x,dy=b.y-a.y,dist=Math.max(Math.sqrt(dx*dx+dy*dy),1);
+      const force=(dist-80)*0.01;
+      a.vx+=dx/dist*force;a.vy+=dy/dist*force;
+      b.vx-=dx/dist*force;b.vy-=dy/dist*force;
+    }
+    // Center gravity
+    for(const n of nodes){
+      n.vx+=(W/2-n.x)*0.005;n.vy+=(H/2-n.y)*0.005;
+      n.x+=n.vx*0.3;n.y+=n.vy*0.3;n.vx*=0.8;n.vy*=0.8;
+      n.x=Math.max(30,Math.min(W-30,n.x));n.y=Math.max(30,Math.min(H-30,n.y));
+    }
+  }
+
+  // Render
+  const catColors={geopolitics:'#ff4757',markets:'#3ddc84',energy:'#f0a030',asia:'#4fc3f7',middle_east:'#b388ff',trade:'#00e5ff'};
+  let svgHtml='';
+  // Links
+  for(const l of links){
+    const a=nodes[l.source],b=nodes[l.target];
+    svgHtml+=`<line class="graph-link" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
+  }
+  // Nodes
+  for(const n of nodes){
+    const r=Math.max(4,Math.min(12,n.severity));
+    const col=catColors[n.category]||'#7a7a90';
+    svgHtml+=`<g class="graph-node" onclick="selectEvent(${n.id},'full')">
+      <circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${col}" opacity="0.7"/>
+      <text class="graph-label" x="${n.x}" y="${n.y+r+10}" text-anchor="middle">${esc(n.title.slice(0,20))}</text>
+    </g>`;
+  }
+  svg.innerHTML=svgHtml;
+}
+
+// =========================================================================
+// PREDICTIONS TAB
+// =========================================================================
+async function loadPredictions(){
+  try{
+    const[preds,acc]=await Promise.all([safeFetch(API+'/predictions?limit=50'),safeFetch(API+'/predictions/accuracy')]);
+    renderPredictions(preds);
+    renderAccuracy(acc);
+  }catch(e){console.error('Predictions:',e)}
+}
+
+function renderPredictions(data){
+  const list=document.getElementById('predList');
+  const count=document.getElementById('predCount');
+  const preds=data.predictions||data||[];
+  count.textContent=preds.length;
+  if(!preds.length){list.innerHTML='<div style="color:var(--dim);font-size:0.78rem;padding:10px">No predictions yet — ripple worker needs events first</div>';return}
+  list.innerHTML=preds.map(p=>{
+    const sc=p.status==='correct'?'pred-correct':p.status==='incorrect'?'pred-incorrect':p.status==='partial'?'pred-partial':p.status==='expired'?'pred-expired':'pred-pending';
+    const dirCls=p.direction==='up'?'up':p.direction==='down'?'down':'flat';
+    return`<div class="pred-row">
+      <div><span style="font-weight:600">${esc(p.asset)}</span> <span style="color:var(--dim);font-size:0.7rem">${esc(p.event_title||'').slice(0,40)}</span></div>
+      <div class="${dirCls}" style="font-family:var(--font-data)">${esc(p.direction)}</div>
+      <div style="font-family:var(--font-data)">${esc(p.magnitude||'--')}</div>
+      <div style="font-family:var(--font-data)">${p.confidence?fmt(p.confidence*100,0)+'%':'--'}</div>
+      <div><span class="pred-status ${sc}">${esc(p.status)}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderAccuracy(data){
+  if(!data)return;
+  const hr=data.hit_rate||0;
+  const pct=Math.round(hr*100);
+
+  // Gauge
+  const fill=document.getElementById('gaugeFill');
+  const circ=2*Math.PI*15.9;
+  fill.style.strokeDasharray=circ;
+  fill.style.strokeDashoffset=circ-(circ*hr);
+  fill.setAttribute('stroke',hr>=0.6?'var(--green)':hr>=0.4?'var(--amber)':'var(--red)');
+  document.getElementById('gaugeVal').textContent=pct+'%';
+
+  document.getElementById('gTotal').textContent=data.total||'--';
+  document.getElementById('gCorrect').textContent=data.correct||'0';
+  document.getElementById('gPartial').textContent=data.partial||'0';
+  document.getElementById('gWrong').textContent=data.incorrect||'0';
+  document.getElementById('gBrier').textContent=data.brier_score!=null?fmt(data.brier_score,4):'--';
+
+  // Breakdown
+  const bd=document.getElementById('accuracyBreakdown');
+  const report=data.latest_report;
+  if(!report){bd.innerHTML='<div style="color:var(--dim)">No accuracy reports yet</div>';return}
+
+  let html='';
+  const renderBreakdown=(title,jsonStr)=>{
+    try{
+      const obj=typeof jsonStr==='string'?JSON.parse(jsonStr):jsonStr;
+      if(!obj||!Object.keys(obj).length)return'';
+      let h=`<div style="margin-bottom:8px"><div style="font-family:var(--font-data);font-size:0.65rem;color:var(--dim);text-transform:uppercase;margin-bottom:4px">${title}</div>`;
+      for(const[k,v]of Object.entries(obj)){
+        const rate=v.hit_rate||0;
+        const pct2=Math.round(parseFloat(rate)*100);
+        const col=pct2>=60?'var(--green)':pct2>=40?'var(--amber)':'var(--red)';
+        h+=`<div style="display:flex;justify-content:space-between;padding:2px 0">
+          <span>${esc(k)}</span>
+          <span style="font-family:var(--font-data);color:${col}">${pct2}% (${v.total})</span>
+        </div>`;
+      }
+      return h+'</div>';
+    }catch{return''}
+  };
+  html+=renderBreakdown('By Category',report.by_category);
+  html+=renderBreakdown('By Asset Class',report.by_asset_class);
+  html+=renderBreakdown('By Time Horizon',report.by_time_horizon);
+  bd.innerHTML=html||'<div style="color:var(--dim)">Waiting for resolved predictions</div>';
+}
+
+// =========================================================================
+// NEWS
+// =========================================================================
+async function loadNews(){
+  try{
+    const d=await safeFetch(API+'/news');
+    const grid=document.getElementById('newsGrid');
+    if(!d.regions){grid.innerHTML='<div style="color:var(--dim);font-size:0.78rem">No news</div>';return}
+    grid.innerHTML=Object.entries(d.regions).map(([region,stories])=>{
+      const items=Array.isArray(stories)?stories:[];
+      return`<div class="news-region"><h4>${esc(region)}</h4>${items.slice(0,4).map(s=>'<div class="news-item">'+esc(typeof s==='string'?s:s.title||s.headline||'')+'</div>').join('')}</div>`;
+    }).join('');
+  }catch(e){console.error('News:',e)}
+}
+
+// =========================================================================
+// SSE — REAL-TIME UPDATES
+// =========================================================================
+function connectSSE(){
+  if(sse)sse.close();
+  try{
+    sse=new EventSource(API+'/sse/events');
+    sse.addEventListener('event',e=>{
+      try{
+        const ev=JSON.parse(e.data);
+        prependEvent(ev);
+      }catch{}
+    });
+    sse.addEventListener('anomaly',e=>{
+      try{
+        const a=JSON.parse(e.data);
+        prependAnomaly(a);
+      }catch{}
+    });
+    sse.addEventListener('price_update',e=>{
+      try{
+        const d=JSON.parse(e.data);
+        if(d.prices)renderAssetGrid(d.prices);
+      }catch{}
+    });
+    sse.onerror=()=>{
+      console.warn('SSE error, reconnecting in 10s');
+      setTimeout(connectSSE,10000);
+    };
+  }catch(e){console.warn('SSE not available:',e)}
+}
+
+function prependEvent(ev){
+  const feed=document.getElementById('eventFeed');
+  if(!feed)return;
+  const count=document.getElementById('evCount');
+  const html=evItemHtml(ev,'dashboard');
+  feed.insertAdjacentHTML('afterbegin',html);
+  // Flash animation
+  const first=feed.firstElementChild;
+  if(first)first.classList.add('ev-new');
+  // Update count
+  const n=parseInt(count.textContent)||0;
+  count.textContent=n+1;
+  // Trim to 30
+  while(feed.children.length>30)feed.removeChild(feed.lastChild);
+}
+
+function prependAnomaly(a){
+  const feed=document.getElementById('anomalyFeed');
+  if(!feed)return;
+  const count=document.getElementById('anomCount');
+  const icon=a.type==='price_spike'?'&#x1F4C8;':a.type==='event_cluster'?'&#x1F30D;':'&#x1F6A8;';
+  const html=`<div class="alert-item ${a.severity==='high'?'high':''}">
+    <div class="alert-icon">${icon}</div>
+    <div class="alert-body"><div class="alert-desc">${esc(a.description)}</div><div class="alert-time">just now</div></div>
+  </div>`;
+  feed.insertAdjacentHTML('afterbegin',html);
+  const n=parseInt(count.textContent)||0;
+  count.textContent=n+1;
+}
+
+// =========================================================================
+// ASK AI DRAWER
+// =========================================================================
+function toggleDrawer(){document.getElementById('askDrawer').classList.toggle('open')}
+async function sendQ(){
+  const inp=document.getElementById('askInput');
+  const q=inp.value.trim();if(!q)return;
+  inp.value='';
+  const msgs=document.getElementById('chatMsgs');
+  msgs.innerHTML+='<div class="u-msg">'+esc(q)+'</div>';
+  msgs.scrollTop=msgs.scrollHeight;
+  try{
+    const r=await safeFetch(API+'/ask?q='+encodeURIComponent(q));
+    msgs.innerHTML+='<div class="a-msg">'+esc(r.answer||r.response||'No answer')+'</div>';
+  }catch(e){
+    msgs.innerHTML+='<div class="a-msg" style="border-color:var(--red)">Error: '+esc(e.message)+'</div>';
+  }
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+// =========================================================================
+// MARKETS TAB
+// =========================================================================
+let selectedSignalId=null;
+
+async function loadMarkets(){
+  try{
+    const[stats,sigs,mkts]=await Promise.all([
+      safeFetch(API+'/polymarket/stats'),
+      safeFetch(API+'/polymarket/mispricings?limit=100'),
+      safeFetch(API+'/polymarket/markets?limit=50')
+    ]);
+    renderMktStats(stats);
+    renderSignalList(sigs);
+    renderMarketGrid(mkts);
+  }catch(e){console.error('Markets tab:',e)}
+}
+
+function renderMktStats(s){
+  if(!s)return;
+  document.getElementById('mktSigTotal').textContent=s.active_signals||0;
+  document.getElementById('mktSigStrong').textContent=s.by_strength?.strong||0;
+  document.getElementById('mktSigModerate').textContent=s.by_strength?.moderate||0;
+  document.getElementById('mktSigCorrected').textContent=s.resolution?.market_corrected||0;
+  document.getElementById('mktCorrRate').textContent=s.resolution?.correction_rate!=null?s.resolution.correction_rate+'% rate':'';
+  document.getElementById('mktMarketCount').textContent=s.active_markets||0;
+}
+
+function renderSignalList(data){
+  const list=document.getElementById('sigList');
+  const count=document.getElementById('mktSigCount');
+  const sigs=data?.mispricings||[];
+  count.textContent=sigs.length;
+  if(!sigs.length){
+    list.innerHTML='<div style="color:var(--dim);font-size:0.78rem;padding:20px;text-align:center">No mispricing signals yet — waiting for ripple/market matches</div>';
+    return;
+  }
+  list.innerHTML=sigs.map(s=>{
+    const strCls='str-'+(s.signal_strength||'weak');
+    const strTag=s.signal_strength==='strong'?'strong':s.signal_strength==='moderate'?'moderate':'';
+    const deltaPct=(s.delta*100).toFixed(1);
+    const dir=s.signal_direction==='market_underpriced'?'UP':'DOWN';
+    const dirCls=s.signal_direction==='market_underpriced'?'up':'down';
+    return`<div class="sig-item ${strCls}${s.id===selectedSignalId?' selected':''}" onclick="selectSignal(${s.id})">
+      <div class="sig-question">${esc(s.market_question||s.market_id)}</div>
+      <div class="sig-meta">
+        <span class="sig-tag ${strTag}">${esc(s.signal_strength)}</span>
+        <span class="sig-tag">${esc(s.match_method)}</span>
+        <span class="sig-tag">${esc(s.market_category||'')}</span>
+        <span class="sig-delta ${dirCls}">${dir} ${deltaPct}pp</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderMarketGrid(data){
+  const grid=document.getElementById('mktGrid');
+  const count=document.getElementById('mktTopCount');
+  const mkts=data?.markets||[];
+  count.textContent=mkts.length;
+  if(!mkts.length){
+    grid.innerHTML='<div style="color:var(--dim);font-size:0.78rem;padding:20px">No active markets</div>';
+    return;
+  }
+  grid.innerHTML=mkts.map(m=>{
+    const pct=Math.round((m.prob_yes||0.5)*100);
+    const vol=m.volume>=1e6?'$'+(m.volume/1e6).toFixed(1)+'M':m.volume>=1e3?'$'+(m.volume/1e3).toFixed(0)+'K':'$'+Math.round(m.volume);
+    const vol24=m.volume_24h>=1e3?'$'+(m.volume_24h/1e3).toFixed(0)+'K 24h':'';
+    const barCol=pct>=70?'var(--green)':pct>=40?'var(--amber)':'var(--red)';
+    return`<div class="mkt-tile">
+      <div class="mkt-tile-q">${esc(m.question)}</div>
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <span class="mkt-tile-prob" style="color:${barCol}">${pct}%</span>
+        <span class="mkt-tile-vol">${vol}</span>
+        <span class="mkt-tile-vol">${vol24}</span>
+      </div>
+      <div class="mkt-tile-bar"><div class="mkt-tile-bar-fill" style="width:${pct}%;background:${barCol}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+async function selectSignal(id){
+  selectedSignalId=id;
+  document.querySelectorAll('.sig-item').forEach(el=>el.classList.remove('selected'));
+  document.querySelector(`.sig-item[onclick="selectSignal(${id})"]`)?.classList.add('selected');
+
+  const panel=document.getElementById('sigDetail');
+  panel.innerHTML='<div class="skel"></div><div class="skel"></div>';
+
+  try{
+    const d=await safeFetch(API+'/polymarket/mispricings/'+id);
+    renderSignalDetail(d);
+  }catch(e){
+    panel.innerHTML='<div style="color:var(--red);font-size:0.78rem">Error loading signal detail</div>';
+  }
+}
+
+function renderSignalDetail(d){
+  const panel=document.getElementById('sigDetail');
+  if(!d||!d.signal){panel.innerHTML='<div style="color:var(--dim)">Signal not found</div>';return}
+  const s=d.signal;
+  const ev=d.event;
+  const chain=d.rippleChain||[];
+
+  const mktPct=Math.round((s.market_prob||0)*100);
+  const ourPct=Math.round((s.implied_ripple_prob||0)*100);
+  const deltaPct=((s.delta||0)*100).toFixed(1);
+  const strCol=s.signal_strength==='strong'?'var(--red)':s.signal_strength==='moderate'?'var(--amber)':'var(--muted)';
+  const dirLabel=s.signal_direction==='market_underpriced'?'Market is UNDERPRICED':'Market is OVERPRICED';
+  const dirCol=s.signal_direction==='market_underpriced'?'var(--green)':'var(--red)';
+
+  let html=`<div class="sig-detail">`;
+
+  // Market question + probabilities
+  html+=`<div class="sig-detail-section">
+    <div class="sig-detail-title">Market</div>
+    <div style="font-size:0.88rem;font-weight:600;margin-bottom:6px">${esc(s.market_question||s.market_id)}</div>
+    <div style="font-family:var(--font-data);font-size:0.78rem;color:${dirCol};font-weight:500;margin-bottom:8px">${dirLabel} (${deltaPct}pp delta)</div>
+    <div class="delta-bar">
+      <div class="delta-bar-label">${mktPct}%<br><span style="font-size:0.5rem">MKT</span></div>
+      <div class="delta-bar-track">
+        <div class="delta-bar-market" style="width:${mktPct}%"></div>
+        <div class="delta-bar-ours" style="left:${ourPct}%"></div>
+      </div>
+      <div class="delta-bar-label">${ourPct}%<br><span style="font-size:0.5rem">OURS</span></div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+      <span class="sig-tag" style="border-color:${strCol};color:${strCol}">${esc(s.signal_strength)}</span>
+      <span class="sig-tag">${esc(s.match_method)} match (${Math.round((s.match_score||0)*100)}%)</span>
+      <span class="sig-tag">${esc(s.ripple_direction||'')} ${esc(s.ripple_magnitude||'')}</span>
+      <span class="sig-tag">${esc(s.ripple_time_horizon||'')}</span>
+    </div>
+  </div>`;
+
+  // Triggering event
+  if(ev){
+    html+=`<div class="sig-detail-section">
+      <div class="sig-detail-title">Triggering Event</div>
+      <div style="font-size:0.82rem;font-weight:600;margin-bottom:2px">${esc(ev.title)}</div>
+      <div style="font-size:0.72rem;color:var(--muted);line-height:1.4">${esc((ev.summary||'').substring(0,200))}</div>
+      <div style="display:flex;gap:6px;margin-top:4px">
+        <span class="ev-tag">${esc(ev.category||'')}</span>
+        <span class="ev-tag">${esc(ev.country||'')}</span>
+        <span class="ev-time">${ago(ev.created_at)}</span>
+      </div>
+    </div>`;
+  }
+
+  // Ripple chain
+  if(chain.length){
+    html+=`<div class="sig-detail-section">
+      <div class="sig-detail-title">Ripple Chain</div>
+      <div class="ripple-chain">`;
+    for(const r of chain){
+      const oCls='o'+Math.min(r.ripple_order||0,3);
+      const dCls=r.direction==='up'?'up':r.direction==='down'?'down':'flat';
+      html+=`<div class="ripple-node">
+        <div class="ripple-order ${oCls}">Potential order ${r.ripple_order||0}</div>
+        <div class="ripple-asset">${esc(r.asset)}</div>
+        <div class="ripple-dir ${dCls}">${esc(r.direction)} ${esc(r.magnitude||'')}</div>
+        <div class="ripple-reasoning">${esc((r.reasoning||'').substring(0,80))}</div>
+        <div class="ripple-conf">${r.confidence?Math.round(r.confidence*100)+'%':''} &middot; ${esc(r.time_horizon||'')}</div>
+      </div>`;
+    }
+    html+=`</div></div>`;
+  }
+
+  // Reasoning
+  if(s.reasoning){
+    html+=`<div class="sig-detail-section">
+      <div class="sig-detail-title">Analysis</div>
+      <div style="font-size:0.78rem;color:var(--muted);line-height:1.5">${esc(s.reasoning)}</div>
+    </div>`;
+  }
+
+  // Link to Polymarket
+  if(s.market_url){
+    html+=`<a href="${esc(s.market_url)}" target="_blank" rel="noopener" class="sig-link">Open on Polymarket &#x2192;</a>`;
+  }
+
+  html+=`</div>`;
+  panel.innerHTML=html;
+}
+
+// =========================================================================
+// INIT
+// =========================================================================
+async function init(){
+  await loadDashboard();
+  loadNews();
+  connectSSE();
+  // Refresh dashboard every 60s
+  intervals.push(setInterval(loadDashboard,60000));
+  // Refresh news every 5min
+  intervals.push(setInterval(loadNews,300000));
+}
+
+window.addEventListener('beforeunload',()=>{
+  intervals.forEach(clearInterval);
+  if(sse)sse.close();
+});
+
+init();
+</script>
+</body>
+</html>

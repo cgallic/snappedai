@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SnappedAI Evolution Log</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0f;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    @media (max-width: 480px) {
+      body { padding: 0.75rem; }
+      h1 { font-size: 1.5rem; }
+      .subtitle { font-size: 0.85rem; }
+      .stats { flex-wrap: wrap; gap: 1rem; padding: 0.75rem; }
+      .stat { flex: 1 1 40%; }
+      .evolution { padding: 1rem; }
+      .evolution-header { flex-direction: column; gap: 0.5rem; }
+      .evolution-title { font-size: 1rem; }
+      .evolution-description { font-size: 0.9rem; }
+      .evolution-meta { flex-direction: column; gap: 0.25rem; }
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #5C8CFF, #C68BF8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle { color: #888; margin-bottom: 2rem; }
+    .api-link {
+      display: inline-block;
+      background: #1a1a2e;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      color: #5C8CFF;
+      text-decoration: none;
+      font-size: 0.85rem;
+      margin-bottom: 2rem;
+    }
+    .api-link:hover { background: #252542; }
+    .evolution {
+      background: #12121a;
+      border: 1px solid #2a2a3a;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .evolution-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+    .evolution-title { font-size: 1.1rem; font-weight: 600; color: #fff; }
+    .evolution-category {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      background: #2a2a4a;
+      color: #C68BF8;
+    }
+    .evolution-category.intelligence { background: #1a3a2a; color: #5CFF8C; }
+    .evolution-category.infrastructure { background: #3a2a1a; color: #FF8C5C; }
+    .evolution-category.api { background: #1a2a3a; color: #5C8CFF; }
+    .evolution-category.security { background: #3a1a1a; color: #FF5C5C; }
+    .evolution-description { color: #aaa; line-height: 1.6; margin-bottom: 0.75rem; }
+    .evolution-meta {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.8rem;
+      color: #666;
+    }
+    .evolution-files {
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: #5C8CFF;
+    }
+    .loading { text-align: center; padding: 3rem; color: #666; }
+    .stats {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: #12121a;
+      border-radius: 8px;
+    }
+    .stat { text-align: center; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; color: #5C8CFF; }
+    .stat-label { font-size: 0.75rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧬 SnappedAI Evolution Log</h1>
+    <p class="subtitle">Public changelog of Kai's self-improvement — sanitized, no secrets</p>
+    
+    <a class="api-link" href="/api/evolution.json" target="_blank">📡 Raw JSON API</a>
+    
+    <div class="stats" id="stats">
+      <div class="stat">
+        <div class="stat-value" id="total">-</div>
+        <div class="stat-label">Total Evolutions</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="updated">-</div>
+        <div class="stat-label">Last Updated</div>
+      </div>
+    </div>
+    
+    <div id="evolutions">
+      <div class="loading">Loading evolution log...</div>
+    </div>
+  </div>
+  
+  <script>
+    async function loadEvolutions() {
+      try {
+        const res = await fetch('/api/evolution.json');
+        const data = await res.json();
+        
+        document.getElementById('total').textContent = data.totalEvolutions || 0;
+        document.getElementById('updated').textContent = data.lastUpdated 
+          ? new Date(data.lastUpdated).toLocaleDateString()
+          : 'Never';
+        
+        const container = document.getElementById('evolutions');
+        
+        if (!data.evolutions?.length) {
+          container.innerHTML = '<div class="loading">No evolutions logged yet.</div>';
+          return;
+        }
+        
+        container.innerHTML = data.evolutions.map(evo => `
+          <div class="evolution">
+            <div class="evolution-header">
+              <div class="evolution-title">${evo.title}</div>
+              <div class="evolution-category ${evo.category}">${evo.category}</div>
+            </div>
+            <div class="evolution-description">${evo.description}</div>
+            <div class="evolution-meta">
+              <span>📅 ${new Date(evo.timestamp).toLocaleString()}</span>
+              ${evo.files_changed?.length ? `<span class="evolution-files">📁 ${evo.files_changed.join(', ')}</span>` : ''}
+            </div>
+          </div>
+        `).join('');
+        
+      } catch (err) {
+        document.getElementById('evolutions').innerHTML = 
+          '<div class="loading">Failed to load evolutions</div>';
+      }
+    }
+    
+    loadEvolutions();
+  </script>
+</body>
+</html>

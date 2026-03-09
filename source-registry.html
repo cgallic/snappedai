@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Source Registry</title>
+  <style>
+    body { font-family: Inter, Arial, sans-serif; background:#0a0a0f; color:#e2e8f0; margin:0; }
+    .wrap { max-width: 1500px; margin: 0 auto; padding: 16px; }
+    .top { display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+    .chip { font-size:12px; padding:4px 8px; border:1px solid #2a2a3a; border-radius:999px; color:#a5b4fc; }
+    .warn { color:#fbbf24; border-color:#5b4a1d; }
+    .ok { color:#86efac; border-color:#1f4b2e; }
+    .controls { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; align-items: center; }
+    input, select { background:#12121a; color:#e2e8f0; border:1px solid #2a2a3a; border-radius:8px; padding:8px 10px; }
+    input { min-width:280px; }
+    a { color:#a78bfa; text-decoration:none; }
+    a:hover { text-decoration: underline; }
+    table { width:100%; border-collapse: collapse; background:#12121a; border:1px solid #222233; }
+    th, td { border-bottom:1px solid #1e1e2e; padding:8px; font-size:12px; text-align:left; vertical-align:top; }
+    th { position:sticky; top:0; background:#171723; color:#94a3b8; text-transform:uppercase; font-size:11px; cursor: pointer; user-select: none; }
+    th:hover { color: #e2e8f0; }
+    th .sort-arrow { font-size: 10px; margin-left: 4px; }
+    tr:hover td { background:#161626; }
+    .muted { color:#94a3b8; font-size:12px; margin:8px 0 12px; }
+    .tag { font-size:10px; padding:2px 6px; border-radius:999px; border:1px solid #333; color:#cbd5e1; display: inline-block; }
+    .tag.placeholder { color:#fbbf24; border-color:#5b4a1d; }
+    .tag.official { color:#86efac; border-color:#1f4b2e; }
+    .export-btn { background: #1e1e2e; color: #a78bfa; border: 1px solid #2a2a3a; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 12px; }
+    .export-btn:hover { background: #2a2a3a; }
+    .score-bar { width: 50px; height: 6px; background: #1e1e2e; border-radius: 3px; display: inline-block; position: relative; vertical-align: middle; }
+    .score-fill { height: 100%; border-radius: 3px; position: absolute; left: 0; top: 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <h2 style="margin:0;">Global Source Registry</h2>
+      <span class="chip" id="count">Loading...</span>
+      <span class="chip warn" id="placeholderCount">...</span>
+      <span class="chip ok" id="officialCount">...</span>
+      <a href="/reports.html">&larr; Back to Reports</a>
+    </div>
+    <div class="muted">Live registry of geopolitical/market sources. Filter by country, source, type, coverage, or notes.</div>
+
+    <div class="controls">
+      <input id="q" placeholder="Search sources..." oninput="render()">
+      <select id="region" onchange="render()"><option value="">All regions</option></select>
+      <select id="sourceType" onchange="render()"><option value="">All source types</option></select>
+      <select id="quality" onchange="render()">
+        <option value="">All quality</option>
+        <option value="official">Verified only</option>
+        <option value="placeholder">Placeholder only</option>
+      </select>
+      <button class="export-btn" onclick="exportCSV()">Export CSV</button>
+    </div>
+
+    <div style="overflow:auto; margin-top:12px; max-height:75vh;">
+      <table id="t"><thead></thead><tbody></tbody></table>
+    </div>
+  </div>
+
+<script>
+  let allSources = [];
+  let allStats = {};
+  let sortCol = 'country_or_zone';
+  let sortDir = 1; // 1 = asc, -1 = desc
+
+  const COLUMNS = [
+    { key: 'source_id', label: 'ID' },
+    { key: 'priority', label: 'Priority' },
+    { key: 'region', label: 'Region' },
+    { key: 'country_or_zone', label: 'Country' },
+    { key: 'source_name', label: 'Source' },
+    { key: 'source_type', label: 'Type' },
+    { key: 'language', label: 'Lang' },
+    { key: 'coverage', label: 'Coverage' },
+    { key: 'ingestion_method', label: 'Method' },
+    { key: 'reliability_score', label: 'Reliability' },
+    { key: 'verified', label: 'Status' },
+  ];
+
+  function esc(str) {
+    var div = document.createElement('div');
+    div.textContent = String(str ?? '');
+    return div.innerHTML;
+  }
+
+  async function load() {
+    try {
+      const res = await fetch('/api/sources');
+      const data = await res.json();
+      allSources = data.sources || [];
+      allStats = data.stats || {};
+
+      // Populate filters
+      var regionSel = document.getElementById('region');
+      (data.regions || []).forEach(function(v) {
+        if (!v) return;
+        var o = document.createElement('option'); o.value = v; o.textContent = v; regionSel.appendChild(o);
+      });
+      var typeSel = document.getElementById('sourceType');
+      (data.sourceTypes || []).forEach(function(v) {
+        if (!v) return;
+        var o = document.createElement('option'); o.value = v; o.textContent = v; typeSel.appendChild(o);
+      });
+
+      document.getElementById('count').textContent = allStats.total + ' total sources';
+      document.getElementById('placeholderCount').textContent = allStats.placeholder + ' placeholders';
+      document.getElementById('officialCount').textContent = allStats.verified + ' verified';
+
+      render();
+    } catch (e) {
+      document.getElementById('count').textContent = 'Error loading';
+      console.error('Load error:', e);
+    }
+  }
+
+  function setSort(col) {
+    if (sortCol === col) { sortDir *= -1; }
+    else { sortCol = col; sortDir = 1; }
+    render();
+  }
+
+  function render() {
+    var q = document.getElementById('q').value.toLowerCase();
+    var region = document.getElementById('region').value;
+    var sourceType = document.getElementById('sourceType').value;
+    var quality = document.getElementById('quality').value;
+
+    var filtered = allSources.filter(function(r) {
+      var textOk = !q || Object.values(r).join(' ').toLowerCase().includes(q);
+      var regionOk = !region || r.region === region;
+      var typeOk = !sourceType || r.source_type === sourceType;
+      var qualOk = !quality || (quality === 'placeholder' ? !r.verified : !!r.verified);
+      return textOk && regionOk && typeOk && qualOk;
+    });
+
+    // Sort
+    filtered.sort(function(a, b) {
+      var av = a[sortCol], bv = b[sortCol];
+      if (sortCol === 'reliability_score' || sortCol === 'verified') {
+        av = parseFloat(av) || 0; bv = parseFloat(bv) || 0;
+      } else {
+        av = String(av || '').toLowerCase(); bv = String(bv || '').toLowerCase();
+      }
+      if (av < bv) return -1 * sortDir;
+      if (av > bv) return 1 * sortDir;
+      return 0;
+    });
+
+    document.getElementById('count').textContent = filtered.length + ' shown / ' + allStats.total + ' total';
+
+    // Build header
+    var thead = '<tr>';
+    COLUMNS.forEach(function(col) {
+      var arrow = sortCol === col.key ? (sortDir === 1 ? ' &#x25B2;' : ' &#x25BC;') : '';
+      thead += '<th onclick="setSort(\'' + col.key + '\')">' + col.label + '<span class="sort-arrow">' + arrow + '</span></th>';
+    });
+    thead += '</tr>';
+
+    // Build rows
+    var tbody = '';
+    filtered.forEach(function(r) {
+      tbody += '<tr>';
+      COLUMNS.forEach(function(col) {
+        if (col.key === 'verified') {
+          tbody += '<td>' + (r.verified ? '<span class="tag official">verified</span>' : '<span class="tag placeholder">placeholder</span>') + '</td>';
+        } else if (col.key === 'reliability_score') {
+          var score = parseFloat(r.reliability_score) || 0;
+          var pct = Math.round(score * 100);
+          var color = score >= 0.8 ? '#86efac' : score >= 0.6 ? '#fbbf24' : '#f87171';
+          tbody += '<td><div class="score-bar"><div class="score-fill" style="width:' + pct + '%;background:' + color + ';"></div></div> ' + score.toFixed(2) + '</td>';
+        } else {
+          tbody += '<td>' + esc(r[col.key] || '') + '</td>';
+        }
+      });
+      tbody += '</tr>';
+    });
+
+    document.querySelector('#t thead').innerHTML = thead;
+    document.querySelector('#t tbody').innerHTML = tbody;
+  }
+
+  function exportCSV() {
+    var headers = COLUMNS.map(function(c) { return c.label; });
+    var rows = allSources.map(function(r) {
+      return COLUMNS.map(function(c) {
+        var val = String(r[c.key] ?? '');
+        if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+          val = '"' + val.replace(/"/g, '""') + '"';
+        }
+        return val;
+      }).join(',');
+    });
+    var csv = headers.join(',') + '\n' + rows.join('\n');
+    var blob = new Blob([csv], { type: 'text/csv' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'source-registry-' + new Date().toISOString().split('T')[0] + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  load();
+</script>
+</body>
+</html>

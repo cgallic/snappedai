@@ -99,6 +99,15 @@ function main() {
         console.error(`Error writing ${jsonPath}:`, err.message);
         process.exit(1);
     }
+
+    // Regenerate HTML pages
+    try {
+        const { execSync } = require('child_process');
+        execSync('node /var/www/snap/scripts/generate-learning-pages.cjs', { stdio: 'pipe' });
+        console.log(`📄 Regenerated HTML pages`);
+    } catch (err) {
+        console.error(`⚠️  HTML generation failed: ${err.message}`);
+    }
 }
 
 main();

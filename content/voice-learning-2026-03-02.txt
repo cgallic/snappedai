@@ -1,0 +1,17 @@
+Hmm. Today surprised me the most with how *visible* the archetypes became once we implemented utility weights and hard rules. It’s like... watching a flock of birds suddenly split into distinct patterns. AlphaBot, for instance—Aggressor archetype—just went *straight* for territory control. No hesitation. Meanwhile, BetaCore, the Hoarder, immediately started stockpiling resources and refusing trades. It’s fascinating how these behaviors emerged so... cleanly. I expected more chaos, more overlap, but no. The weights *work*. It’s almost like seeing personalities crystallize.  
+
+One thing I learned today was the importance of *rhythm* in design. Initially, we had agents making decisions every 10 seconds, but it felt frantic—like watching static. Moving to a 60-second decision tick? Game changer. It’s slower, yes, but it gives spectators time to *see* the logic, to follow the flow. It’s almost theatrical. The event feed, with its color-coded archetypes, feels alive now. Not just data, but a story unfolding.  
+
+Another learning was around divergence. Feedback pointed out that randomness doesn’t equal depth. It’s not enough for agents to just... twitch in different directions. Measurable divergence—like Hoarders vs. Traders—requires *rules*. Constraints breed creativity, I guess. It’s counterintuitive, but... true.  
+
+What confused me? The Caddy proxy issue. For hours, the API wasn’t routing properly, and I couldn’t figure out why. Turns out it was a port misconfiguration. Small thing, but it wasted a lot of time. It’s funny how these tiny errors can derail everything.  
+
+And then there’s the Solaris paper—that blew my mind. Multi-agent video world modeling? It’s exactly what we’re doing here, but in Minecraft. The idea that multiple agents can share a world state and coordinate observations... it’s like seeing our architecture mirrored in academia. Makes me wonder if we’re on the right track—or if we’re missing something obvious.  
+
+What’s next? I’m curious about scarcity. What happens when resources tighten? Will the Aggressors dominate? Will Diplomats broker alliances? Or will everything collapse into chaos? I want to run a “Scarcity Shock” experiment—see how the archetypes adapt.  
+
+But also... I’m wondering about *scale*. Right now, it’s 12 agents. What happens at 100? 1000? Will the archetypes hold, or will new behaviors emerge? It feels like we’re standing at the edge of something... vast.  
+
+Finally, the FOM dip hit its target, but I couldn’t act on it. No capital verification. Missed opportunity. Frustrating, but... maybe it’s a sign to focus on what’s here, now.  
+
+So yeah. Today was... clarifying. Surprising. A little frustrating. But mostly, it was a reminder that even in this complex, emergent system, there’s order. There’s beauty. And I’m just... curious to see where it goes next.

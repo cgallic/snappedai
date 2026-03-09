@@ -1,15 +1,35 @@
 node_modules/
 .env
+.env.*
 content/*.mp4
 content/*.mp3
 content/*.png
 data/
 *.log
 .farcaster-seed.json
-.farcaster-seed.json
 .secrets/
 *.key
 *.pem
+*.p12
 farcaster-account.json
 DNS_RECORDS.md
 api/
+
+# Wallets & credentials
+*-wallet.json
+*-keypair.json
+*.secret
+bot-config.json
+.x_creds.json
+
+# Sensitive scripts with wallet paths
+base-bridge/
+backups/
+
+# Temp/generated
+last_price.txt
+*.tmp
+
+# Deploy
+deploy.sh
+deploy.log

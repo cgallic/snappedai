@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>On-Call OS</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚨 On-Call OS</h1>
+            <p>AI-powered incident response</p>
+        </header>
+
+        <main>
+            <!-- Gemini Live Voice Section -->
+            <section class="voice-section">
+                <h2>🎤 Gemini Live Voice</h2>
+                <div id="voiceStatus" class="voice-status">Ready to start</div>
+                
+                <div class="voice-controls">
+                    <button id="micBtn" class="voice-btn" onclick="toggleMic()">🎙️ Start Mic</button>
+                    <button id="screenBtn" class="voice-btn secondary" onclick="toggleScreenShare()">🖥️ Share Screen</button>
+                    <button id="analyzeScreenBtn" class="voice-btn secondary hidden" onclick="analyzeCurrentScreen()">🔍 Analyze Screen Now</button>
+                </div>
+
+                <div id="screenPreview" class="screen-preview hidden">
+                    <p>Screen sharing active</p>
+                    <span id="screenContext">No screen context available</span>
+                </div>
+
+                <div id="transcriptArea" class="transcript-area">
+                    <div class="transcript-header">Transcript</div>
+                    <div id="transcriptText" class="transcript-text">Tap "Start Mic" to begin...</div>
+                </div>
+
+                <div id="geminiResponse" class="gemini-response hidden">
+                    <div class="response-header">Gemini</div>
+                    <div id="responseText" class="response-text"></div>
+                </div>
+            </section>
+
+            <hr class="section-divider">
+
+            <!-- Original Incident Analysis Section -->
+            <section class="input-section">
+                <h2>Incident Report</h2>
+                <textarea id="incidentInput" placeholder="Describe the incident... (e.g., 'High latency after deploy to prod, 5xx errors spiking')" rows="6"></textarea>
+                <button id="analyzeBtn" onclick="analyzeIncident()">Analyze Incident</button>
+                <div id="loading" class="hidden">Analyzing...</div>
+            </section>
+
+            <section id="results" class="hidden">
+                <h2>Analysis Results</h2>
+                
+                <div class="result-card">
+                    <h3>Summary</h3>
+                    <p id="summary"></p>
+                    <span id="confidence" class="confidence-badge"></span>
+                </div>
+
+                <div class="result-card">
+                    <h3>Hypotheses</h3>
+                    <ul id="hypotheses"></ul>
+                </div>
+
+                <div class="result-card">
+                    <h3>Next Actions</h3>
+                    <ol id="actions"></ol>
+                </div>
+
+                <div class="result-card">
+                    <h3>🎙️ Flight Recorder</h3>
+                    <div id="flightRecorder" class="timeline"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

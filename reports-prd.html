@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Butterfly Engine PRD</title>
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#0a0a0f; color:#e2e8f0; margin:0; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    a { color:#8b5cf6; }
+    .card { background:#12121a; border:1px solid #1e1e2e; border-radius:10px; padding:16px; }
+    pre { white-space: pre-wrap; word-wrap: break-word; line-height:1.4; font-size:14px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .top { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <h1>Global Butterfly Engine — Data Sources Map + PRD</h1>
+      <a href="/reports.html">← Back to Reports</a>
+    </div>
+    <div class="card"><pre># Global Butterfly Engine — Data Sources Map + PRD
+
+Last updated: 2026-03-05 (UTC)
+Owner: Kai / SnappedAI
+
+## 1) Objective
+Build a global intelligence engine that detects local events anywhere in the world, translates them, models downstream effects, and outputs pricing/risk adjustments across assets.
+
+---
+
+## 2) Complete Data Source Map
+
+## A. News &amp; Official Information (Global + Local)
+
+### A1) Global Wire / International
+- Reuters (licensed/API if available)
+- AP News
+- AFP
+- BBC World
+- Al Jazeera
+- DW
+- France24
+- CNA
+
+Use for: high-signal global event confirmation and timestamp anchoring.
+Cadence: 1-5 min polling.
+
+### A2) Country-Local News (Priority by market sensitivity)
+- LATAM (incl. Ecuador focus): El Comercio, El Universo, Primicias, La Hora, El Telégrafo, regional business papers
+- MENA: local Arabic and English business/politics outlets
+- APAC: major national outlets (Japan, Korea, China, India, SEA)
+- Africa: top national outlets by country + regional wires
+- Europe: national dailies + financial papers
+
+Use for: first detection of local shocks before global pickup.
+Cadence: 1-10 min polling.
+
+### A3) Government / Official Primary Sources
+- Central banks (statements, emergency actions)
+- Ministries (energy, transport, finance, interior, defense)
+- Presidency / PM offices
+- Civil defense / emergency management
+- Customs and port authorities
+- Election authorities
+
+Use for: primary-source confirmation and policy event detection.
+Cadence: 1-15 min polling (event-driven for high-priority sources).
+
+### A4) Sanctions / Regulatory / Trade
+- OFAC sanctions updates
+- EU sanctions releases
+- UK HMT sanctions
+- WTO / trade policy notices where relevant
+
+Use for: immediate cross-border risk and payment/trade disruption signals.
+Cadence: 15-60 min polling.
+
+---
+
+## B. Conflict, Security, Geopolitical
+
+- ACLED (conflict event data)
+- GDELT event stream
+- UN OCHA / ReliefWeb
+- Maritime advisories (IMO, UKMTO where available)
+- Regional military/airspace NOTAM-style notices where accessible
+
+Use for: structured conflict escalation probability and geography-linked risk.
+Cadence: 5-30 min polling.
+
+---
+
+## C. Transport, Logistics, Chokepoints
+
+### C1) Aviation
+- ADS-B flight data providers
+- Airspace restriction notices / route deviations
+
+Derived signals:
+- corridor traffic anomaly
+- military/civilian ratio shifts
+- reroute intensity index
+
+Cadence: near-real-time (15-60 sec windows, 1-5 min aggregates).
+
+### C2) Maritime / Shipping
+- AIS vessel traffic feeds
+- Port congestion indicators
+- Tanker/containers flow feeds
+- Canal/chokepoint transit indicators (Suez, Panama, Hormuz proxies)
+
+Derived signals:
+- transit delay
+- route diversion index
+- tanker scarcity / freight stress
+
+Cadence: 1-10 min aggregates.
+
+### C3) Freight &amp; Shipping Economics
+- Freight indexes (container, dry bulk, tanker)
+- Insurance/marine-risk proxies where available
+
+Use for: second-order propagation into inflation, margins, and country stress.
+Cadence: hourly to daily depending source.
+
+---
+
+## D. Macro &amp; Economics
+
+- IMF, World Bank, OECD releases
+- National statistics agencies (CPI, PPI, GDP, labor, trade)
+- Economic calendar feeds (scheduled macro releases)
+- Central bank calendars/statements/minutes
+
+Use for: expected-vs-surprise regime shifts and macro shock scoring.
+Cadence: event-driven + daily checks.
+
+---
+
+## E. Energy, Commodities, Physical Fundamentals
+
+- EIA, IEA, OPEC updates
+- Grid/load/outage feeds where public
+- Crop/weather/agri sources: USDA, FAO, weather/climate feeds
+- Fire/satellite anomaly feeds (e.g., wildfire/industrial fire proxies)
+
+Use for: direct commodity supply/demand shock detection.
+Cadence: 5 min to daily (source dependent).
+
+---
+
+## F. Natural Hazard &amp; Earth Systems
+
+- USGS earthquakes
+- NOAA severe weather alerts
+- ECMWF/Copernicus outputs (as accessible)
+- Volcanic ash advisories
+- Flood/drought alerts
+
+Use for: exogenous shocks and infrastructure disruption risk.
+Cadence: 1-15 min alerts.
+
+---
+
+## G. Markets &amp; Microstructure
+
+### G1) Core Cross-Asset Prices
+- Equities indices + sector ETFs
+- Single-name strategic equities (defense, shipping, insurers, semis, energy)
+- Commodities (oil/gas/metals/agri)
+- FX majors + EMFX basket
+- Rates (UST curve, global benchmark yields)
+- Credit proxies (HY spreads/ETFs)
+- Crypto majors + risk-on/risk-off crypto proxies
+
+### G2) Volatility / Positioning Proxies
+- VIX family
+- Rates vol proxies (MOVE-like)
+- Options skew/term structures where available
+- Funding/open-interest derivatives signals (crypto/futures)
+
+Use for: anomaly confirmation and pricing conversion.
+Cadence: 1-60 sec market feed; 1-5 min normalized snapshots.
+
+---
+
+## H. Prediction Markets (Critical)
+
+- Polymarket market odds + volume + odds velocity
+- Kalshi equivalents where accessible
+
+Use for:
+1) crowd-implied event probability
+2) confirmation/disagreement with news narrative
+3) prior probabilities in downstream chain scoring
+
+Cadence: 1-5 min.
+
+---
+
+## I. Narrative / Attention (Optional v1, Core v2)
+
+- Google Trends (regional)
+- Wikipedia pageview spikes (entity-level)
+- Curated social trend sources by region/platform (compliant ingestion)
+
+Use for: early narrative acceleration and attention shocks.
+Cadence: 5-60 min.
+
+---
+
+## J. Translation, NLP, Entity Intelligence
+
+Pipeline components:
+- Language identification
+- Machine translation (primary + fallback model)
+- Named entity recognition/linking (people, places, orgs, assets, infrastructure)
+- Event classification (type, severity, confidence)
+- Source reliability scoring
+
+Data retained per item:
+- original text
+- translated text
+- translation confidence
+- extracted entities and links
+
+---
+
+## 3) Canonical Event Schema (Required)
+
+```json
+{
+  &quot;event_id&quot;: &quot;uuid&quot;,
+  &quot;timestamp_utc&quot;: &quot;ISO8601&quot;,
+  &quot;country&quot;: &quot;ECU&quot;,
+  &quot;region&quot;: &quot;LATAM&quot;,
+  &quot;location&quot;: {&quot;lat&quot;: -0.18, &quot;lon&quot;: -78.47},
+  &quot;source&quot;: {
+    &quot;name&quot;: &quot;El Comercio&quot;,
+    &quot;url&quot;: &quot;...&quot;,
+    &quot;type&quot;: &quot;news|gov|wire|sensor&quot;,
+    &quot;reliability_score&quot;: 0.86
+  },
+  &quot;language_original&quot;: &quot;es&quot;,
+  &quot;text_original&quot;: &quot;...&quot;,
+  &quot;text_en&quot;: &quot;...&quot;,
+  &quot;translation_confidence&quot;: 0.93,
+  &quot;event_type&quot;: &quot;infrastructure_disruption&quot;,
+  &quot;entities&quot;: [&quot;Ecuador&quot;, &quot;pipeline&quot;, &quot;WTI&quot;, &quot;Pacific export terminal&quot;],
+  &quot;severity&quot;: &quot;high&quot;,
+  &quot;novelty_score&quot;: 0.71,
+  &quot;recency_score&quot;: 0.92,
+  &quot;anomaly_score&quot;: 0.79,
+  &quot;cross_confirm_count&quot;: 3,
+  &quot;linked_assets&quot;: [&quot;CL=F&quot;, &quot;BZ=F&quot;, &quot;USDECU_proxy&quot;, &quot;STNG&quot;],
+  &quot;downstream_edges&quot;: [
+    {
+      &quot;to&quot;: &quot;brent_risk_premium&quot;,
+      &quot;horizon&quot;: &quot;24h&quot;,
+      &quot;probability&quot;: 0.67,
+      &quot;expected_magnitude&quot;: 0.9
+    }
+  ],
+  &quot;pricing_output&quot;: {
+    &quot;expected_move_6h&quot;: 0.4,
+    &quot;expected_move_24h&quot;: 1.2,
+    &quot;confidence&quot;: 0.74,
+    &quot;half_life_min&quot;: 380,
+    &quot;suggested_spread_bps&quot;: 22
+  }
+}
+```
+
+---
+
+## 4) PRD
+
+## 4.1 Problem
+Current system is too region-biased and threshold-static. It misses local global events and under-models downstream cross-asset propagation.
+
+## 4.2 Users
+- Primary: macro operator (real-time decisions)
+- Secondary: analysts/risk teams
+
+## 4.3 Jobs-to-be-Done
+1. Detect a local event quickly, regardless of language/country.
+2. Understand what it means globally (1st/2nd/3rd-order effects).
+3. See actionable pricing/risk deltas with confidence and decay.
+
+## 4.4 Functional Requirements
+- Multi-region source ingestion (global + local + official + sensor + market)
+- Translation + source attribution + confidence scoring
+- Canonical event normalization
+- Anomaly scoring (relative, regime-aware)
+- Downstream effect graph generation
+- Asset mapping + expected move bands + spread/risk adjustment
+- Alerting with explainability and dedupe/cooldowns
+
+## 4.5 Core APIs
+- `GET /events/live`
+- `GET /events/:id`
+- `GET /anomalies/live`
+- `GET /impact/:asset`
+- `GET /pricing/live`
+- `GET /watch/global`
+
+## 4.6 Scoring Framework (v1)
+- `anomaly_score = magnitude * novelty * persistence * reliability * cross_confirm_boost`
+- regime states: `risk_on | neutral | risk_off | panic`
+- pricing conversion:
+  - `expected_move_h = regime_beta * anomaly_score * asset_sensitivity`
+  - output: P25/P50/P75 bands + confidence + half-life
+
+## 4.7 Alert Gate Conditions
+- anomaly above dynamic threshold
+- cross-confirm count meets minimum
+- confidence threshold met
+- duplicate cooldown passed
+
+Alert payload must include:
+- Local event summary (translated)
+- Why now (top 3 drivers)
+- Downstream chain
+- Impacted assets + expected moves
+- Invalidation conditions
+
+## 4.8 UI Requirements
+- Global event map (heat + clusters)
+- Country drill-down with local sources + translations
+- Ripple graph (1st/2nd/3rd-order)
+- Cross-asset impact matrix
+- Confidence/decay timer
+
+## 4.9 Milestones
+
+### Phase 1 (Weeks 1-2)
+- Source onboarding framework
+- Translation + canonical schema
+- Basic anomaly ranking
+- Fix current schema/timestamp inconsistencies
+
+### Phase 2 (Weeks 3-4)
+- Regional rollout pack (LATAM first, then MENA/APAC)
+- Downstream graph v1
+- Asset mapping table
+- Polymarket ingestion
+
+### Phase 3 (Weeks 5-6)
+- Pricing engine bands/confidence/half-life
+- Global map + ripple UI
+- Alerting policy + suppression
+
+### Phase 4 (Weeks 7-8)
+- Calibration and backtests
+- Precision/recall audits
+- Weight tuning by regime and region
+
+## 4.10 Metrics
+- Detection latency
+- Translation/entity precision
+- Alert precision/recall
+- Forecast calibration error
+- Coverage breadth and redundancy
+
+## 4.11 Risks &amp; Mitigations
+- Noisy local sources -&gt; reliability scoring + cross-confirmation
+- Translation misses -&gt; fallback models + confidence gating
+- Alert fatigue -&gt; strict gates + cooldown + weekly tuning
+- Regional blind spots -&gt; mandatory source redundancy per country/chokepoint
+
+---
+
+## 5) Minimum Source Coverage Checklist (Launch)
+
+Per priority country/chokepoint, require at least:
+- 3 local news sources
+- 2 official/government sources
+- 1 transport/logistics source
+- 1 macro/policy calendar source
+- global wire fallback
+
+Priority launch set:
+- Ecuador
+- Panama Canal zone
+- Suez/Red Sea
+- Hormuz/Gulf
+- Taiwan Strait
+- Ukraine/Black Sea corridor
+- Nigeria/Gulf of Guinea
+- Brazil agribelt
+
+---
+
+## 6) Immediate Next Build Tasks
+1. Build source registry table (`source_id`, type, country, language, reliability, cadence)
+2. Implement translation pipeline with confidence
+3. Implement canonical event schema in storage
+4. Add anomaly fields to existing APIs
+5. Integrate Polymarket odds delta stream
+6. Add first downstream graph generator and expose via `/events/:id`
+</pre></div>
+  </div>
+</body>
+</html>

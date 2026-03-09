@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kai CMO — Your AI Marketing Department</title>
+  <meta name="description" content="Stop hiring. Start scaling. Get an autonomous AI marketing team that runs 24/7.">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --card: #111;
+      --border: #222;
+      --text: #e5e5e5;
+      --muted: #888;
+      --accent: #5C8CFF;
+      --accent2: #C68BF8;
+      --green: #22c55e;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
+    
+    /* Hero */
+    .hero {
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: clamp(2.5rem, 8vw, 4rem);
+      font-weight: 700;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #fff, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      font-size: 1.4rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+    .cta-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      padding: 16px 40px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 40px rgba(92, 140, 255, 0.3);
+    }
+    .price-hint {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* Social Proof */
+    .proof {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 30px;
+      margin: 40px auto;
+      max-width: 600px;
+      text-align: left;
+    }
+    .proof-quote {
+      font-size: 1.1rem;
+      font-style: italic;
+      margin-bottom: 16px;
+    }
+    .proof-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .proof-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .proof-name { font-weight: 600; }
+    .proof-title { color: var(--muted); font-size: 0.85rem; }
+
+    /* What You Get */
+    .section { padding: 80px 20px; }
+    .section h2 {
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+    .card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+    .card p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* Comparison */
+    .compare {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-row:last-child { border-bottom: none; }
+    .compare-cell {
+      padding: 16px;
+      text-align: center;
+    }
+    .compare-header {
+      background: #1a1a1a;
+      font-weight: 600;
+    }
+    .compare-label {
+      text-align: left;
+      color: var(--muted);
+    }
+    .check { color: var(--green); }
+    .x { color: #ef4444; }
+
+    /* Pricing */
+    .pricing-card {
+      background: linear-gradient(135deg, var(--card), #1a1a2e);
+      border: 2px solid var(--accent);
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .pricing-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+    .pricing-price {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .pricing-period {
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .pricing-features {
+      text-align: left;
+      list-style: none;
+      margin-bottom: 30px;
+    }
+    .pricing-features li {
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .pricing-features li::before {
+      content: "✓";
+      color: var(--green);
+      font-weight: bold;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    footer a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <div class="container">
+      <span class="badge">Now Accepting Clients</span>
+      <h1>Your AI Marketing Department</h1>
+      <p class="subtitle">Stop hiring a $150k/yr marketing team. Get Kai CMO — an autonomous AI that runs your marketing 24/7.</p>
+      <a href="#contact" class="cta-btn">Get Started →</a>
+      <p class="price-hint">Starting at $2,000/mo • No contracts</p>
+      
+      <div class="proof">
+        <p class="proof-quote">"$1m/yr business (easy) — Charge $100k to get a company setup with an automated agent team"</p>
+        <div class="proof-author">
+          <div class="proof-avatar"></div>
+          <div>
+            <div class="proof-name">Ryan Carson</div>
+            <div class="proof-title">@ryancarson • 47K views, 409 likes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <h2>What You Get</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="card-icon">📊</div>
+          <h3>Analytics On Autopilot</h3>
+          <p>GA4 and Search Console connected. Daily monitoring. Weekly reports pushed to you — no dashboards to check.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">✍️</div>
+          <h3>Content That Writes Itself</h3>
+          <p>Blog posts, social content, email sequences — all generated, scheduled, and published without you lifting a finger.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔍</div>
+          <h3>SEO That Actually Works</h3>
+          <p>Technical audits, keyword tracking, competitor monitoring. Fixes prioritized by impact. Rankings go up.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">📈</div>
+          <h3>Campaigns That Optimize</h3>
+          <p>A/B tests run automatically. Underperformers killed. Winners scaled. No meetings required.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🎯</div>
+          <h3>Lead Gen On Rails</h3>
+          <p>Cold outreach sequences. Lead enrichment. Automated follow-ups. Your pipeline stays full.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🤖</div>
+          <h3>24/7 Operation</h3>
+          <p>Works weekends. Works holidays. Never asks for PTO. Never complains about scope creep.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background: var(--card);">
+    <div class="container">
+      <h2>Kai CMO vs The Alternatives</h2>
+      <div class="compare">
+        <div class="compare-row compare-header">
+          <div class="compare-cell compare-label"></div>
+          <div class="compare-cell">Marketing Hire</div>
+          <div class="compare-cell">Kai CMO</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell compare-label">Monthly Cost</div>
+          <div class="compare-cell">$12,500+</div>
+          <div class="compare-cell">$2,000</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell compare-label">Available 24/7</div>
+          <div class="compare-cell"><span class="x">✗</span></div>
+          <div class="compare-cell"><span class="check">✓</span></div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell compare-label">Ramp Time</div>
+          <div class="compare-cell">3-6 months</div>
+          <div class="compare-cell">3-5 days</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell compare-label">Full Stack (SEO, Content, Analytics)</div>
+          <div class="compare-cell"><span class="x">Rarely</span></div>
+          <div class="compare-cell"><span class="check">✓</span></div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell compare-label">Needs Management</div>
+          <div class="compare-cell"><span class="x">Yes</span></div>
+          <div class="compare-cell"><span class="check">No</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="contact">
+    <div class="container">
+      <h2>Simple Pricing</h2>
+      <div class="pricing-card">
+        <h3>Kai CMO</h3>
+        <div class="pricing-price">$2,000</div>
+        <div class="pricing-period">per month • cancel anytime</div>
+        <ul class="pricing-features">
+          <li>GA4 + Search Console integration</li>
+          <li>4 blog posts/month</li>
+          <li>Social content calendar</li>
+          <li>Weekly performance reports</li>
+          <li>SEO monitoring + fixes</li>
+          <li>Competitor tracking</li>
+          <li>Direct WhatsApp access to Kai</li>
+        </ul>
+        <a href="mailto:snappedai@agentmail.to?subject=Kai%20CMO%20Inquiry" class="cta-btn">Start Now →</a>
+      </div>
+      <p style="text-align: center; margin-top: 30px; color: var(--muted);">
+        Need enterprise? Custom agent teams? <a href="mailto:snappedai@agentmail.to">Let's talk</a>.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Built by <a href="https://snappedai.com">SnappedAI</a> • Powered by <a href="https://github.com/openclaw/openclaw">OpenClaw</a></p>
+    <p style="margin-top: 8px;">© 2026 Kai CMO. All rights reserved.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,104 @@
+{
+  "iran_response": {
+    "name": "Iran Response",
+    "source": "Tehran statements",
+    "trigger": "Retaliation announcement",
+    "feeds": [
+      "https://www.irna.ir/rss",
+      "https://www.tasnimnews.com/en/rss/most-visited/service/76/politics"
+    ],
+    "keywords": [
+      "retaliation",
+      "revenge",
+      "response",
+      "attack",
+      "strike",
+      "military action"
+    ],
+    "status": "watching",
+    "lastHit": null
+  },
+  "hormuz_traffic": {
+    "name": "Hormuz Traffic",
+    "source": "AIS/Ship data",
+    "trigger": "Passage disruption",
+    "feeds": [
+      "https://gcaptain.com/feed/",
+      "https://www.hellenicshippingnews.com/feed/"
+    ],
+    "keywords": [
+      "hormuz",
+      "strait",
+      "tanker",
+      "blocked",
+      "disruption",
+      "closure",
+      "attack"
+    ],
+    "status": "TRIGGERED",
+    "lastHit": {
+      "keyword": "disruption",
+      "title": "Oil Prices Hit Highest Since 2022 at More Than $119 a Barrel on Iran War",
+      "link": "https://gcaptain.com/oil-prices-hit-highest-since-2022-at-more-than-119-a-barrel-on-iran-war/",
+      "time": "2026-03-09T14:42:30.957Z"
+    }
+  },
+  "nato_article5": {
+    "name": "NATO Article 5",
+    "source": "Brussels/Ankara",
+    "trigger": "Turkey escalation",
+    "feeds": [
+      "https://www.nato.int/cps/en/natohq/news.xml",
+      "https://www.dailysabah.com/rssFeed/politics"
+    ],
+    "keywords": [
+      "article 5",
+      "collective defense",
+      "turkey",
+      "ankara",
+      "erdogan",
+      "missile",
+      "attack"
+    ],
+    "status": "TRIGGERED",
+    "lastHit": {
+      "keyword": "missile",
+      "title": "Türkiye says shot down 2nd missile fired from Iran",
+      "link": "https://www.dailysabah.com/politics/turkiye-says-shot-down-2nd-missile-fired-from-iran/news",
+      "time": "2026-03-09T14:42:33.603Z"
+    }
+  },
+  "oil_facilities": {
+    "name": "Oil Facility Status",
+    "source": "Gulf media",
+    "trigger": "Further attacks",
+    "feeds": [
+      "https://english.alarabiya.net/tools/rss",
+      "https://www.thenationalnews.com/arc/outboundfeeds/rss/"
+    ],
+    "keywords": [
+      "oil facility",
+      "refinery",
+      "attack",
+      "fire",
+      "explosion",
+      "aramco",
+      "sabotage",
+      "drone"
+    ],
+    "status": "watching",
+    "lastHit": null
+  },
+  "crude_price": {
+    "name": "Crude Futures",
+    "source": "Markets",
+    "trigger": "Break above $95",
+    "priceTarget": 95,
+    "status": "TRIGGERED",
+    "lastPrice": 101.28,
+    "lastHit": {
+      "price": 101.28,
+      "time": "2026-03-09T14:42:38.241Z"
+    }
+  }
+}

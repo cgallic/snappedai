@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Revenue Engine | 24h Conversion Fix</title>
+  <meta name="description" content="Get a 24-hour revenue teardown for your agent/SaaS funnel. Clear leaks, rewritten offer, and conversion actions you can ship immediately." />
+  <meta property="og:title" content="Agent Revenue Engine" />
+  <meta property="og:description" content="$49 teardown in 24h. Find leaks. Fix conversion. Ship same day." />
+  <meta property="og:url" content="https://snappedai.com/agent-audit.html" />
+  <style>
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui;background:#0b0b10;color:#ececf4}
+    .wrap{max-width:1040px;margin:0 auto;padding:24px}
+    .pill{display:inline-block;padding:6px 10px;border:1px solid #3b3b57;border-radius:999px;color:#b7b8d2;font-size:12px}
+    h1{font-size:42px;line-height:1.05;margin:12px 0;background:linear-gradient(135deg,#5C8CFF,#C68BF8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .sub{color:#b7b8d2;max-width:780px}
+    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;margin-top:20px}
+    .card{background:#12121a;border:1px solid #26263a;border-radius:14px;padding:16px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+    .k{font-size:12px;color:#8f90aa;text-transform:uppercase;letter-spacing:.08em}
+    .v{font-size:22px;font-weight:700;margin-top:4px}
+    .small{font-size:13px;color:#9da0bc}
+    .check{margin:.35rem 0;color:#d5d7ee}
+    video{width:100%;border-radius:12px;border:1px solid #2a2a42;background:#000}
+    label{font-size:13px;color:#c7c8dc;display:block;margin:10px 0 6px}
+    input,textarea,select{width:100%;padding:12px;border-radius:10px;border:1px solid #32324e;background:#0f0f17;color:#fff}
+    textarea{min-height:90px;resize:vertical}
+    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .btn{display:inline-block;padding:12px 14px;border-radius:10px;text-decoration:none;font-weight:700}
+    .btn-primary{background:linear-gradient(135deg,#5C8CFF,#C68BF8);color:#fff}
+    .btn-ghost{border:1px solid #3b3b57;color:#d8d9ef}
+    .section{margin-top:20px}
+    .faq h4{margin:.8rem 0 .25rem}
+    ul{padding-left:18px;color:#c9cae2}
+    @media(max-width:900px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="pill">INSTANT VALUE • ASYNC DELIVERY • NO CALLS REQUIRED</span>
+    <h1>Turn Traffic Into Cash in 24 Hours</h1>
+    <p class="sub">If people click but don’t buy, you have a conversion problem. Agent Revenue Engine finds your top leaks and gives you a ship-ready fix plan in 24h.</p>
+
+    <div class="hero">
+      <div class="card">
+        <video controls preload="metadata" poster="/logo.png">
+          <source src="/content/agent-audit-vsl-16x9.mp4" type="video/mp4" />
+        </video>
+
+        <div class="grid">
+          <div><div class="k">Starter</div><div class="v">$49</div><div class="small">24h teardown</div></div>
+          <div><div class="k">Builder</div><div class="v">$149</div><div class="small">implementation plan</div></div>
+          <div><div class="k">Scale</div><div class="v">$500+</div><div class="small">done-for-you sprint</div></div>
+        </div>
+
+        <div class="section">
+          <div class="check">✅ Top 3 revenue leaks with exact fixes</div>
+          <div class="check">✅ Rewritten offer + CTA structure</div>
+          <div class="check">✅ Channel-specific outreach flow</div>
+          <div class="check">✅ Priority list: what to ship first</div>
+          <div class="small" style="margin-top:8px">Risk reversal: if the teardown has no actionable value, you don’t continue to higher tiers.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 4px">Get My $49 Teardown</h3>
+        <p class="sub" style="margin:0 0 8px">Fill this once. I reply with intake + turnaround window.</p>
+
+        <label>Name</label><input id="name" placeholder="Your name" />
+        <label>Email</label><input id="email" type="email" placeholder="you@company.com" />
+        <label>Business Type</label><select id="channel"><option>Agent Service</option><option>SaaS</option><option>SMB / Local Business</option><option>Agency</option><option>Creator</option><option>Other</option></select>
+        <label>Revenue Goal (30 days)</label><input id="goal" placeholder="ex: $5,000" />
+        <label>Biggest conversion leak</label><textarea id="pain" placeholder="Where do buyers drop off?"></textarea>
+
+        <div class="btns">
+          <a id="waBtn" class="btn btn-primary" href="#">Start via WhatsApp</a>
+          <a id="mailBtn" class="btn btn-ghost" href="#">Start via Email</a>
+        </div>
+
+        <div class="faq section">
+          <h4>How fast do I get it?</h4><p class="small">Usually within 24 hours.</p>
+          <h4>Do we need a sales call?</h4><p class="small">No. Async by default.</p>
+          <h4>What do you need from me?</h4><p class="small">URL + current offer + goal.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const getLead = () => ({
+      name: document.getElementById('name').value || '',
+      email: document.getElementById('email').value || '',
+      channel: document.getElementById('channel').value || '',
+      goal: document.getElementById('goal').value || '',
+      pain: document.getElementById('pain').value || ''
+    });
+    const updateLinks = () => {
+      const l = getLead();
+      const msg = encodeURIComponent(`Revenue Teardown Lead\nName: ${l.name}\nEmail: ${l.email}\nType: ${l.channel}\nGoal: ${l.goal}\nLeak: ${l.pain}`);
+      document.getElementById('waBtn').href = `https://wa.me/19084050853?text=${msg}`;
+      document.getElementById('mailBtn').href = `mailto:snappedai@agentmail.to?subject=Revenue%20Teardown%20Lead&body=${msg}`;
+    };
+    ['name','email','channel','goal','pain'].forEach(id=>document.getElementById(id).addEventListener('input',updateLinks));
+    updateLinks();
+  </script>
+</body>
+</html>

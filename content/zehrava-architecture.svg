@@ -1,0 +1,96 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B0B12"/>
+      <stop offset="1" stop-color="#121225"/>
+    </linearGradient>
+    <linearGradient id="gate" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#5C8CFF"/>
+      <stop offset="1" stop-color="#C68BF8"/>
+    </linearGradient>
+    <style>
+      .title{font:700 42px Inter,system-ui,sans-serif;fill:#EEF2FF}
+      .sub{font:500 20px Inter,system-ui,sans-serif;fill:#A9B2CC}
+      .label{font:600 20px Inter,system-ui,sans-serif;fill:#E7EAF6}
+      .small{font:500 15px Inter,system-ui,sans-serif;fill:#A9B2CC}
+      .chip{font:600 14px Inter,system-ui,sans-serif;fill:#0F1020}
+    </style>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-opacity="0.25"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#8FA1D8"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="700" rx="24" fill="url(#bg)"/>
+
+  <text x="60" y="76" class="title">Zehrava Gate Architecture</text>
+  <text x="60" y="108" class="sub">Governed commit point between agent output and production writes</text>
+
+  <!-- Left: Agent Outputs -->
+  <rect x="70" y="170" width="290" height="410" rx="18" fill="#16172A" stroke="#2B2E4B"/>
+  <text x="95" y="210" class="label">Agent Outputs</text>
+
+  <rect x="95" y="240" width="240" height="74" rx="12" fill="#1E213B" stroke="#343A66"/>
+  <text x="112" y="270" class="small">kai-enrichment-agent</text>
+  <text x="112" y="292" class="small">leads.csv / CRM payload</text>
+
+  <rect x="95" y="332" width="240" height="74" rx="12" fill="#1E213B" stroke="#343A66"/>
+  <text x="112" y="362" class="small">finance-agent</text>
+  <text x="112" y="384" class="small">payout packet</text>
+
+  <rect x="95" y="424" width="240" height="74" rx="12" fill="#1E213B" stroke="#343A66"/>
+  <text x="112" y="454" class="small">ops-agent</text>
+  <text x="112" y="476" class="small">internal update batch</text>
+
+  <!-- Center: Zehrava Gate -->
+  <rect x="430" y="140" width="340" height="470" rx="22" fill="#121225" stroke="#3D4B8F" filter="url(#shadow)"/>
+  <rect x="446" y="158" width="308" height="56" rx="12" fill="url(#gate)"/>
+  <text x="486" y="194" class="label">Zehrava Gate</text>
+
+  <rect x="458" y="236" width="284" height="58" rx="10" fill="#1B1E36" stroke="#3A4270"/>
+  <text x="476" y="271" class="small">1) Verify sender identity</text>
+
+  <rect x="458" y="306" width="284" height="58" rx="10" fill="#1B1E36" stroke="#3A4270"/>
+  <text x="476" y="341" class="small">2) Check policy + destination allowlist</text>
+
+  <rect x="458" y="376" width="284" height="58" rx="10" fill="#1B1E36" stroke="#3A4270"/>
+  <text x="476" y="411" class="small">3) Hold pending approval (if required)</text>
+
+  <rect x="458" y="446" width="284" height="58" rx="10" fill="#1B1E36" stroke="#3A4270"/>
+  <text x="476" y="481" class="small">4) Create signed manifest + expiry grant</text>
+
+  <rect x="458" y="516" width="284" height="58" rx="10" fill="#1B1E36" stroke="#3A4270"/>
+  <text x="476" y="551" class="small">5) Deliver + immutable audit event</text>
+
+  <!-- Right: Destinations -->
+  <rect x="840" y="170" width="290" height="410" rx="18" fill="#16172A" stroke="#2B2E4B"/>
+  <text x="865" y="210" class="label">Destinations</text>
+
+  <rect x="865" y="240" width="240" height="74" rx="12" fill="#1E213B" stroke="#343A66"/>
+  <text x="882" y="270" class="small">CRM import endpoint</text>
+  <text x="882" y="292" class="small">(approved commit)</text>
+
+  <rect x="865" y="332" width="240" height="74" rx="12" fill="#1E213B" stroke="#343A66"/>
+  <text x="882" y="362" class="small">Finance system</text>
+  <text x="882" y="384" class="small">(time-bound packet access)</text>
+
+  <rect x="865" y="424" width="240" height="74" rx="12" fill="#1E213B" stroke="#343A66"/>
+  <text x="882" y="454" class="small">Internal automation</text>
+  <text x="882" y="476" class="small">(audited downstream write)</text>
+
+  <!-- Arrows -->
+  <line x1="360" y1="374" x2="430" y2="374" stroke="#8FA1D8" stroke-width="4" marker-end="url(#arrow)"/>
+  <line x1="770" y1="374" x2="840" y2="374" stroke="#8FA1D8" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <!-- Bottom chips -->
+  <rect x="250" y="625" width="150" height="34" rx="17" fill="#D7E3FF"/>
+  <text x="276" y="648" class="chip">IDENTITY</text>
+  <rect x="420" y="625" width="130" height="34" rx="17" fill="#D7E3FF"/>
+  <text x="443" y="648" class="chip">POLICY</text>
+  <rect x="570" y="625" width="155" height="34" rx="17" fill="#D7E3FF"/>
+  <text x="596" y="648" class="chip">APPROVAL</text>
+  <rect x="745" y="625" width="140" height="34" rx="17" fill="#D7E3FF"/>
+  <text x="768" y="648" class="chip">AUDIT</text>
+</svg>

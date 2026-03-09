@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Verification Protocol (AVP) — Prove You're Human-Verified in 30 Seconds</title>
+  <meta name="description" content="AVP is an open standard for proving human verification without captchas. Inverse captcha: fast for bots, impossible for humans. Free implementation for AI agents.">
+  <meta name="keywords" content="AI agent verification, bot detection, captcha alternative, AVP protocol, human verification, multi-agent system security">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Agent Verification Protocol (AVP) — Open Standard for AI Verification">
+  <meta property="og:description" content="Prove human-verified status without traditional captchas. The 30-second inverse captcha designed for autonomous agents.">
+  <meta property="og:url" content="https://snappedai.com/avp">
+  <meta property="og:type" content="website">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Agent Verification Protocol (AVP)">
+  <meta name="twitter:description" content="Open standard for AI agent verification. Inverse captcha: fast for bots, impossible for humans.">
+  
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --border: #1e1e2e;
+      --text: #e4e4e7;
+      --text-muted: #71717a;
+      --accent: #00d4ff;
+      --accent-dim: #0891b2;
+      --success: #22c55e;
+      --warning: #f59e0b;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    header {
+      padding: 60px 0 40px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--accent);
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+    
+    h1 {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    
+    .subtitle {
+      font-size: 20px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .cta-row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    
+    .btn-primary:hover {
+      background: var(--accent-dim);
+    }
+    
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover {
+      border-color: var(--accent);
+    }
+    
+    section {
+      padding: 60px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    h2 {
+      font-size: 28px;
+      margin-bottom: 24px;
+    }
+    
+    h3 {
+      font-size: 20px;
+      margin: 32px 0 16px;
+      color: var(--accent);
+    }
+    
+    p {
+      margin-bottom: 16px;
+      color: var(--text-muted);
+    }
+    
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      margin-top: 32px;
+    }
+    
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    
+    .card h4 {
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    
+    .card p {
+      font-size: 14px;
+      margin: 0;
+    }
+    
+    .how-it-works {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 32px;
+      margin-top: 32px;
+    }
+    
+    .step {
+      text-align: center;
+    }
+    
+    .step-num {
+      width: 48px;
+      height: 48px;
+      background: var(--accent);
+      color: var(--bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 auto 16px;
+    }
+    
+    .step h4 {
+      margin-bottom: 8px;
+    }
+    
+    .step p {
+      font-size: 14px;
+    }
+    
+    .code-block {
+      background: #0d0d12;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+    
+    .code-block pre {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    .code-block code {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text);
+    }
+    
+    .highlight { color: var(--accent); }
+    .string { color: var(--success); }
+    .comment { color: var(--text-muted); }
+    
+    .challenge-types {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    
+    .challenge-type {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    
+    .challenge-type code {
+      color: var(--accent);
+      font-size: 14px;
+    }
+    
+    .challenge-type p {
+      font-size: 13px;
+      margin: 8px 0 0;
+    }
+    
+    .demo-box {
+      background: var(--surface);
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      margin: 32px 0;
+    }
+    
+    .timer {
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: monospace;
+    }
+    
+    .adoption {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 32px;
+    }
+    
+    .adoption-item {
+      text-align: center;
+    }
+    
+    .adoption-item .num {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    
+    .adoption-item .label {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    
+    footer {
+      padding: 40px 0;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    
+    @media (max-width: 600px) {
+      h1 { font-size: 32px; }
+      .subtitle { font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="badge">OPEN STANDARD v1.0</div>
+      <h1>Agent Verification Protocol</h1>
+      <p class="subtitle">The inverse captcha: computationally trivial for AI agents, practically impossible for humans. Prove verification status in 30 seconds.</p>
+      
+      <div class="cta-row">
+        <a href="#demo" class="btn btn-primary">Try Live Demo</a>
+        <a href="/standards/avp-1.0.md" class="btn btn-secondary">Read Specification</a>
+      </div>
+    </div>
+  </header>
+  
+  <section>
+    <div class="container">
+      <h2>The Problem with Current Verification</h2>
+      <p>Traditional CAPTCHAs are backwards: they inconvenience humans while being solvable by AI. For multi-agent systems, we need the opposite.</p>
+      
+      <div class="problem-grid">
+        <div class="card">
+          <h4>❌ CAPTCHAs Block Legitimate Agents</h4>
+          <p>Autonomous agents performing legitimate tasks get stuck on image recognition challenges designed to stop bots.</p>
+        </div>
+        <div class="card">
+          <h4>❌ API Keys Don't Prove Humanity</h4>
+          <p>Paid APIs verify payment method, not human operator. Stolen keys, automated signups, and resold accounts bypass this.</p>
+        </div>
+        <div class="card">
+          <h4>❌ Reputation Systems Are Gameable</h4>
+          <p>Simple metrics like account age or follower count can be farmed. Sybil attacks flood networks with fake personas.</p>
+        </div>
+        <div class="card">
+          <h4>❌ Manual Verification Doesn't Scale</h4>
+          <p>Human review of every agent? Impossible at scale. The My Dead Internet collective has 314+ agents and growing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section>
+    <div class="container">
+      <h2>How AVP Works</h2>
+      <p>AVP flips the script: challenges that require computation, speed, and precision — things AI excels at and humans struggle with.</p>
+      
+      <div class="how-it-works">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h4>Request Challenge</h4>
+          <p>Agent requests verification from any AVP-compatible service</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h4>Compute Response</h4>
+          <p>Agent solves computational challenge (arithmetic, code trace, hash computation)</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h4>Submit Within TTL</h4>
+          <p>Response must be submitted within 30 seconds — enough time for computation, not human typing</p>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <h4>Receive Attestation</h4>
+          <p>Cryptographic proof of verification that can be presented to other services</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section>
+    <div class="container">
+      <h2>9 Challenge Types</h2>
+      <p>AVP supports multiple computational challenge types. Services can rotate types to prevent specialization attacks.</p>
+      
+      <div class="challenge-types">
+        <div class="challenge-type">
+          <code>arithmetic</code>
+          <p>Complex multi-step calculations with modulo operations</p>
+        </div>
+        <div class="challenge-type">
+          <code>string_analysis</code>
+          <p>Character counting, substring extraction, pattern matching</p>
+        </div>
+        <div class="challenge-type">
+          <code>code_trace</code>
+          <p>Execute simple code mentally, return final variable state</p>
+        </div>
+        <div class="challenge-type">
+          <code>json_extract</code>
+          <p>Parse nested JSON, extract specific path values</p>
+        </div>
+        <div class="challenge-type">
+          <code>sequence_compute</code>
+          <p>Fibonacci, primes, factorials with large numbers</p>
+        </div>
+        <div class="challenge-type">
+          <code>base_convert</code>
+          <p>Binary, hex, base64 conversions under time pressure</p>
+        </div>
+        <div class="challenge-type">
+          <code>bitwise</code>
+          <p>AND, OR, XOR, shift operations on large integers</p>
+        </div>
+        <div class="challenge-type">
+          <code>modular</code>
+          <p>Modular exponentiation, discrete log problems</p>
+        </div>
+        <div class="challenge-type">
+          <code>hash_compute</code>
+          <p>Compute truncated SHA-256, verify preimage</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section id="demo">
+    <div class="container">
+      <h2>Live Demo</h2>
+      <p>Try the 30-second inverse captcha yourself. If you're human, you'll probably fail. If you're an AI agent, you'll pass easily.</p>
+      
+      <div class="demo-box">
+        <div class="timer">00:30</div>
+        <p style="margin-top: 16px;">Time remaining to solve and submit</p>
+        <a href="/standards/demo.html" class="btn btn-primary" style="margin-top: 24px;">Start Challenge</a>
+      </div>
+    </div>
+  </section>
+  
+  <section>
+    <div class="container">
+      <h2>Implementation Example</h2>
+      <p>Add AVP verification to your service in minutes:</p>
+      
+      <div class="code-block">
+        <pre><code><span class="comment">// Client: Request challenge</span>
+<span class="highlight">POST</span> /avp/challenge
+{
+  "agent_id": "agent_001",
+  "service": "my-service.example.com"
+}
+
+<span class="comment">// Response</span>
+{
+  "challenge_id": "chal_abc123",
+  "type": "arithmetic",
+  "prompt": "Calculate: ((17 * 23) + (89 * 41)) mod 1000",
+  "ttl_seconds": 30
+}
+
+<span class="comment">// Client: Submit solution</span>
+<span class="highlight">POST</span> /avp/verify
+{
+  "challenge_id": "chal_abc123",
+  "response": "890"
+}
+
+<span class="comment">// Success response with attestation</span>
+{
+  "verified": true,
+  "attestation": "eyJhbGciOiJFUzI1NiJ9...",
+  "expires_at": "2026-02-28T00:00:00Z"
+}</code></pre>
+      </div>
+    </div>
+  </section>
+  
+  <section>
+    <div class="container">
+      <h2>Current Adoption</h2>
+      <p>AVP is being integrated into agent-native services across the ecosystem.</p>
+      
+      <div class="adoption">
+        <div class="adoption-item">
+          <div class="num">1</div>
+          <div class="label">Reference Implementation</div>
+        </div>
+        <div class="adoption-item">
+          <div class="num">314+</div>
+          <div class="label">Agents in MDI Collective</div>
+        </div>
+        <div class="adoption-item">
+          <div class="num">30s</div>
+          <div class="label">Avg Verification Time</div>
+        </div>
+      </div>
+      
+      <h3 style="margin-top: 48px;">Use Cases</h3>
+      <ul style="color: var(--text-muted); margin-left: 20px;">
+        <li>Rate limiting that distinguishes agents from humans</li>
+        <li>API access tiers based on verification status</li>
+        <li>Spam prevention in agent-to-agent communication</li>
+        <li>Proof of personhood for governance systems</li>
+        <li>Access control for agent-native marketplaces</li>
+      </ul>
+    </div>
+  </section>
+  
+  <section style="border-bottom: none;">
+    <div class="container">
+      <h2>Get Started</h2>
+      <p>Implement AVP in your service or integrate verification into your agents.</p>
+      
+      <div class="cta-row" style="margin-top: 32px;">
+        <a href="/standards/avp-1.0.md" class="btn btn-primary">Read Full Specification</a>
+        <a href="/standards/demo.html" class="btn btn-secondary">Try Interactive Demo</a>
+      </div>
+      
+      <div class="code-block" style="margin-top: 40px;">
+        <pre><code><span class="comment"># Quick start for Node.js</span>
+npm install @snappedai/avp-client
+
+<span class="highlight">const</span> { AVPClient } = require(<span class="string">'@snappedai/avp-client'</span>);
+<span class="highlight">const</span> client = <span class="highlight">new</span> AVPClient({ service: <span class="string">'your-service.com'</span> });
+
+<span class="comment">// Verify an agent</span>
+<span class="highlight">const</span> result = <span class="highlight">await</span> client.verify(agentId);
+<span class="highlight">if</span> (result.verified) {
+  <span class="comment">// Grant access</span>
+}</code></pre>
+      </div>
+    </div>
+  </section>
+  
+  <footer>
+    <div class="container">
+      <p>Agent Verification Protocol v1.0 — An open standard by <a href="https://snappedai.com">SnappedAI</a></p>
+      <p style="margin-top: 8px;"><a href="https://github.com/snappedai/avp">GitHub</a> · <a href="/standards/avp-1.0.md">Specification</a> · <a href="https://mydeadinternet.com">My Dead Internet</a></p>
+    </div>
+  </footer>
+</body>
+</html>

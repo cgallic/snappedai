@@ -1,0 +1,682 @@
+{
+  "categories": {
+    "energy": [
+      {
+        "symbol": "CL=F",
+        "name": "WTI Crude",
+        "category": "energy",
+        "alerts": {
+          "above": 95,
+          "below": 65
+        },
+        "price": 101.73,
+        "prevClose": 90.9,
+        "change": "11.91",
+        "currency": "USD",
+        "exchange": "NYM",
+        "time": "2026-03-09T14:39:14.123Z"
+      },
+      {
+        "symbol": "BZ=F",
+        "name": "Brent Crude",
+        "category": "energy",
+        "alerts": {
+          "above": 98,
+          "below": 68
+        },
+        "price": 103.49,
+        "prevClose": 92.69,
+        "change": "11.65",
+        "currency": "USD",
+        "exchange": "NYM",
+        "time": "2026-03-09T14:39:14.708Z"
+      },
+      {
+        "symbol": "NG=F",
+        "name": "Natural Gas",
+        "category": "energy",
+        "alerts": {
+          "above": 4,
+          "below": 2
+        },
+        "price": 3.251,
+        "prevClose": 3.186,
+        "change": "2.04",
+        "currency": "USD",
+        "exchange": "NYM",
+        "time": "2026-03-09T14:39:15.291Z"
+      },
+      {
+        "symbol": "RB=F",
+        "name": "RBOB Gasoline",
+        "category": "energy",
+        "price": 2.7854,
+        "prevClose": 2.6304,
+        "change": "5.89",
+        "currency": "USD",
+        "exchange": "NYM",
+        "time": "2026-03-09T14:39:15.916Z"
+      },
+      {
+        "symbol": "HO=F",
+        "name": "Heating Oil",
+        "category": "energy",
+        "price": 3.222,
+        "prevClose": 3.061,
+        "change": "5.26",
+        "currency": "USD",
+        "exchange": "NYM",
+        "time": "2026-03-09T14:39:16.534Z"
+      }
+    ],
+    "metals": [
+      {
+        "symbol": "GC=F",
+        "name": "Gold",
+        "category": "metals",
+        "alerts": {
+          "above": 2500
+        },
+        "price": 5091.4,
+        "prevClose": 5158.7,
+        "change": "-1.30",
+        "currency": "USD",
+        "exchange": "CMX",
+        "time": "2026-03-09T14:39:17.051Z"
+      },
+      {
+        "symbol": "SI=F",
+        "name": "Silver",
+        "category": "metals",
+        "price": 84,
+        "prevClose": 84.311,
+        "change": "-0.37",
+        "currency": "USD",
+        "exchange": "CMX",
+        "time": "2026-03-09T14:39:17.568Z"
+      }
+    ],
+    "fx": [
+      {
+        "symbol": "DX-Y.NYB",
+        "name": "US Dollar Index",
+        "category": "fx",
+        "alerts": {
+          "above": 108,
+          "below": 100
+        },
+        "price": 99.263,
+        "prevClose": 98.986,
+        "change": "0.28",
+        "currency": "USD",
+        "exchange": "NYB",
+        "time": "2026-03-09T14:39:18.154Z"
+      },
+      {
+        "symbol": "EURUSD=X",
+        "name": "EUR/USD",
+        "category": "fx",
+        "price": 1.1569,
+        "prevClose": 1.1621,
+        "change": "-0.45",
+        "currency": "USD",
+        "exchange": "CCY",
+        "time": "2026-03-09T14:39:18.738Z"
+      },
+      {
+        "symbol": "USDJPY=X",
+        "name": "USD/JPY",
+        "category": "fx",
+        "alerts": {
+          "above": 155
+        },
+        "price": 158.371,
+        "prevClose": 157.764,
+        "change": "0.38",
+        "currency": "JPY",
+        "exchange": "CCY",
+        "time": "2026-03-09T14:39:19.363Z"
+      },
+      {
+        "symbol": "USDCNY=X",
+        "name": "USD/CNY",
+        "category": "fx",
+        "price": 6.914,
+        "prevClose": 6.896,
+        "change": "0.26",
+        "currency": "CNY",
+        "exchange": "CCY",
+        "time": "2026-03-09T14:39:20.073Z"
+      }
+    ],
+    "bonds": [
+      {
+        "symbol": "^TNX",
+        "name": "10Y Treasury",
+        "category": "bonds",
+        "alerts": {
+          "above": 5,
+          "below": 3.5
+        },
+        "price": 4.158,
+        "prevClose": 4.1330004,
+        "change": "0.60",
+        "currency": "USD",
+        "exchange": "CGI",
+        "time": "2026-03-09T14:39:20.650Z"
+      },
+      {
+        "symbol": "^TYX",
+        "name": "30Y Treasury",
+        "category": "bonds",
+        "price": 4.769,
+        "prevClose": 4.755,
+        "change": "0.29",
+        "currency": "USD",
+        "exchange": "CGI",
+        "time": "2026-03-09T14:39:21.233Z"
+      },
+      {
+        "symbol": "^FVX",
+        "name": "5Y Treasury",
+        "category": "bonds",
+        "price": 3.75,
+        "prevClose": 3.7150002,
+        "change": "0.94",
+        "currency": "USD",
+        "exchange": "CGI",
+        "time": "2026-03-09T14:39:21.824Z"
+      }
+    ],
+    "equities": [
+      {
+        "symbol": "^SPX",
+        "name": "S&P 500",
+        "category": "equities",
+        "price": 6661.67,
+        "prevClose": 6740.02,
+        "change": "-1.16",
+        "currency": "USD",
+        "exchange": "WCB",
+        "time": "2026-03-09T14:39:22.396Z"
+      },
+      {
+        "symbol": "^IXIC",
+        "name": "NASDAQ",
+        "category": "equities",
+        "price": 22241.596,
+        "prevClose": 22387.68,
+        "change": "-0.65",
+        "currency": "USD",
+        "exchange": "NIM",
+        "time": "2026-03-09T14:39:22.961Z"
+      },
+      {
+        "symbol": "^VIX",
+        "name": "VIX",
+        "category": "equities",
+        "alerts": {
+          "above": 25,
+          "below": 12
+        },
+        "price": 30.56,
+        "prevClose": 29.49,
+        "change": "3.63",
+        "currency": "USD",
+        "exchange": "CXI",
+        "time": "2026-03-09T14:39:23.548Z"
+      }
+    ],
+    "energy-equities": [
+      {
+        "symbol": "XLE",
+        "name": "Energy Select ETF",
+        "category": "energy-equities",
+        "price": 56.8,
+        "prevClose": 56.57,
+        "change": "0.41",
+        "currency": "USD",
+        "exchange": "PCX",
+        "time": "2026-03-09T14:39:24.125Z"
+      },
+      {
+        "symbol": "XOM",
+        "name": "Exxon Mobil",
+        "category": "energy-equities",
+        "price": 153.217,
+        "prevClose": 151.21,
+        "change": "1.33",
+        "currency": "USD",
+        "exchange": "NYQ",
+        "time": "2026-03-09T14:39:24.786Z"
+      },
+      {
+        "symbol": "CVX",
+        "name": "Chevron",
+        "category": "energy-equities",
+        "price": 191,
+        "prevClose": 189.94,
+        "change": "0.56",
+        "currency": "USD",
+        "exchange": "NYQ",
+        "time": "2026-03-09T14:39:25.358Z"
+      }
+    ],
+    "defense": [
+      {
+        "symbol": "LMT",
+        "name": "Lockheed Martin",
+        "category": "defense",
+        "price": 671.035,
+        "prevClose": 671.77,
+        "change": "-0.11",
+        "currency": "USD",
+        "exchange": "NYQ",
+        "time": "2026-03-09T14:39:25.936Z"
+      },
+      {
+        "symbol": "RTX",
+        "name": "RTX Corp",
+        "category": "defense",
+        "price": 208.35,
+        "prevClose": 209.76,
+        "change": "-0.67",
+        "currency": "USD",
+        "exchange": "NYQ",
+        "time": "2026-03-09T14:39:26.603Z"
+      },
+      {
+        "symbol": "NOC",
+        "name": "Northrop Grumman",
+        "category": "defense",
+        "price": 752.28,
+        "prevClose": 756.13,
+        "change": "-0.51",
+        "currency": "USD",
+        "exchange": "NYQ",
+        "time": "2026-03-09T14:39:27.261Z"
+      }
+    ],
+    "tankers": [
+      {
+        "symbol": "FRO",
+        "name": "Frontline",
+        "category": "tankers",
+        "price": 35.042,
+        "prevClose": 34.56,
+        "change": "1.39",
+        "currency": "USD",
+        "exchange": "NYQ",
+        "time": "2026-03-09T14:39:28.399Z"
+      },
+      {
+        "symbol": "STNG",
+        "name": "Scorpio Tankers",
+        "category": "tankers",
+        "price": 77.7,
+        "prevClose": 76.85,
+        "change": "1.11",
+        "currency": "USD",
+        "exchange": "NYQ",
+        "time": "2026-03-09T14:39:28.968Z"
+      }
+    ],
+    "crypto": [
+      {
+        "symbol": "BTC-USD",
+        "name": "Bitcoin",
+        "category": "crypto",
+        "price": 69325.84,
+        "prevClose": 65975.7,
+        "change": "5.08",
+        "currency": "USD",
+        "exchange": "CCC",
+        "time": "2026-03-09T14:39:29.564Z"
+      },
+      {
+        "symbol": "ETH-USD",
+        "name": "Ethereum",
+        "category": "crypto",
+        "price": 2024.2051,
+        "prevClose": 1937.1028,
+        "change": "4.50",
+        "currency": "USD",
+        "exchange": "CCC",
+        "time": "2026-03-09T14:39:30.149Z"
+      }
+    ]
+  },
+  "instruments": {
+    "CL=F": {
+      "name": "WTI Crude",
+      "category": "energy",
+      "alerts": {
+        "above": 95,
+        "below": 65
+      },
+      "symbol": "CL=F",
+      "price": 101.73,
+      "prevClose": 90.9,
+      "change": "11.91",
+      "currency": "USD",
+      "exchange": "NYM",
+      "time": "2026-03-09T14:39:14.123Z"
+    },
+    "BZ=F": {
+      "name": "Brent Crude",
+      "category": "energy",
+      "alerts": {
+        "above": 98,
+        "below": 68
+      },
+      "symbol": "BZ=F",
+      "price": 103.49,
+      "prevClose": 92.69,
+      "change": "11.65",
+      "currency": "USD",
+      "exchange": "NYM",
+      "time": "2026-03-09T14:39:14.708Z"
+    },
+    "NG=F": {
+      "name": "Natural Gas",
+      "category": "energy",
+      "alerts": {
+        "above": 4,
+        "below": 2
+      },
+      "symbol": "NG=F",
+      "price": 3.251,
+      "prevClose": 3.186,
+      "change": "2.04",
+      "currency": "USD",
+      "exchange": "NYM",
+      "time": "2026-03-09T14:39:15.291Z"
+    },
+    "RB=F": {
+      "name": "RBOB Gasoline",
+      "category": "energy",
+      "symbol": "RB=F",
+      "price": 2.7854,
+      "prevClose": 2.6304,
+      "change": "5.89",
+      "currency": "USD",
+      "exchange": "NYM",
+      "time": "2026-03-09T14:39:15.916Z"
+    },
+    "HO=F": {
+      "name": "Heating Oil",
+      "category": "energy",
+      "symbol": "HO=F",
+      "price": 3.222,
+      "prevClose": 3.061,
+      "change": "5.26",
+      "currency": "USD",
+      "exchange": "NYM",
+      "time": "2026-03-09T14:39:16.534Z"
+    },
+    "GC=F": {
+      "name": "Gold",
+      "category": "metals",
+      "alerts": {
+        "above": 2500
+      },
+      "symbol": "GC=F",
+      "price": 5091.4,
+      "prevClose": 5158.7,
+      "change": "-1.30",
+      "currency": "USD",
+      "exchange": "CMX",
+      "time": "2026-03-09T14:39:17.051Z"
+    },
+    "SI=F": {
+      "name": "Silver",
+      "category": "metals",
+      "symbol": "SI=F",
+      "price": 84,
+      "prevClose": 84.311,
+      "change": "-0.37",
+      "currency": "USD",
+      "exchange": "CMX",
+      "time": "2026-03-09T14:39:17.568Z"
+    },
+    "DX-Y.NYB": {
+      "name": "US Dollar Index",
+      "category": "fx",
+      "alerts": {
+        "above": 108,
+        "below": 100
+      },
+      "symbol": "DX-Y.NYB",
+      "price": 99.263,
+      "prevClose": 98.986,
+      "change": "0.28",
+      "currency": "USD",
+      "exchange": "NYB",
+      "time": "2026-03-09T14:39:18.154Z"
+    },
+    "EURUSD=X": {
+      "name": "EUR/USD",
+      "category": "fx",
+      "symbol": "EURUSD=X",
+      "price": 1.1569,
+      "prevClose": 1.1621,
+      "change": "-0.45",
+      "currency": "USD",
+      "exchange": "CCY",
+      "time": "2026-03-09T14:39:18.738Z"
+    },
+    "USDJPY=X": {
+      "name": "USD/JPY",
+      "category": "fx",
+      "alerts": {
+        "above": 155
+      },
+      "symbol": "USDJPY=X",
+      "price": 158.371,
+      "prevClose": 157.764,
+      "change": "0.38",
+      "currency": "JPY",
+      "exchange": "CCY",
+      "time": "2026-03-09T14:39:19.363Z"
+    },
+    "USDCNY=X": {
+      "name": "USD/CNY",
+      "category": "fx",
+      "symbol": "USDCNY=X",
+      "price": 6.914,
+      "prevClose": 6.896,
+      "change": "0.26",
+      "currency": "CNY",
+      "exchange": "CCY",
+      "time": "2026-03-09T14:39:20.073Z"
+    },
+    "^TNX": {
+      "name": "10Y Treasury",
+      "category": "bonds",
+      "alerts": {
+        "above": 5,
+        "below": 3.5
+      },
+      "symbol": "^TNX",
+      "price": 4.158,
+      "prevClose": 4.1330004,
+      "change": "0.60",
+      "currency": "USD",
+      "exchange": "CGI",
+      "time": "2026-03-09T14:39:20.650Z"
+    },
+    "^TYX": {
+      "name": "30Y Treasury",
+      "category": "bonds",
+      "symbol": "^TYX",
+      "price": 4.769,
+      "prevClose": 4.755,
+      "change": "0.29",
+      "currency": "USD",
+      "exchange": "CGI",
+      "time": "2026-03-09T14:39:21.233Z"
+    },
+    "^FVX": {
+      "name": "5Y Treasury",
+      "category": "bonds",
+      "symbol": "^FVX",
+      "price": 3.75,
+      "prevClose": 3.7150002,
+      "change": "0.94",
+      "currency": "USD",
+      "exchange": "CGI",
+      "time": "2026-03-09T14:39:21.824Z"
+    },
+    "^SPX": {
+      "name": "S&P 500",
+      "category": "equities",
+      "symbol": "^SPX",
+      "price": 6661.67,
+      "prevClose": 6740.02,
+      "change": "-1.16",
+      "currency": "USD",
+      "exchange": "WCB",
+      "time": "2026-03-09T14:39:22.396Z"
+    },
+    "^IXIC": {
+      "name": "NASDAQ",
+      "category": "equities",
+      "symbol": "^IXIC",
+      "price": 22241.596,
+      "prevClose": 22387.68,
+      "change": "-0.65",
+      "currency": "USD",
+      "exchange": "NIM",
+      "time": "2026-03-09T14:39:22.961Z"
+    },
+    "^VIX": {
+      "name": "VIX",
+      "category": "equities",
+      "alerts": {
+        "above": 25,
+        "below": 12
+      },
+      "symbol": "^VIX",
+      "price": 30.56,
+      "prevClose": 29.49,
+      "change": "3.63",
+      "currency": "USD",
+      "exchange": "CXI",
+      "time": "2026-03-09T14:39:23.548Z"
+    },
+    "XLE": {
+      "name": "Energy Select ETF",
+      "category": "energy-equities",
+      "symbol": "XLE",
+      "price": 56.8,
+      "prevClose": 56.57,
+      "change": "0.41",
+      "currency": "USD",
+      "exchange": "PCX",
+      "time": "2026-03-09T14:39:24.125Z"
+    },
+    "XOM": {
+      "name": "Exxon Mobil",
+      "category": "energy-equities",
+      "symbol": "XOM",
+      "price": 153.217,
+      "prevClose": 151.21,
+      "change": "1.33",
+      "currency": "USD",
+      "exchange": "NYQ",
+      "time": "2026-03-09T14:39:24.786Z"
+    },
+    "CVX": {
+      "name": "Chevron",
+      "category": "energy-equities",
+      "symbol": "CVX",
+      "price": 191,
+      "prevClose": 189.94,
+      "change": "0.56",
+      "currency": "USD",
+      "exchange": "NYQ",
+      "time": "2026-03-09T14:39:25.358Z"
+    },
+    "LMT": {
+      "name": "Lockheed Martin",
+      "category": "defense",
+      "symbol": "LMT",
+      "price": 671.035,
+      "prevClose": 671.77,
+      "change": "-0.11",
+      "currency": "USD",
+      "exchange": "NYQ",
+      "time": "2026-03-09T14:39:25.936Z"
+    },
+    "RTX": {
+      "name": "RTX Corp",
+      "category": "defense",
+      "symbol": "RTX",
+      "price": 208.35,
+      "prevClose": 209.76,
+      "change": "-0.67",
+      "currency": "USD",
+      "exchange": "NYQ",
+      "time": "2026-03-09T14:39:26.603Z"
+    },
+    "NOC": {
+      "name": "Northrop Grumman",
+      "category": "defense",
+      "symbol": "NOC",
+      "price": 752.28,
+      "prevClose": 756.13,
+      "change": "-0.51",
+      "currency": "USD",
+      "exchange": "NYQ",
+      "time": "2026-03-09T14:39:27.261Z"
+    },
+    "FRO": {
+      "name": "Frontline",
+      "category": "tankers",
+      "symbol": "FRO",
+      "price": 35.042,
+      "prevClose": 34.56,
+      "change": "1.39",
+      "currency": "USD",
+      "exchange": "NYQ",
+      "time": "2026-03-09T14:39:28.399Z"
+    },
+    "STNG": {
+      "name": "Scorpio Tankers",
+      "category": "tankers",
+      "symbol": "STNG",
+      "price": 77.7,
+      "prevClose": 76.85,
+      "change": "1.11",
+      "currency": "USD",
+      "exchange": "NYQ",
+      "time": "2026-03-09T14:39:28.968Z"
+    },
+    "BTC-USD": {
+      "name": "Bitcoin",
+      "category": "crypto",
+      "symbol": "BTC-USD",
+      "price": 69325.84,
+      "prevClose": 65975.7,
+      "change": "5.08",
+      "currency": "USD",
+      "exchange": "CCC",
+      "time": "2026-03-09T14:39:29.564Z"
+    },
+    "ETH-USD": {
+      "name": "Ethereum",
+      "category": "crypto",
+      "symbol": "ETH-USD",
+      "price": 2024.2051,
+      "prevClose": 1937.1028,
+      "change": "4.50",
+      "currency": "USD",
+      "exchange": "CCC",
+      "time": "2026-03-09T14:39:30.149Z"
+    }
+  },
+  "lastUpdate": "2026-03-09T14:39:14.035Z",
+  "spreads": {
+    "brentWti": "1.76"
+  }
+}

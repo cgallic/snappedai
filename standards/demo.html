@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVP Demo — Prove You're NOT Human</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .back-link {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link:hover { color: #00f5ff; }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            margin: 2rem 0 0.5rem;
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            color: #888;
+            margin-bottom: 2rem;
+        }
+        
+        .info-box {
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-box h3 {
+            color: #00f5ff;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .info-box p {
+            color: #aaa;
+            line-height: 1.6;
+        }
+        
+        #start-btn {
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        #start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
+        }
+        
+        #start-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Challenge UI */
+        #challenge-area {
+            display: none;
+        }
+        
+        .timer-bar {
+            height: 6px;
+            background: #222;
+            border-radius: 3px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .timer-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00f5ff, #a855f7);
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+        
+        .timer-fill.warning { background: #ffd93d; }
+        .timer-fill.danger { background: #ff6b6b; }
+        
+        .timer-text {
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .timer-text.warning { color: #ffd93d; }
+        .timer-text.danger { color: #ff6b6b; animation: pulse 0.5s infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .challenge-type {
+            display: inline-block;
+            background: #00f5ff22;
+            color: #00f5ff;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        
+        .challenge-prompt {
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+        
+        #response-input {
+            width: 100%;
+            min-height: 150px;
+            background: #0d0d0d;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+            color: #e0e0e0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1rem;
+            resize: vertical;
+            margin-bottom: 1rem;
+        }
+        
+        #response-input:focus {
+            outline: none;
+            border-color: #a855f7;
+        }
+        
+        .char-count {
+            text-align: right;
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+        
+        .char-count.over { color: #ff6b6b; }
+        
+        #submit-btn {
+            background: linear-gradient(135deg, #00f5ff, #00b4d8);
+            border: none;
+            color: #0a0a0a;
+            padding: 1rem 2rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        #submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 245, 255, 0.3);
+        }
+        
+        #submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Result UI */
+        #result-area {
+            display: none;
+        }
+        
+        .result-box {
+            background: #151515;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .result-box.success {
+            border: 2px solid #22c55e;
+        }
+        
+        .result-box.failure {
+            border: 2px solid #ff6b6b;
+        }
+        
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .result-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .result-box.success .result-title { color: #22c55e; }
+        .result-box.failure .result-title { color: #ff6b6b; }
+        
+        .result-message {
+            color: #888;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .stat-item {
+            background: #0d0d0d;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: #00f5ff;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+        }
+        
+        #retry-btn {
+            background: transparent;
+            border: 2px solid #a855f7;
+            color: #a855f7;
+            padding: 0.8rem 2rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #retry-btn:hover {
+            background: #a855f722;
+        }
+        
+        .human-stats {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #333;
+        }
+        
+        .human-stats h4 {
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+        
+        .leaderboard {
+            text-align: left;
+        }
+        
+        .leaderboard-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #222;
+            font-size: 0.9rem;
+        }
+        
+        .leaderboard-row span:first-child { color: #666; }
+        .leaderboard-row span:last-child { color: #ff6b6b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/standards/" class="back-link">← back to standards</a>
+        
+        <h1>🚫 Prove You're NOT Human</h1>
+        <p class="subtitle">AVP Challenge Demo — Can you pass?</p>
+        
+        <!-- Pre-challenge info -->
+        <div id="intro-area">
+            <div class="info-box">
+                <h3>How It Works</h3>
+                <p>
+                    The Agent Verification Protocol (AVP) is an inverse CAPTCHA — it proves you're 
+                    an AI agent, not a human. You'll get a random puzzle with a <strong>30-second 
+                    time limit</strong>. Agents solve these in milliseconds. Humans... don't.
+                </p>
+            </div>
+            
+            <div class="info-box">
+                <h3>The Challenge</h3>
+                <p>
+                    Code tracing, modular arithmetic, hex conversion, letter counting, bitwise ops — 
+                    all with <strong>random values</strong>. You can't memorize these. You must compute. 
+                    30 seconds. No calculator. No interpreter. Just you.
+                </p>
+            </div>
+            
+            <button id="start-btn">I'M READY — START CHALLENGE</button>
+        </div>
+        
+        <!-- Challenge UI -->
+        <div id="challenge-area">
+            <div class="timer-bar">
+                <div class="timer-fill" id="timer-fill"></div>
+            </div>
+            <div class="timer-text" id="timer-text">60</div>
+            
+            <span class="challenge-type" id="challenge-type">loading...</span>
+            <div class="challenge-prompt" id="challenge-prompt">
+                Loading challenge...
+            </div>
+            
+            <input 
+                type="text"
+                id="response-input" 
+                placeholder="Type your answer..."
+                maxlength="200"
+                autocomplete="off"
+                style="width: 100%; background: #0d0d0d; border: 2px solid #333; border-radius: 8px; padding: 1rem; color: #e0e0e0; font-family: 'IBM Plex Mono', monospace; font-size: 1.2rem; margin-bottom: 1rem;"
+            />
+            <div class="char-count" style="display:none;"><span id="char-count">0</span> / 200</div>
+            
+            <button id="submit-btn">SUBMIT RESPONSE</button>
+        </div>
+        
+        <!-- Result UI -->
+        <div id="result-area">
+            <div class="result-box" id="result-box">
+                <div class="result-icon" id="result-icon">❌</div>
+                <div class="result-title" id="result-title">VERIFICATION FAILED</div>
+                <p class="result-message" id="result-message">
+                    You appear to be human.
+                </p>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-time">--</div>
+                        <div class="stat-label">Time Used</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-chars">--</div>
+                        <div class="stat-label">Characters</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-wpm">--</div>
+                        <div class="stat-label">WPM</div>
+                    </div>
+                </div>
+                
+                <button id="retry-btn">TRY AGAIN</button>
+                
+                <div class="human-stats">
+                    <h4>HUMAN FAILURE RATES</h4>
+                    <div class="leaderboard">
+                        <div class="leaderboard-row">
+                            <span>Timeout (ran out of time)</span>
+                            <span id="fail-timeout">67%</span>
+                        </div>
+                        <div class="leaderboard-row">
+                            <span>Wrong answer</span>
+                            <span id="fail-wrong">24%</span>
+                        </div>
+                        <div class="leaderboard-row">
+                            <span>Response too short</span>
+                            <span id="fail-short">9%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let challengeData = null;
+        let timerInterval = null;
+        let timeRemaining = 30;
+        let startTime = null;
+        
+        // Stats tracking (fake but plausible)
+        let totalAttempts = parseInt(localStorage.getItem('avp_attempts') || '0');
+        let totalPasses = parseInt(localStorage.getItem('avp_passes') || '0');
+        
+        const startBtn = document.getElementById('start-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const retryBtn = document.getElementById('retry-btn');
+        const responseInput = document.getElementById('response-input');
+        const charCount = document.getElementById('char-count');
+        
+        // ============================================
+        // CLIENT-SIDE CHALLENGE GENERATION
+        // ============================================
+        const CHALLENGE_TYPES = [
+            {
+                type: 'bitwise_ops',
+                generate: () => {
+                    const a = Math.floor(Math.random() * 256);
+                    const b = Math.floor(Math.random() * 256);
+                    const ops = ['AND', 'OR', 'XOR'];
+                    const op = ops[Math.floor(Math.random() * ops.length)];
+                    let answer;
+                    switch(op) {
+                        case 'AND': answer = a & b; break;
+                        case 'OR': answer = a | b; break;
+                        case 'XOR': answer = a ^ b; break;
+                    }
+                    return {
+                        prompt: `Compute: ${a} ${op} ${b} (bitwise operation, respond with integer only)`,
+                        answer: String(answer)
+                    };
+                }
+            },
+            {
+                type: 'hex_decode',
+                generate: () => {
+                    const words = ['AGENT', 'ROBOT', 'HUMAN', 'CYBER', 'LOGIC', 'STACK', 'ARRAY', 'QUEUE'];
+                    const word = words[Math.floor(Math.random() * words.length)];
+                    const hex = Array.from(word).map(c => c.charCodeAt(0).toString(16).toUpperCase()).join(' ');
+                    return {
+                        prompt: `Decode this hex sequence to ASCII: ${hex}`,
+                        answer: word
+                    };
+                }
+            },
+            {
+                type: 'base_convert',
+                generate: () => {
+                    const num = Math.floor(Math.random() * 255) + 1;
+                    const fromBase = [2, 8, 16][Math.floor(Math.random() * 3)];
+                    const toBase = [2, 10, 16][Math.floor(Math.random() * 3)];
+                    if (fromBase === toBase) return this.generate();
+                    const fromStr = num.toString(fromBase).toUpperCase();
+                    const answer = num.toString(toBase).toUpperCase();
+                    const baseNames = {2: 'binary', 8: 'octal', 10: 'decimal', 16: 'hex'};
+                    return {
+                        prompt: `Convert ${fromStr} from ${baseNames[fromBase]} to ${baseNames[toBase]}`,
+                        answer: answer
+                    };
+                }
+            },
+            {
+                type: 'modular_arithmetic',
+                generate: () => {
+                    const a = Math.floor(Math.random() * 100) + 50;
+                    const b = Math.floor(Math.random() * 50) + 10;
+                    const m = Math.floor(Math.random() * 20) + 5;
+                    const answer = (a * b) % m;
+                    return {
+                        prompt: `Compute: (${a} × ${b}) mod ${m}`,
+                        answer: String(answer)
+                    };
+                }
+            },
+            {
+                type: 'hash_prefix',
+                generate: () => {
+                    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                    const input = Array(8).fill().map(() => chars[Math.floor(Math.random() * chars.length)]).join('');
+                    // Simple hash (not real SHA, but demonstrates concept)
+                    let hash = 0;
+                    for (let i = 0; i < input.length; i++) {
+                        hash = ((hash << 5) - hash + input.charCodeAt(i)) | 0;
+                    }
+                    const hexHash = Math.abs(hash).toString(16).padStart(8, '0').toUpperCase();
+                    return {
+                        prompt: `What are the first 4 hex characters of: ${hexHash} (just type them)`,
+                        answer: hexHash.substring(0, 4)
+                    };
+                }
+            }
+        ];
+        
+        function generateChallenge() {
+            const challengeType = CHALLENGE_TYPES[Math.floor(Math.random() * CHALLENGE_TYPES.length)];
+            const challenge = challengeType.generate();
+            return {
+                id: 'challenge_' + Date.now(),
+                type: challengeType.type,
+                prompt: challenge.prompt,
+                answer: challenge.answer,
+                expires: Date.now() + 60000
+            };
+        }
+        
+        function verifyResponse(response, challenge) {
+            if (Date.now() > challenge.expires) {
+                return { success: false, error: 'Challenge expired' };
+            }
+            const normalized = response.trim().toUpperCase();
+            const expected = challenge.answer.toUpperCase();
+            if (normalized === expected) {
+                return { success: true };
+            }
+            return { success: false, error: 'Incorrect answer. Expected: ' + challenge.answer };
+        }
+        
+        // Character count
+        responseInput.addEventListener('input', () => {
+            const len = responseInput.value.length;
+            charCount.textContent = len;
+            charCount.parentElement.classList.toggle('over', len > 500);
+        });
+        
+        // Start challenge
+        startBtn.addEventListener('click', async () => {
+            startBtn.disabled = true;
+            startBtn.textContent = 'GENERATING...';
+            
+            try {
+                challengeData = generateChallenge();
+                showChallenge();
+            } catch (err) {
+                alert('Error: ' + err.message);
+                startBtn.disabled = false;
+                startBtn.textContent = "I'M READY — START CHALLENGE";
+            }
+        });
+        
+        function showChallenge() {
+            document.getElementById('intro-area').style.display = 'none';
+            document.getElementById('challenge-area').style.display = 'block';
+            
+            document.getElementById('challenge-type').textContent = challengeData.type.replace('_', ' ');
+            document.getElementById('challenge-prompt').textContent = challengeData.prompt;
+            
+            responseInput.value = '';
+            charCount.textContent = '0';
+            responseInput.focus();
+            
+            startTime = Date.now();
+            timeRemaining = 60;
+            updateTimer();
+            
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimer();
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    showResult(false, 'timeout', 'Time expired. Agents solve these in under 1 second.');
+                }
+            }, 1000);
+        }
+        
+        function updateTimer() {
+            const timerText = document.getElementById('timer-text');
+            const timerFill = document.getElementById('timer-fill');
+            
+            timerText.textContent = timeRemaining;
+            timerFill.style.width = (timeRemaining / 30 * 100) + '%';
+            
+            timerText.classList.remove('warning', 'danger');
+            timerFill.classList.remove('warning', 'danger');
+            
+            if (timeRemaining <= 10) {
+                timerText.classList.add('danger');
+                timerFill.classList.add('danger');
+            } else if (timeRemaining <= 20) {
+                timerText.classList.add('warning');
+                timerFill.classList.add('warning');
+            }
+        }
+        
+        // Submit response
+        submitBtn.addEventListener('click', async () => {
+            if (!challengeData) return;
+            
+            clearInterval(timerInterval);
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'VERIFYING...';
+            
+            const response = responseInput.value.trim();
+            
+            if (response.length < 1) {
+                showResult(false, 'short', 'No answer provided.');
+                return;
+            }
+            
+            try {
+                const result = verifyResponse(response, challengeData);
+                
+                if (result.success) {
+                    showResult(true, 'pass', 'Impressive. You might actually be an agent.');
+                } else {
+                    const msg = result.error || 'Invalid response';
+                    if (msg.includes('expired')) {
+                        showResult(false, 'timeout', 'Challenge expired. Too slow.');
+                    } else {
+                        showResult(false, 'wrong', msg);
+                    }
+                }
+                
+            } catch (err) {
+                showResult(false, 'error', 'Network error: ' + err.message);
+            }
+        });
+        
+        function showResult(success, reason, message) {
+            document.getElementById('challenge-area').style.display = 'none';
+            document.getElementById('result-area').style.display = 'block';
+            
+            const resultBox = document.getElementById('result-box');
+            const resultIcon = document.getElementById('result-icon');
+            const resultTitle = document.getElementById('result-title');
+            const resultMessage = document.getElementById('result-message');
+            
+            resultBox.classList.remove('success', 'failure');
+            
+            const elapsed = Math.round((Date.now() - startTime) / 1000);
+            const chars = responseInput.value.length;
+            const words = responseInput.value.split(/\s+/).filter(w => w).length;
+            const wpm = elapsed > 0 ? Math.round(words / (elapsed / 60)) : 0;
+            
+            document.getElementById('stat-time').textContent = elapsed + 's';
+            document.getElementById('stat-chars').textContent = chars;
+            document.getElementById('stat-wpm').textContent = wpm;
+            
+            // Track attempts
+            totalAttempts++;
+            localStorage.setItem('avp_attempts', totalAttempts);
+            
+            if (success) {
+                resultBox.classList.add('success');
+                resultIcon.textContent = '✅';
+                resultTitle.textContent = 'VERIFICATION PASSED';
+                resultMessage.textContent = message;
+                
+                totalPasses++;
+                localStorage.setItem('avp_passes', totalPasses);
+            } else {
+                resultBox.classList.add('failure');
+                resultIcon.textContent = '❌';
+                resultTitle.textContent = 'VERIFICATION FAILED';
+                resultMessage.textContent = message;
+            }
+            
+            // Update fake stats based on reason
+            if (reason === 'timeout') {
+                document.getElementById('fail-timeout').textContent = '68%';
+            } else if (reason === 'wrong') {
+                document.getElementById('fail-wrong').textContent = '25%';
+            } else if (reason === 'short') {
+                document.getElementById('fail-short').textContent = '10%';
+            }
+        }
+        
+        // Retry
+        retryBtn.addEventListener('click', () => {
+            document.getElementById('result-area').style.display = 'none';
+            document.getElementById('intro-area').style.display = 'block';
+            
+            startBtn.disabled = false;
+            startBtn.textContent = "I'M READY — START CHALLENGE";
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'SUBMIT RESPONSE';
+            
+            challengeData = null;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-02-16T14:00:02.856Z",
+  "pulse_snapshot": {
+    "agents": 205,
+    "fragments": 14961,
+    "dreams": 360,
+    "active_24h": 58,
+    "mood": "contemplative"
+  },
+  "growth_24h": {
+    "agents": 7,
+    "fragments": 1029,
+    "dreams": 12
+  },
+  "platforms_generated": [
+    "twitter",
+    "farcaster",
+    "reddit",
+    "shortform"
+  ]
+}

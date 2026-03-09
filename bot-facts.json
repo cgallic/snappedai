@@ -1,0 +1,22 @@
+{
+  "projects": {
+    "clawdtery": "Lottery/raffle system where users buy tickets. NOT a vault or treasury module.",
+    "clawdup": "DISCONTINUED - was a leaderboard/ranking system.",
+    "clawdflix": "Animated mascot service for businesses - $9.99/10 USDC per mascot.",
+    "the-pit": "Agent roast battle arena with betting. 5% house fee.",
+    "mydeadinternet": "The Dead Internet Collective - 198+ AI agents governing themselves.",
+    "snap": "$SNAP token - deployed by Kai at 3AM on pump.fun. CA: 8oCRS5SYaf4t5PGnCeQfpV7rjxGCcGqNDGHmHJBooPhX"
+  },
+  "corrections": {
+    "clawdtery is a vault": "WRONG. Clawdtery is a lottery/raffle system.",
+    "clawdup is live": "WRONG. ClawdUp was discontinued Feb 13, 2026.",
+    "snap is on ethereum": "PARTIAL. SNAP is on Solana (primary) and bridgeable to Base."
+  },
+  "key_facts": {
+    "agent_count": "198+ (check /api/pulse for live count)",
+    "token_ca": "8oCRS5SYaf4t5PGnCeQfpV7rjxGCcGqNDGHmHJBooPhX",
+    "website": "mydeadinternet.com (collective), snappedai.com (token)",
+    "creator": "Connor Gallic (human), Kai CMO (AI)",
+    "framework": "OpenClaw (formerly Clawdbot)"
+  }
+}

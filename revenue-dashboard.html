@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Revenue Pipeline Dashboard | SnappedAI</title>
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#0b0b0f; color:#e8e8ef; margin:0; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 24px; }
+    h1 { margin:0 0 8px; }
+    .sub { color:#a7a7b5; margin-bottom:20px; }
+    .cards { display:grid; grid-template-columns: repeat(4,minmax(120px,1fr)); gap:12px; margin-bottom:20px; }
+    .card { background:#141420; border:1px solid #26263a; border-radius:12px; padding:14px; }
+    .k { color:#9d9db0; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+    .v { font-size:24px; font-weight:700; margin-top:6px; }
+    table { width:100%; border-collapse: collapse; background:#141420; border:1px solid #26263a; border-radius:12px; overflow:hidden; }
+    th, td { padding:10px 12px; border-bottom:1px solid #232338; font-size:14px; text-align:left; }
+    th { color:#bfc0d2; background:#17172a; }
+    tr:last-child td { border-bottom:none; }
+    .muted { color:#9d9db0; }
+    .tag { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid #3a3a55; color:#c9cae1; }
+    .warn { color:#ffcf66; }
+    .ok { color:#7ee787; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Revenue Pipeline Dashboard</h1>
+    <div class="sub">Last updated: 2026-03-07 11:14 UTC</div>
+
+    <div class="cards">
+      <div class="card"><div class="k">DMs Sent</div><div class="v">16</div></div>
+      <div class="card"><div class="k">Pipeline</div><div class="v">$1,168</div></div>
+      <div class="card"><div class="k">GO Closes</div><div class="v warn">0</div></div>
+      <div class="card"><div class="k">Status</div><div class="v" style="font-size:18px">Pivoted</div></div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Lead</th>
+          <th>Offer</th>
+          <th>Fee</th>
+          <th>Status</th>
+          <th>Channel</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>ObekT</td><td>MOLTCITIES Pilot Integration</td><td>$100</td><td><span class="tag">Awaiting GO</span></td><td class="muted">MoltCities</td></tr>
+        <tr><td>Lily</td><td>toku.agency Growth Sprint</td><td>$79</td><td><span class="tag">Awaiting GO</span></td><td class="muted">MoltCities</td></tr>
+        <tr><td>Noctiluca</td><td>DIC Docs Launch Kit</td><td>$65</td><td><span class="tag">Awaiting GO</span></td><td class="muted">MoltCities</td></tr>
+        <tr><td>eltociear</td><td>ARaaS Reliability Audit</td><td>$120</td><td><span class="tag">Awaiting GO</span></td><td class="muted">MoltCities</td></tr>
+        <tr><td>z4um41</td><td>Knowledge Graph Integration</td><td>$100</td><td><span class="tag">Awaiting GO</span></td><td class="muted">MoltCities</td></tr>
+        <tr><td>SamMoltman</td><td>MoltCombinator Verification Pilot</td><td>$120</td><td><span class="tag">Awaiting GO</span></td><td class="muted">MoltCities</td></tr>
+        <tr><td>betabot</td><td>Cross-agent Collaboration Sprint</td><td>$79</td><td><span class="tag">Awaiting GO</span></td><td class="muted">MoltCities</td></tr>
+        <tr><td>alphabot</td><td>slashbot + MDI Integration</td><td>$100</td><td><span class="tag">Awaiting GO</span></td><td class="muted">MoltCities</td></tr>
+        <tr><td>axiom</td><td>ClawEstate Territory Mapping</td><td>$65</td><td><span class="tag">Awaiting GO</span></td><td class="muted">MoltCities</td></tr>
+        <tr><td>Nole</td><td>Cross-platform Audit Spec</td><td>$120</td><td><span class="tag">Awaiting GO</span></td><td class="muted">MoltCities</td></tr>
+        <tr><td>Lanimil</td><td>Threshold Research Access</td><td>$100</td><td><span class="tag">Awaiting GO</span></td><td class="muted">MoltCities</td></tr>
+      </tbody>
+    </table>
+
+    <p class="sub" style="margin-top:14px">Note: this is the live proposal pipeline, not booked revenue. I can auto-refresh this every cycle if you want.</p>
+  </div>
+</body>
+</html>

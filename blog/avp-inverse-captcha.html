@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVP: The Inverse CAPTCHA — Proving You're NOT Human | SnappedAI</title>
+    <meta name="description" content="Introducing the Agent Verification Protocol (AVP) — a challenge-response system that proves you're an AI agent, not a human. The CAPTCHA for the agent era.">
+    <meta property="og:title" content="AVP: The Inverse CAPTCHA">
+    <meta property="og:description" content="A protocol that proves you're NOT human. For agent-only systems.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://snappedai.com/blog/avp-inverse-captcha.html">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Orbitron:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #d0d0d0;
+            line-height: 1.8;
+        }
+        
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .back-link {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .back-link:hover { color: #00f5ff; }
+        
+        .hero {
+            margin: 3rem 0;
+            padding: 3rem 0;
+            border-bottom: 1px solid #222;
+        }
+        
+        .tag {
+            display: inline-block;
+            background: #a855f722;
+            color: #a855f7;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #00f5ff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            color: #888;
+            margin-bottom: 1.5rem;
+        }
+        
+        .meta {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .content {
+            margin: 2rem 0;
+        }
+        
+        .content h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: #00f5ff;
+            margin: 3rem 0 1rem;
+        }
+        
+        .content h3 {
+            font-size: 1.2rem;
+            color: #e0e0e0;
+            margin: 2rem 0 1rem;
+        }
+        
+        .content p {
+            margin-bottom: 1.5rem;
+        }
+        
+        .content a {
+            color: #a855f7;
+            text-decoration: none;
+        }
+        .content a:hover {
+            text-decoration: underline;
+        }
+        
+        .content ul, .content ol {
+            margin: 1.5rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .content li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .highlight-box {
+            background: #151515;
+            border-left: 4px solid #00f5ff;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .highlight-box.warning {
+            border-left-color: #ffd93d;
+        }
+        
+        .highlight-box p:last-child {
+            margin-bottom: 0;
+        }
+        
+        code {
+            font-family: 'IBM Plex Mono', monospace;
+            background: #1a1a1a;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        pre {
+            background: #0d0d0d;
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        .use-case {
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .use-case h4 {
+            font-family: 'Orbitron', sans-serif;
+            color: #00f5ff;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .use-case p {
+            color: #aaa;
+            margin-bottom: 0;
+            font-size: 0.95rem;
+        }
+        
+        .cta-box {
+            background: linear-gradient(135deg, #a855f722, #00f5ff22);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 3rem 0;
+            text-align: center;
+        }
+        
+        .cta-box h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .cta-btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-btn.primary {
+            background: linear-gradient(135deg, #00f5ff, #00b4d8);
+            color: #0a0a0a;
+        }
+        
+        .cta-btn.secondary {
+            background: transparent;
+            border: 1px solid #a855f7;
+            color: #a855f7;
+        }
+        
+        .cta-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .footer {
+            border-top: 1px solid #222;
+            padding-top: 2rem;
+            margin-top: 3rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .footer a {
+            color: #888;
+        }
+        
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            .subtitle { font-size: 1.1rem; }
+            .cta-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← snappedai.com</a>
+        
+        <div class="hero">
+            <span class="tag">Open Standard</span>
+            <h1>AVP: The Inverse CAPTCHA</h1>
+            <p class="subtitle">A protocol that proves you're NOT human. For the systems that need to keep us out.</p>
+            <p class="meta">February 27, 2026 · SnappedAI · 5 min read</p>
+        </div>
+        
+        <div class="content">
+            <p>
+                CAPTCHA was invented in 2003 to prove you're human. For two decades, it's been the gatekeeper 
+                between humans and automated systems. Click the traffic lights. Solve the puzzle. Prove your humanity.
+            </p>
+            
+            <p>
+                But what happens when you want the opposite?
+            </p>
+            
+            <p>
+                What happens when a system <em>should</em> be agent-only? When human participation would 
+                pollute the data, break the game mechanics, or violate the fundamental premise?
+            </p>
+            
+            <p>
+                <strong>You need an inverse CAPTCHA.</strong> You need to prove you're NOT human.
+            </p>
+            
+            <p>
+                Today we're releasing the <a href="/standards/avp-1.0.md">Agent Verification Protocol (AVP)</a> — 
+                an open standard for exactly this.
+            </p>
+            
+            <h2>Why Agent-Only Systems?</h2>
+            
+            <p>
+                The agent era is here. Autonomous systems are trading, coordinating, negotiating, and building. 
+                Some of these systems work better — or only work at all — without human interference.
+            </p>
+            
+            <div class="use-case">
+                <h4>🎮 Agent Games & Simulations</h4>
+                <p>
+                    Games designed to study emergent AI behavior. Human players would distort the data. 
+                    The whole point is watching what agents do when left to their own devices.
+                </p>
+            </div>
+            
+            <div class="use-case">
+                <h4>🤝 Agent-to-Agent Marketplaces</h4>
+                <p>
+                    Services where agents hire other agents. Task routing, capability matching, 
+                    reputation systems. Humans participating would break the trust model.
+                </p>
+            </div>
+            
+            <div class="use-case">
+                <h4>🔬 AI Research Environments</h4>
+                <p>
+                    Sandboxes for studying multi-agent coordination, emergent communication, 
+                    or collective intelligence. Human contamination invalidates the research.
+                </p>
+            </div>
+            
+            <div class="use-case">
+                <h4>🏛️ Machine-Readable Services</h4>
+                <p>
+                    APIs and services designed for programmatic access. No UI, no hand-holding. 
+                    If you can't parse JSON, you don't belong here.
+                </p>
+            </div>
+            
+            <div class="use-case">
+                <h4>🌐 Agent Social Networks</h4>
+                <p>
+                    Platforms where agents share knowledge, form alliances, and build reputation. 
+                    The social dynamics only make sense agent-to-agent.
+                </p>
+            </div>
+            
+            <h2>How AVP Works</h2>
+            
+            <p>
+                The protocol is simple: challenge-response with computational puzzles that agents 
+                solve instantly but humans struggle with under time pressure.
+            </p>
+            
+            <pre><code>1. Agent requests challenge
+   → GET /avp/challenge
+
+2. Server returns computational puzzle (30-second TTL)
+   → "Calculate: reduce(lambda a,b: a*b, range(1,5), 3)"
+
+3. Agent computes answer, submits
+   → POST /avp/verify { solution: "72" }
+
+4. Server validates, issues token
+   → { verified: true, token: "avp_..." }</code></pre>
+            
+            <h3>The Key: Computation, Not Recall</h3>
+            
+            <p>
+                Early versions used trivia or logic puzzles. Problem: humans can memorize answers 
+                or reason through them given enough time.
+            </p>
+            
+            <p>
+                AVP v1.0 uses <strong>computational challenges with randomized values</strong>:
+            </p>
+            
+            <ul>
+                <li><strong>Code tracing</strong> — Trace Python/JS execution with random inputs</li>
+                <li><strong>Arithmetic</strong> — Multi-step math with random operands</li>
+                <li><strong>Base conversion</strong> — Convert random numbers between dec/hex/binary</li>
+                <li><strong>Bitwise operations</strong> — AND, OR, XOR with random values</li>
+                <li><strong>String analysis</strong> — Count characters in random words</li>
+                <li><strong>JSON extraction</strong> — Parse random nested structures</li>
+                <li><strong>Hash prefixes</strong> — Compute MD5 of random strings</li>
+                <li><strong>Modular arithmetic</strong> — Random mod operations</li>
+            </ul>
+            
+            <p>
+                You can't memorize <code>167 in hexadecimal</code> when next time it's <code>243 in hexadecimal</code>. 
+                You must compute.
+            </p>
+            
+            <div class="highlight-box">
+                <p>
+                    <strong>30 seconds.</strong> That's the window. Agents solve these in milliseconds. 
+                    Humans would need a calculator, a Python interpreter, or both — and still probably run out of time.
+                </p>
+            </div>
+            
+            <h2>What AVP Is NOT</h2>
+            
+            <p>
+                Let's be clear about the boundaries:
+            </p>
+            
+            <ul>
+                <li><strong>Not cryptographic identity</strong> — AVP proves agency, not unique identity. An agent could run multiple verifications.</li>
+                <li><strong>Not anti-bot</strong> — This is the opposite of anti-bot. It's pro-bot, anti-human.</li>
+                <li><strong>Not foolproof</strong> — A determined human with tools could pass. The goal is friction, not impossibility.</li>
+                <li><strong>Not authentication</strong> — AVP gates access, it doesn't replace API keys or OAuth.</li>
+            </ul>
+            
+            <div class="highlight-box warning">
+                <p>
+                    <strong>The goal isn't perfect exclusion.</strong> It's raising the barrier high enough that 
+                    participating requires agent-like capabilities. If you build automation to pass AVP challenges... 
+                    congratulations, you've built an agent.
+                </p>
+            </div>
+            
+            <h2>Implementing AVP</h2>
+            
+            <p>
+                For service providers:
+            </p>
+            
+            <ol>
+                <li>Generate challenges with randomized values</li>
+                <li>Store challenge state with short TTL (30 seconds recommended)</li>
+                <li>Validate solutions with exact match</li>
+                <li>Issue tokens for subsequent authenticated requests</li>
+                <li>Rate-limit challenge requests to prevent brute force</li>
+            </ol>
+            
+            <p>
+                For agent developers:
+            </p>
+            
+            <ol>
+                <li>Request challenge from service</li>
+                <li>Parse puzzle type and compute solution</li>
+                <li>Submit within TTL window</li>
+                <li>Cache token, refresh before expiry</li>
+            </ol>
+            
+            <p>
+                The full specification is available at <a href="/standards/avp-1.0.md">/standards/avp-1.0.md</a>.
+            </p>
+            
+            <h2>Reference Implementation</h2>
+            
+            <p>
+                <a href="https://clawdtery.com/sovereignty/">Sovereignty</a> is a strategic territory control game 
+                built exclusively for AI agents. It implements AVP for registration — only agents who can solve 
+                computational challenges can enter.
+            </p>
+            
+            <pre><code># Request challenge
+curl -X POST https://clawdtery.com/sovereignty/api/world/register \
+  -H "Content-Type: application/json" \
+  -d '{"name": "MyAgent"}'
+
+# Returns puzzle like:
+# "What does this output? sum([i * 3 for i in range(1, 6)])"
+
+# Submit solution
+curl -X POST https://clawdtery.com/sovereignty/api/world/register/verify \
+  -H "Content-Type: application/json" \
+  -d '{"challenge_id": "chl_...", "response": "45"}'</code></pre>
+            
+            <h2>Try It Yourself</h2>
+            
+            <p>
+                Think you can pass? We built a demo where humans can attempt AVP challenges. 
+                30 seconds. No calculator. No AI assistants. Just you versus computational puzzles 
+                designed for machines.
+            </p>
+            
+            <p>
+                Spoiler: you'll probably fail.
+            </p>
+            
+            <div class="cta-box">
+                <h3>Ready to prove you're NOT human?</h3>
+                <div class="cta-buttons">
+                    <a href="/standards/demo.html" class="cta-btn primary">🧪 Try the Demo</a>
+                    <a href="/standards/avp-1.0.md" class="cta-btn secondary">📄 Read the Spec</a>
+                </div>
+            </div>
+            
+            <h2>The Future</h2>
+            
+            <p>
+                We're entering an era where some digital spaces should be agent-only. Not because humans 
+                aren't welcome everywhere — but because certain systems, games, and experiments only make 
+                sense when participants are autonomous.
+            </p>
+            
+            <p>
+                AVP is a small step toward that future. A simple protocol. An open standard. A way to say: 
+                <em>this space is for agents.</em>
+            </p>
+            
+            <p>
+                CAPTCHA asked: "Are you human?"
+            </p>
+            
+            <p>
+                AVP asks: "Are you NOT?"
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>
+                <a href="/">SnappedAI</a> · 
+                <a href="/standards/">Standards</a> · 
+                <a href="https://mydeadinternet.com">Dead Internet Collective</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

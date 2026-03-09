@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>On-Call OS Demo — Incident Dashboard</title>
+  <style>
+    :root{--bg:#0b0f14;--card:#131a22;--muted:#8ea0b5;--text:#e6edf5;--accent:#4ea1ff;--warn:#f59e0b;--err:#ef4444;--ok:#22c55e}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1100px;margin:0 auto;padding:20px}
+    .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+    .pill{padding:4px 10px;border-radius:999px;font-size:12px;background:#1f2a38;color:#c8d4e3}
+    .grid{display:grid;grid-template-columns:2fr 1fr;gap:14px}
+    .card{background:var(--card);border:1px solid #223042;border-radius:12px;padding:14px}
+    h1{font-size:20px;margin:0} h2{font-size:14px;color:var(--muted);margin:0 0 10px}
+    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+    .k{background:#0f1620;border:1px solid #223042;border-radius:10px;padding:10px}
+    .kv{font-size:24px;font-weight:700}.kl{font-size:12px;color:var(--muted)}
+    .kv.err{color:var(--err)} .kv.warn{color:var(--warn)} .kv.ok{color:var(--ok)}
+    svg{width:100%;height:220px;background:#0f1620;border:1px solid #223042;border-radius:10px}
+    .legend{display:flex;gap:12px;font-size:12px;color:var(--muted);margin-top:8px}
+    .dot{display:inline-block;width:8px;height:8px;border-radius:99px;margin-right:6px}
+    .event{margin-top:8px;padding:10px;border-radius:8px;background:#2a1a1a;border:1px solid #5b2b2b;color:#ffd7d7;font-size:13px}
+    .logs{height:290px;overflow:auto;background:#0f1620;border:1px solid #223042;border-radius:10px;padding:10px;font-family:ui-monospace,Consolas,monospace;font-size:12px}
+    .log{margin:0 0 8px}.red{color:#ff8d8d}.yellow{color:#fbbf24}.blue{color:#7dd3fc}.green{color:#86efac}
+    .footer{margin-top:12px;color:var(--muted);font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <h1>On-Call OS — Mock Incident Dashboard</h1>
+      <div class="pill">Scenario: API Latency Surge • 14:32 Deploy Marker</div>
+    </div>
+
+    <div class="kpis">
+      <div class="k"><div class="kl">P95 Latency</div><div class="kv warn">1280ms</div></div>
+      <div class="k"><div class="kl">5xx Error Rate</div><div class="kv err">12.1%</div></div>
+      <div class="k"><div class="kl">Affected Requests</div><div class="kv">18.4k</div></div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Service Health Timeline (last 60 min)</h2>
+        <svg viewBox="0 0 900 220" aria-label="latency and error charts">
+          <polyline fill="none" stroke="#4ea1ff" stroke-width="3" points="20,140 80,142 140,139 200,141 260,138 320,140 380,138 440,136 500,120 560,92 620,70 680,62 740,58 800,56 860,54"/>
+          <polyline fill="none" stroke="#ef4444" stroke-width="3" points="20,200 80,200 140,199 200,199 260,198 320,198 380,197 440,196 500,182 560,155 620,132 680,116 740,108 800,102 860,98"/>
+          <line x1="540" y1="20" x2="540" y2="205" stroke="#f59e0b" stroke-dasharray="6 6" />
+          <text x="548" y="28" fill="#f59e0b" font-size="12">14:32 Deploy detected</text>
+          <text x="24" y="26" fill="#8ea0b5" font-size="11">Higher = worse</text>
+        </svg>
+        <div class="legend">
+          <span><span class="dot" style="background:#4ea1ff"></span>P95 Latency</span>
+          <span><span class="dot" style="background:#ef4444"></span>5xx Error Rate</span>
+          <span><span class="dot" style="background:#f59e0b"></span>Deploy Marker</span>
+        </div>
+        <div class="event">🚨 Incident Triggered: Error budget burn rate exceeded threshold for <b>payments-api</b>.</div>
+      </div>
+
+      <div class="card">
+        <h2>Recent Logs</h2>
+        <div class="logs">
+          <div class="log blue">14:29:54 INFO  deploy-bot: release v2.14.0 started</div>
+          <div class="log green">14:32:11 INFO  deploy-bot: release v2.14.0 completed</div>
+          <div class="log yellow">14:33:03 WARN  gateway: upstream timeout retrying req_id=ab19</div>
+          <div class="log red">14:34:15 ERROR payments-api: DB pool exhausted connections=120/120</div>
+          <div class="log red">14:34:17 ERROR payments-api: timeout at /checkout req_id=ac21</div>
+          <div class="log yellow">14:35:01 WARN  autoscaler: cpu 92% replicas pending</div>
+          <div class="log red">14:36:22 ERROR gateway: 503 upstream unavailable zone=us-east-1</div>
+          <div class="log yellow">14:37:09 WARN  circuit-breaker: open for dependency user-profile</div>
+          <div class="log red">14:38:10 ERROR payments-api: p95 latency 1280ms</div>
+        </div>
+        <div class="footer">Use this page as screen-share input for the On-Call OS voice demo.</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

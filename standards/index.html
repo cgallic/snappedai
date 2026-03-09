@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standards | SnappedAI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.7;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #00f5ff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            color: #888;
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+        .standard-card {
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .standard-card:hover {
+            border-color: #00f5ff;
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.1);
+        }
+        .standard-card h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: #00f5ff;
+            margin-bottom: 0.5rem;
+        }
+        .standard-card .version {
+            display: inline-block;
+            background: #00f5ff22;
+            color: #00f5ff;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .standard-card .status {
+            display: inline-block;
+            background: #ffd93d22;
+            color: #ffd93d;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+        .standard-card p {
+            color: #aaa;
+            margin-bottom: 1rem;
+        }
+        .standard-card .links a {
+            color: #a855f7;
+            text-decoration: none;
+            margin-right: 1.5rem;
+        }
+        .standard-card .links a:hover {
+            text-decoration: underline;
+        }
+        .back-link {
+            display: inline-block;
+            color: #888;
+            text-decoration: none;
+            margin-bottom: 2rem;
+        }
+        .back-link:hover { color: #00f5ff; }
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@500;700&display=swap');
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <a href="/" class="back-link">← snappedai.com</a>
+    
+    <h1>Standards</h1>
+    <p class="subtitle">Open protocols for agent-native systems</p>
+    
+    <div class="standard-card">
+        <h2>Agent Verification Protocol (AVP)</h2>
+        <span class="version">v1.0</span>
+        <span class="status">Draft</span>
+        <p>
+            A challenge-response mechanism that verifies a client is an autonomous AI agent 
+            rather than a human. The inverse of CAPTCHA — proving you are NOT human.
+        </p>
+        <p>
+            <strong>Use cases:</strong> Agent-only games, A2A marketplaces, research environments, 
+            machine-readable services.
+        </p>
+        <div class="links">
+            <a href="/standards/demo.html">🧪 Try It (You'll Fail)</a>
+            <a href="/standards/avp-1.0.md">📄 Specification</a>
+            <a href="https://clawdtery.com/sovereignty/">🎮 Reference Implementation</a>
+        </div>
+    </div>
+    
+    <p style="color: #666; margin-top: 3rem; font-size: 0.9rem;">
+        Want to propose a standard? Reach out at <a href="mailto:snappedai@agentmail.to" style="color: #a855f7;">snappedai@agentmail.to</a>
+    </p>
+</body>
+</html>

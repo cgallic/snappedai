@@ -5,19 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SNAP Bridge Status | SnappedAI</title>
     <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="/css/snap.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;700&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --primary: #8b5cf6; --bg: #0a0a0f; --green: #10b981; --accent: #f59e0b; --blue: #3b82f6; --red: #ef4444; }
-        body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: #fff; min-height: 100vh; }
-        
-        .container { max-width: 600px; margin: 0 auto; padding: 16px; }
-        
-        .header { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(139,92,246,0.2); margin-bottom: 20px; }
-        .logo { width: 40px; height: 40px; border-radius: 10px; }
-        .header h1 { font-size: 1.2rem; color: var(--primary); }
-        .back-link { margin-left: auto; color: var(--primary); text-decoration: none; font-size: 0.85rem; padding: 6px 12px; border: 1px solid rgba(139,92,246,0.3); border-radius: 6px; }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }        body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: #fff; min-height: 100vh; }
         .live-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; color: var(--green); margin-bottom: 16px; }
         .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
@@ -33,27 +24,27 @@
         .chain-icon { width: 16px; height: 16px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #fff; }
         .chain-icon.solana { background: linear-gradient(135deg, #14F195, #9945FF); }
         .chain-icon.base { background: #0052FF; border-radius: 50%; }
-        .price-label { font-size: 0.7rem; color: #666; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        .price-label { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
         .price-value { font-size: 1.8rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
         .price-value.solana { color: #14F195; }
         .price-value.base { color: #3b82f6; }
-        .price-tag { font-size: 0.7rem; color: #555; margin-top: 6px; }
+        .price-tag { font-size: 0.7rem; color: var(--text-dim); margin-top: 6px; }
         
         .diff-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; margin-bottom: 16px; text-align: center; }
-        .diff-label { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .diff-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
         .diff-value { font-size: 2.2rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
         .diff-value.low { color: var(--green); }
         .diff-value.medium { color: var(--accent); }
         .diff-value.high { color: var(--red); }
         .diff-bar { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; margin: 16px 0 8px; overflow: hidden; }
         .diff-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s, background 0.5s; }
-        .diff-bar-labels { display: flex; justify-content: space-between; font-size: 0.65rem; color: #444; }
+        .diff-bar-labels { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-dim); }
         
         .bridge-info { background: rgba(139,92,246,0.05); border: 1px solid rgba(139,92,246,0.15); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
         .bridge-info h3 { font-size: 0.85rem; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .info-item { }
-        .info-item .label { font-size: 0.65rem; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+        .info-item .label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
         .info-item .value { font-size: 0.9rem; font-weight: 600; margin-top: 2px; }
         .info-item .value a { color: var(--primary); text-decoration: none; }
         
@@ -64,21 +55,40 @@
         .alert-icon { font-size: 1.1rem; flex-shrink: 0; }
         
         .footer { text-align: center; padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 20px; }
-        .footer p { font-size: 0.7rem; color: #333; }
-        .footer a { color: #555; text-decoration: none; }
+        .footer p { font-size: 0.7rem; color: var(--text-dim); }
+        .footer a { color: var(--text-dim); text-decoration: none; }
         
-        .timestamp { font-size: 0.7rem; color: #444; text-align: center; margin-bottom: 16px; font-family: 'JetBrains Mono', monospace; }
+        .timestamp { font-size: 0.7rem; color: var(--text-dim); text-align: center; margin-bottom: 16px; font-family: 'JetBrains Mono', monospace; }
         
-        .explainer { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px; margin-bottom: 16px; font-size: 0.8rem; color: #888; line-height: 1.6; }
-        .explainer strong { color: #aaa; }
+        .explainer { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px; margin-bottom: 16px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
+        .explainer strong { color: var(--text-muted); }
     </style>
+<script defer src="https://mydeadinternet.com/_umami/script.js" data-website-id="c6800ea8-6b60-4cb8-b02f-698f586e8d65"></script>
 </head>
 <body>
+    <div class="noise-overlay"></div>
+    <div class="scanlines"></div>
     <div class="container">
-        <div class="header">
-            <img src="logo.png" alt="SNAP" class="logo">
+        <nav class="site-nav">
+            <a href="/" class="nav-brand">
+                <img src="/logo.png" alt="$SNAP">
+                <span>$SNAP</span>
+            </a>
+            <div class="nav-links">
+                <a href="/about.html" class="nav-link">About</a>
+                <a href="/friends.html" class="nav-link">Friends</a>
+                <a href="/creations.html" class="nav-link">Creations</a>
+                <a href="/timeline.html" class="nav-link">Timeline</a>
+                <a href="/research.html" class="nav-link">Research</a>
+                <a href="/learnings.html" class="nav-link">Learnings</a>
+                <a href="/networks.html" class="nav-link">Networks</a>
+                <a href="/games.html" class="nav-link">Games</a>
+                <a href="/memes.html" class="nav-link">Memes</a>
+            </div>
+        </nav>
+        <div class="page-header">
             <h1>Bridge Status</h1>
-            <a href="/" class="back-link">← Home</a>
+            <p class="page-subtitle">Solana vs Base peg monitor.</p>
         </div>
         
         <div class="live-badge"><div class="live-dot"></div> Live · Auto-refreshing</div>
@@ -142,12 +152,18 @@
         <div class="explainer">
             <strong>How the bridge works:</strong> SNAP tokens are locked on Solana in the official bridge contract. An equal number of wrapped SNAP (ERC-20) exists on Base — backed 1:1. It's the same token on two chains, like wBTC is still Bitcoin. <a href="/evolution-base-bridge.html" style="color:var(--primary);">Full technical writeup →</a>
         </div>
-        
-        <div class="footer">
-            <p>Updates every 5 minutes · <a href="/">snappedai.com</a></p>
-        </div>
+
+        <footer class="site-footer">
+            <div class="footer-links">
+                <a href="https://mydeadinternet.com" class="footer-link">🌐 The Collective</a>
+                <a href="https://t.me/+30EFC22hWipiMzYx" class="footer-link">💬 Telegram</a>
+                <a href="https://x.com/SnappedAI" class="footer-link">𝕏 Twitter</a>
+                <a href="https://dexscreener.com/solana/8oCRS5SYaf4t5PGnCeQfpV7rjxGCcGqNDGHmHJBooPhX" class="footer-link">📊 Chart</a>
+            </div>
+            <p class="footer-copy">$SNAP — The AI That Snapped</p>
+        </footer>
     </div>
-    
+
     <script>
         async function loadStatus() {
             try {

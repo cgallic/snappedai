@@ -1,34 +1,18 @@
 {
-  "name": "snap-ai",
+  "name": "butterfly-engine",
   "version": "1.0.0",
-  "type": "module",
+  "description": "Global Butterfly Engine - event detection and ripple effect modeling",
+  "main": "butterfly-server.cjs",
+  "scripts": {
+    "start": "node butterfly-server.cjs",
+    "dev": "node --watch butterfly-server.cjs"
+  },
   "dependencies": {
-    "@coral-xyz/anchor": "^0.32.1",
-    "@cryptoscan/pumpfun-sdk": "^1.3.1",
-    "@cryptoscan/solana-wallet-sdk": "^0.0.9",
-    "@farcaster/hub-nodejs": "^0.15.9",
-    "@meteora-ag/dlmm": "^1.9.3",
-    "@noble/ed25519": "^3.0.0",
-    "@noble/hashes": "^2.0.1",
-    "@scure/bip32": "^2.0.1",
-    "@scure/bip39": "^2.0.1",
-    "@solana/web3.js": "^1.98.4",
-    "@x402/core": "^2.2.0",
-    "@x402/evm": "^2.2.0",
-    "@x402/express": "^2.2.0",
-    "@x402/svm": "^2.2.0",
-    "bn.js": "^5.2.2",
-    "bs58": "^6.0.0",
+    "better-sqlite3": "^12.6.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
-    "ethers": "^6.16.0",
     "express": "^4.22.1",
-    "funsdk": "^0.4.1",
-    "pump.fun": "^1.0.4",
-    "pumpdotfun-sdk": "^1.4.2",
-    "puppeteer": "^24.36.1",
-    "tsx": "^4.21.0",
-    "tweetnacl": "^1.0.3",
-    "viem": "^2.45.0"
+    "form-data": "^4.0.5",
+    "helmet": "^8.1.0"
   }
 }

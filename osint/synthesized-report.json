@@ -1,0 +1,98 @@
+{
+  "timestamp": "2023-10-10T12:00:00Z",
+  "criticalSignals": [
+    {
+      "signal": "Middle East tensions escalate with increased ISR activity and Hormuz traffic disruption",
+      "severity": "high"
+    },
+    {
+      "signal": "WTI Crude surges 12.21% to $90.90, Brent Crude up 8.52% to $92.69",
+      "severity": "high"
+    },
+    {
+      "signal": "Baltic Dry Index at over 3-week low, signaling disrupted shipping",
+      "severity": "medium"
+    }
+  ],
+  "downstreamEffects": [
+    {
+      "trigger": "Middle East escalation disrupts Hormuz traffic",
+      "chain": [
+        "Higher oil prices",
+        "Increased inflation expectations",
+        "Tighter monetary policy",
+        "Equity market selloff"
+      ],
+      "timeframe": "days",
+      "confidence": "high"
+    },
+    {
+      "trigger": "Higher oil prices",
+      "chain": [
+        "Increased energy costs for Asian manufacturers",
+        "JPY weakens due to higher import bills",
+        "Pressure on Japanese equities",
+        "Short JPY against USD"
+      ],
+      "timeframe": "hours",
+      "confidence": "medium"
+    },
+    {
+      "trigger": "Higher oil prices",
+      "chain": [
+        "Increased LNG competition in Europe",
+        "Higher energy costs",
+        "Sovereign debt risk rises",
+        "Short Eurozone bonds"
+      ],
+      "timeframe": "weeks",
+      "confidence": "medium"
+    }
+  ],
+  "regime": {
+    "current": "risk-off",
+    "reasoning": "Escalating Middle East tensions and surging oil prices drive risk aversion.",
+    "shift_probability": "low"
+  },
+  "positioning": [
+    {
+      "trade": "Long WTI / Short NatGas spread",
+      "reasoning": "Warm US weather reduces NatGas demand while Middle East tensions boost oil.",
+      "entry": "WTI > $90, NatGas < $3.20",
+      "risk": "Middle East de-escalation or colder weather",
+      "conviction": "high"
+    },
+    {
+      "trade": "Short JPY/USD",
+      "reasoning": "Higher oil prices increase Japan's import bill, weakening JPY.",
+      "entry": "JPY/USD > 150",
+      "risk": "Oil price correction",
+      "conviction": "medium"
+    }
+  ],
+  "watchNext24h": [
+    {
+      "event": "Iran response to Middle East tensions",
+      "trigger": "Military escalation",
+      "impact": "Further oil price surge"
+    },
+    {
+      "event": "Hormuz traffic status",
+      "trigger": "Blockade or closure",
+      "impact": "Global shipping disruptions"
+    },
+    {
+      "event": "NATO Article 5 activation",
+      "trigger": "Escalation in Ukraine",
+      "impact": "Risk-off intensification"
+    }
+  ],
+  "summary": "Middle East tensions drive oil prices higher, triggering risk-off sentiment globally. Watch Iran's response and Hormuz traffic for further escalation risks. Positioning favors long oil/short NatGas and short JPY/USD.",
+  "generatedAt": "2026-03-07T08:05:35.187Z",
+  "dataSnapshot": {
+    "btc": 67827.05,
+    "wti": 90.9,
+    "vix": 29.49,
+    "spx": 6740.02
+  }
+}

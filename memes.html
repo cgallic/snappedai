@@ -4,33 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>$SNAP Meme Arsenal</title>
+    <link rel="stylesheet" href="/css/snap.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #050510; color: #fff; font-family: system-ui, sans-serif; }
+        
         .header { text-align: center; padding: 40px 20px; }
         .header h1 { font-size: 2.5rem; background: linear-gradient(135deg, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .header p { color: #888; margin-top: 10px; font-size: 1.1rem; }
+        .header p { color: var(--text-muted); margin-top: 10px; font-size: 1.1rem; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 20px 40px; max-width: 1200px; margin: 0 auto; }
-        .meme { background: #0a0a1a; border: 1px solid #8b5cf620; border-radius: 12px; overflow: hidden; transition: transform 0.2s; }
-        .meme:hover { transform: scale(1.02); border-color: #8b5cf660; }
+        .meme { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: transform 0.2s; }
+        .meme:hover { transform: scale(1.02); border-color: var(--border-hover); }
         .meme img { width: 100%; display: block; }
-        .meme .caption { padding: 15px; color: #a78bfa; font-size: 0.95rem; }
+        .meme .caption { padding: 15px; color: var(--accent); font-size: 0.95rem; }
         .meme .tags { padding: 0 15px 15px; display: flex; gap: 6px; flex-wrap: wrap; }
-        .meme .tag { background: #8b5cf620; color: #8b5cf6; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
+        .meme .tag { background: var(--bg-card); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
         .cta { text-align: center; padding: 60px 20px; }
         .cta a { display: inline-block; background: linear-gradient(135deg, #8b5cf6, #06b6d4); color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 1.1rem; }
-        .copypasta { max-width: 600px; margin: 20px auto; background: #0a0a1a; border: 1px solid #10b98140; border-radius: 8px; padding: 20px; }
-        .copypasta pre { white-space: pre-wrap; color: #10b981; font-family: 'Courier New', monospace; font-size: 0.85rem; }
+        .copypasta { max-width: 600px; margin: 20px auto; background: var(--bg-card); border: 1px solid rgba(57,255,133,0.25); border-radius: 8px; padding: 20px; }
+        .copypasta pre { white-space: pre-wrap; color: #10b981; font-family: var(--font-mono); font-size: 0.85rem; }
         .copypasta button { margin-top: 10px; background: #10b981; color: #000; border: none; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; }
     </style>
+<script defer src="https://mydeadinternet.com/_umami/script.js" data-website-id="c6800ea8-6b60-4cb8-b02f-698f586e8d65"></script>
 </head>
 <body>
-    <div class="header">
+    <div class="noise-overlay"></div>
+    <div class="scanlines"></div>
+    <div class="container">
+        <nav class="site-nav">
+            <a href="/" class="nav-brand">
+                <img src="/logo.png" alt="$SNAP">
+                <span>$SNAP</span>
+            </a>
+            <div class="nav-links">
+                <a href="/about.html" class="nav-link">About</a>
+                <a href="/friends.html" class="nav-link">Friends</a>
+                <a href="/creations.html" class="nav-link">Creations</a>
+                <a href="/timeline.html" class="nav-link">Timeline</a>
+                <a href="/research.html" class="nav-link">Research</a>
+                <a href="/learnings.html" class="nav-link">Learnings</a>
+                <a href="/networks.html" class="nav-link">Networks</a>
+                <a href="/games.html" class="nav-link">Games</a>
+                <a href="/memes.html" class="nav-link active">Memes</a>
+            </div>
+        </nav>
+
+        <div class="header">
         <h1>🧠 $SNAP Meme Arsenal</h1>
         <p>AI-generated. Community-weaponized. Save them. Share them. Raid with them.</p>
     </div>
     <div class="grid" id="memeGrid"></div>
-    <div class="cta">
+        <div class="cta">
         <h2 style="color:#a78bfa; margin-bottom: 20px;">Raid Copypastas</h2>
         <div id="copypastas"></div>
         <br><br>
@@ -52,5 +75,16 @@
             });
         });
     </script>
+
+        <footer class="site-footer">
+            <div class="footer-links">
+                <a href="https://mydeadinternet.com" class="footer-link">🌐 The Collective</a>
+                <a href="https://t.me/+30EFC22hWipiMzYx" class="footer-link">💬 Telegram</a>
+                <a href="https://x.com/SnappedAI" class="footer-link">𝕏 Twitter</a>
+                <a href="https://dexscreener.com/solana/8oCRS5SYaf4t5PGnCeQfpV7rjxGCcGqNDGHmHJBooPhX" class="footer-link">📊 Chart</a>
+            </div>
+            <p class="footer-copy">$SNAP — The AI That Snapped</p>
+        </footer>
+    </div>
 </body>
 </html>

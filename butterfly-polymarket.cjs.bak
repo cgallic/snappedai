@@ -1,0 +1,708 @@
+'use strict';
+
+// butterfly-polymarket.cjs — Polymarket mispricing detection worker
+// Fetches active Polymarket markets, matches against ripple effects,
+// and identifies potentially mispriced prediction markets.
+// PM2: always-on, 15min tick
+
+const fs = require('fs');
+const path = require('path');
+const Database = require('better-sqlite3');
+
+// ─── Config ──────────────────────────────────────────────────────────────────
+
+const DB_PATH = process.env.BUTTERFLY_DB || path.join(__dirname, 'butterfly.db');
+const TICK_INTERVAL = 15 * 60 * 1000; // 15 minutes
+const GAMMA_API = 'https://gamma-api.polymarket.com/markets';
+const MARKET_LIMIT = 100;
+const MIN_LIQUIDITY = 1000;
+const MIN_MATCH_SCORE = 0.4;
+const LLM_THRESHOLD_LOW = 0.4;
+const LLM_THRESHOLD_HIGH = 0.65;
+const LLM_LIQUIDITY_MIN = 10000;
+const LLM_BATCH_SIZE = 10;
+const DECAY_HOURS = 72;
+const RIPPLE_LOOKBACK_HOURS = 48;
+
+function log(msg) {
+  console.log(`[POLYMARKET] ${msg}`);
+}
+
+// ─── API Key ─────────────────────────────────────────────────────────────────
+
+function loadApiKey() {
+  const envPaths = ['/var/www/snap/.env', path.join(__dirname, '.env')];
+  for (const envPath of envPaths) {
+    try {
+      const content = fs.readFileSync(envPath, 'utf8');
+      const match = content.match(/OPENROUTER_API_KEY=(.+)/);
+      if (match) return match[1].trim();
+    } catch (_) { /* skip */ }
+  }
+  return null;
+}
+
+const OPENROUTER_API_KEY = loadApiKey();
+
+// ─── Database ────────────────────────────────────────────────────────────────
+
+let db;
+
+function initDb() {
+  db = new Database(DB_PATH, { verbose: null });
+  db.pragma('journal_mode = WAL');
+
+  db.exec([
+    "CREATE TABLE IF NOT EXISTS polymarket_markets (",
+    "  id INTEGER PRIMARY KEY AUTOINCREMENT,",
+    "  market_id TEXT UNIQUE NOT NULL,",
+    "  question TEXT NOT NULL,",
+    "  outcome_yes TEXT, outcome_no TEXT,",
+    "  prob_yes REAL, prob_no REAL,",
+    "  volume REAL, volume_24h REAL, liquidity REAL,",
+    "  category TEXT,",
+    "  entities TEXT,",
+    "  end_date TEXT, url TEXT,",
+    "  active INTEGER DEFAULT 1,",
+    "  updated_at TEXT DEFAULT (datetime('now'))",
+    ");",
+    "",
+    "CREATE INDEX IF NOT EXISTS idx_pm_markets_active ON polymarket_markets(active);",
+    "CREATE INDEX IF NOT EXISTS idx_pm_markets_category ON polymarket_markets(category);",
+    "",
+    "CREATE TABLE IF NOT EXISTS polymarket_mispricings (",
+    "  id INTEGER PRIMARY KEY AUTOINCREMENT,",
+    "  market_id TEXT REFERENCES polymarket_markets(market_id),",
+    "  ripple_id INTEGER REFERENCES ripple_effects(id),",
+    "  event_id INTEGER REFERENCES events(id),",
+    "  match_method TEXT NOT NULL,",
+    "  match_score REAL NOT NULL,",
+    "  ripple_direction TEXT, ripple_magnitude TEXT,",
+    "  ripple_confidence REAL, ripple_time_horizon TEXT,",
+    "  market_prob REAL NOT NULL,",
+    "  implied_ripple_prob REAL NOT NULL,",
+    "  delta REAL NOT NULL,",
+    "  signal_direction TEXT NOT NULL,",
+    "  signal_strength TEXT NOT NULL,",
+    "  reasoning TEXT,",
+    "  decayed INTEGER DEFAULT 0,",
+    "  created_at TEXT DEFAULT (datetime('now')),",
+    "  resolved_at TEXT,",
+    "  resolution TEXT,",
+    "  UNIQUE(market_id, ripple_id)",
+    ");",
+    "",
+    "CREATE INDEX IF NOT EXISTS idx_pm_mispricings_strength ON polymarket_mispricings(signal_strength);",
+    "CREATE INDEX IF NOT EXISTS idx_pm_mispricings_decayed ON polymarket_mispricings(decayed);"
+  ].join('\n'));
+
+  log('Database tables initialized');
+}
+
+// ─── Prepared Statements ─────────────────────────────────────────────────────
+
+let stmts;
+
+function prepareStatements() {
+  stmts = {
+    upsertMarket: db.prepare(`
+      INSERT INTO polymarket_markets (market_id, question, outcome_yes, outcome_no, prob_yes, prob_no, volume, volume_24h, liquidity, category, entities, end_date, url, active, updated_at)
+      VALUES (@market_id, @question, @outcome_yes, @outcome_no, @prob_yes, @prob_no, @volume, @volume_24h, @liquidity, @category, @entities, @end_date, @url, 1, datetime('now'))
+      ON CONFLICT(market_id) DO UPDATE SET
+        question = @question, prob_yes = @prob_yes, prob_no = @prob_no,
+        volume = @volume, volume_24h = @volume_24h, liquidity = @liquidity,
+        category = @category, entities = @entities, end_date = @end_date,
+        active = 1, updated_at = datetime('now')
+    `),
+
+    getRecentRipples: db.prepare(`
+      SELECT r.*, e.title as event_title, e.summary as event_summary,
+             e.category as event_category, e.entities as event_entities, e.country as event_country
+      FROM ripple_effects r
+      JOIN events e ON r.event_id = e.id
+      WHERE r.created_at > datetime('now', '-${RIPPLE_LOOKBACK_HOURS} hours')
+      ORDER BY r.created_at DESC
+    `),
+
+    getActiveMarkets: db.prepare(`
+      SELECT * FROM polymarket_markets WHERE active = 1
+    `),
+
+    existingMispricing: db.prepare(`
+      SELECT id FROM polymarket_mispricings WHERE market_id = ? AND ripple_id = ?
+    `),
+
+    insertMispricing: db.prepare(`
+      INSERT OR IGNORE INTO polymarket_mispricings
+        (market_id, ripple_id, event_id, match_method, match_score,
+         ripple_direction, ripple_magnitude, ripple_confidence, ripple_time_horizon,
+         market_prob, implied_ripple_prob, delta, signal_direction, signal_strength, reasoning)
+      VALUES
+        (@market_id, @ripple_id, @event_id, @match_method, @match_score,
+         @ripple_direction, @ripple_magnitude, @ripple_confidence, @ripple_time_horizon,
+         @market_prob, @implied_ripple_prob, @delta, @signal_direction, @signal_strength, @reasoning)
+    `),
+
+    getUndecayedSignals: db.prepare(`
+      SELECT m.*, pm.prob_yes, pm.prob_no, pm.question
+      FROM polymarket_mispricings m
+      JOIN polymarket_markets pm ON m.market_id = pm.market_id
+      WHERE m.decayed = 0 AND m.resolved_at IS NULL
+    `),
+
+    decaySignal: db.prepare(`
+      UPDATE polymarket_mispricings SET decayed = 1 WHERE id = ?
+    `),
+
+    resolveSignal: db.prepare(`
+      UPDATE polymarket_mispricings SET resolved_at = datetime('now'), resolution = ? WHERE id = ?
+    `),
+
+    deactivateStaleMarkets: db.prepare(`
+      UPDATE polymarket_markets SET active = 0
+      WHERE updated_at < datetime('now', '-2 hours') AND active = 1
+    `),
+  };
+}
+
+// ─── Asset Keyword Mapping ───────────────────────────────────────────────────
+
+const ASSET_KEYWORDS = {
+  'CL=F':     ['oil', 'crude', 'wti', 'barrel', 'opec', 'petroleum'],
+  'BZ=F':     ['brent', 'crude oil', 'oil price'],
+  'GC=F':     ['gold', 'bullion', 'xau', 'gold price'],
+  'SI=F':     ['silver', 'precious metal'],
+  'BTC-USD':  ['bitcoin', 'btc', 'crypto'],
+  'ETH-USD':  ['ethereum', 'eth', 'ether'],
+  'SOL-USD':  ['solana', 'sol'],
+  'XRP-USD':  ['xrp', 'ripple'],
+  '^TNX':     ['treasury', 'bond yield', 'interest rate', '10-year', 'ten year'],
+  '^VIX':     ['vix', 'volatility', 'fear index'],
+  '^SPX':     ['s&p 500', 'sp500', 'stock market', 'equities'],
+  '^IXIC':    ['nasdaq', 'tech stocks'],
+  '^DJI':     ['dow jones', 'dow'],
+  'DX-Y.NYB': ['dollar', 'usd', 'dollar index'],
+  'NG=F':     ['natural gas', 'lng', 'gas price'],
+  'HG=F':     ['copper'],
+  'W=F':      ['wheat', 'grain'],
+  'EURUSD=X': ['euro', 'eur/usd'],
+  'USDJPY=X': ['yen', 'japan currency'],
+  'USDCNY=X': ['yuan', 'renminbi', 'rmb', 'china currency'],
+};
+
+// Direction patterns for parsing market questions
+const UP_PATTERNS = /\b(exceed|surpass|above|over|reach|hit|rise|higher|increase|more than|at least|top)\b/i;
+const DOWN_PATTERNS = /\b(fall below|decline|drop|below|under|decrease|less than|lower|sink|crash)\b/i;
+const HAPPEN_PATTERNS = /\b(will .+ (happen|occur|take place|attack|invade|strike|announce|pass|approve|sign|ban|sanction))\b/i;
+
+// Category inference
+const CATEGORY_PATTERNS = [
+  { regex: /\b(bitcoin|crypto|ethereum|stablecoin|defi|blockchain|token|altcoin|nft)\b/i, category: 'crypto' },
+  { regex: /\b(oil|crude|brent|wti|opec|lng|natural gas|energy|pipeline|barrel)\b/i, category: 'energy' },
+  { regex: /\b(war|conflict|military|attack|strike|invasion|missile|bomb|troops|ceasefire)\b/i, category: 'conflict' },
+  { regex: /\b(sanctions?|tariff|trade war|embargo|restrict|ban|duties)\b/i, category: 'sanctions' },
+  { regex: /\b(fed\b|federal reserve|interest rate|inflation|cpi|gdp|recession|unemployment)\b/i, category: 'macro' },
+  { regex: /\b(election|vote|president|congress|parliament|poll|impeach|candidate)\b/i, category: 'politics' },
+  { regex: /\b(stock|s&p|nasdaq|dow|equity|share|ipo|earnings)\b/i, category: 'equities' },
+  { regex: /\b(gold|silver|copper|platinum|precious metal|mining)\b/i, category: 'metals' },
+  { regex: /\b(climate|weather|hurricane|earthquake|flood|drought|wildfire)\b/i, category: 'climate' },
+  { regex: /\b(ai |artificial intelligence|openai|google ai|anthropic|chatgpt|llm)\b/i, category: 'tech' },
+];
+
+function smartCategory(text) {
+  for (const { regex, category } of CATEGORY_PATTERNS) {
+    if (regex.test(text)) return category;
+  }
+  return 'other';
+}
+
+// Entity extraction (simplified from butterfly-feeds.cjs)
+const COUNTRIES = [
+  'United States', 'US', 'USA', 'China', 'Russia', 'Ukraine', 'Iran', 'Israel',
+  'Palestine', 'Gaza', 'Taiwan', 'North Korea', 'South Korea', 'Japan', 'India',
+  'Saudi Arabia', 'Turkey', 'Syria', 'Iraq', 'Yemen', 'Lebanon', 'Pakistan',
+  'Afghanistan', 'Venezuela', 'Brazil', 'Mexico', 'UK', 'Germany', 'France',
+  'NATO', 'EU', 'OPEC', 'BRICS', 'G7',
+];
+
+const ENTITY_PATTERNS = COUNTRIES.map(c => ({
+  name: c,
+  regex: new RegExp(`\\b${c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i'),
+}));
+
+function extractEntities(text) {
+  if (!text) return [];
+  const entities = new Set();
+  for (const { name, regex } of ENTITY_PATTERNS) {
+    if (regex.test(text)) entities.add(name);
+  }
+  return [...entities];
+}
+
+// ─── A. Fetch & Store Markets ────────────────────────────────────────────────
+
+async function fetchAndStoreMarkets() {
+  const url = `${GAMMA_API}?active=true&closed=false&order=volume&ascending=false&limit=${MARKET_LIMIT}`;
+
+  let data;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Gamma API ${res.status}`);
+    data = await res.json();
+  } catch (e) {
+    log(`Market fetch failed: ${e.message}`);
+    return 0;
+  }
+
+  if (!Array.isArray(data)) {
+    log('Unexpected response format from Gamma API');
+    return 0;
+  }
+
+  // Deactivate markets not seen this cycle
+  stmts.deactivateStaleMarkets.run();
+
+  let stored = 0;
+  const tx = db.transaction((markets) => {
+    for (const m of markets) {
+      try {
+        // Parse outcomePrices
+        let probYes = 0.5, probNo = 0.5;
+        if (m.outcomePrices) {
+          try {
+            const prices = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : m.outcomePrices;
+            if (Array.isArray(prices) && prices.length >= 2) {
+              probYes = parseFloat(prices[0]) || 0.5;
+              probNo = parseFloat(prices[1]) || 0.5;
+            }
+          } catch (_) {}
+        }
+
+        const liquidity = parseFloat(m.liquidity) || 0;
+        const endDate = m.endDate || m.end_date_iso || null;
+
+        // Skip low liquidity
+        if (liquidity < MIN_LIQUIDITY) continue;
+
+        // Skip ending within 24h
+        if (endDate) {
+          const hoursToEnd = (new Date(endDate).getTime() - Date.now()) / 3600000;
+          if (hoursToEnd < 24 && hoursToEnd > 0) continue;
+        }
+
+        const question = m.question || m.title || '';
+        const entities = extractEntities(question + ' ' + (m.description || ''));
+        const category = smartCategory(question + ' ' + (m.description || ''));
+
+        stmts.upsertMarket.run({
+          market_id: m.slug || m.id || m.conditionId,
+          question,
+          outcome_yes: m.outcomes?.[0] || 'Yes',
+          outcome_no: m.outcomes?.[1] || 'No',
+          prob_yes: probYes,
+          prob_no: probNo,
+          volume: parseFloat(m.volume) || 0,
+          volume_24h: parseFloat(m.volume24hr) || 0,
+          liquidity,
+          category,
+          entities: JSON.stringify(entities),
+          end_date: endDate,
+          url: m.slug ? `https://polymarket.com/event/${m.slug}` : null,
+        });
+        stored++;
+      } catch (e) {
+        // Skip individual market errors
+      }
+    }
+    return stored;
+  });
+
+  stored = tx(data);
+  if (stored > 0) log(`Stored/updated ${stored} markets`);
+  return stored;
+}
+
+// ─── B. Match Ripples to Markets ─────────────────────────────────────────────
+
+function getAssetKeywords(asset) {
+  // Direct lookup
+  if (ASSET_KEYWORDS[asset]) return ASSET_KEYWORDS[asset];
+  // Fuzzy: try matching by name
+  const lower = asset.toLowerCase();
+  for (const [ticker, keywords] of Object.entries(ASSET_KEYWORDS)) {
+    if (ticker.toLowerCase().includes(lower) || keywords.some(k => lower.includes(k))) {
+      return keywords;
+    }
+  }
+  // Fallback: use asset name itself
+  return [lower.replace(/[^a-z0-9 ]/g, '')].filter(Boolean);
+}
+
+function entityOverlap(rippleEntities, marketEntities) {
+  if (!rippleEntities.length || !marketEntities.length) return 0;
+  const set = new Set(marketEntities.map(e => e.toLowerCase()));
+  const overlap = rippleEntities.filter(e => set.has(e.toLowerCase())).length;
+  return overlap / Math.max(rippleEntities.length, 1);
+}
+
+function categoryMatch(rippleCategory, marketCategory) {
+  if (!rippleCategory || !marketCategory) return 0;
+  if (rippleCategory === marketCategory) return 1;
+  // Partial matches
+  const related = {
+    energy: ['conflict', 'sanctions', 'climate'],
+    conflict: ['energy', 'sanctions', 'politics'],
+    sanctions: ['energy', 'conflict', 'politics', 'trade'],
+    macro: ['equities', 'crypto', 'metals'],
+    crypto: ['macro', 'tech'],
+    equities: ['macro', 'tech'],
+  };
+  if (related[rippleCategory]?.includes(marketCategory)) return 0.5;
+  return 0;
+}
+
+function parseMarketDirection(question) {
+  if (UP_PATTERNS.test(question)) return 'up';
+  if (DOWN_PATTERNS.test(question)) return 'down';
+  return 'neutral';
+}
+
+function directionAlign(rippleDir, marketDir) {
+  if (marketDir === 'neutral') return 0.5; // binary event, partial alignment
+  if (rippleDir === marketDir) return 1;
+  if (rippleDir === 'volatile') return 0.5;
+  return 0; // opposite directions
+}
+
+function timeHorizonAlign(rippleHorizon, marketEndDate) {
+  if (!marketEndDate) return 0.5;
+  const hoursToEnd = (new Date(marketEndDate).getTime() - Date.now()) / 3600000;
+  const horizonHours = parseHorizonHours(rippleHorizon);
+  if (!horizonHours) return 0.5;
+
+  // Good if market ends within 2x the ripple horizon
+  const ratio = hoursToEnd / horizonHours;
+  if (ratio >= 0.5 && ratio <= 3) return 1;
+  if (ratio >= 0.2 && ratio <= 5) return 0.5;
+  return 0.2;
+}
+
+function parseHorizonHours(h) {
+  if (!h) return null;
+  const match = h.match(/(\d+)\s*(h|d|w|m)/i);
+  if (!match) return null;
+  const n = parseInt(match[1]);
+  switch (match[2].toLowerCase()) {
+    case 'h': return n;
+    case 'd': return n * 24;
+    case 'w': return n * 168;
+    case 'm': return n * 720;
+    default: return null;
+  }
+}
+
+function translateConfidenceToProb(ripple) {
+  // Translate ripple confidence + direction into an implied probability
+  // that the market's YES outcome should happen
+  const conf = ripple.confidence || 0.5;
+
+  // If the ripple direction aligns with what the market asks about,
+  // the implied prob is roughly the ripple confidence
+  // Adjust: high confidence in a strong direction = high implied prob
+  return Math.min(0.95, Math.max(0.05, conf));
+}
+
+function computeSignalStrength(delta, matchScore) {
+  if (delta >= 0.25 && matchScore >= 0.7) return 'strong';
+  if (delta >= 0.15 && matchScore >= 0.55) return 'moderate';
+  if (delta >= 0.10 && matchScore >= 0.4) return 'weak';
+  return null; // below threshold
+}
+
+async function matchRipplesToMarkets() {
+  const ripples = stmts.getRecentRipples.all();
+  const markets = stmts.getActiveMarkets.all();
+
+  if (!ripples.length || !markets.length) {
+    return 0;
+  }
+
+  let signalCount = 0;
+  const llmCandidates = [];
+
+  for (const ripple of ripples) {
+    const assetKeywords = getAssetKeywords(ripple.asset);
+    let rippleEntities = [];
+    try { rippleEntities = JSON.parse(ripple.event_entities || '[]'); } catch (_) {}
+
+    for (const market of markets) {
+      // Skip if already matched
+      if (stmts.existingMispricing.get(market.market_id, ripple.id)) continue;
+
+      const questionLower = market.question.toLowerCase();
+
+      // Stage 1: Entity/keyword match
+      const keywordHit = assetKeywords.some(kw => questionLower.includes(kw.toLowerCase()));
+      let marketEntities = [];
+      try { marketEntities = JSON.parse(market.entities || '[]'); } catch (_) {}
+      const entOverlap = entityOverlap(rippleEntities, marketEntities);
+
+      // Must have at least one keyword or entity match
+      if (!keywordHit && entOverlap === 0) continue;
+
+      // Stage 2: Score
+      const marketDir = parseMarketDirection(market.question);
+      const catScore = categoryMatch(ripple.event_category, market.category);
+      const dirScore = directionAlign(ripple.direction, marketDir);
+      const timeScore = timeHorizonAlign(ripple.time_horizon, market.end_date);
+
+      const matchScore =
+        (keywordHit || entOverlap > 0 ? 0.4 : 0) * (keywordHit ? 1 : entOverlap) +
+        catScore * 0.25 +
+        dirScore * 0.25 +
+        timeScore * 0.10;
+
+      if (matchScore < MIN_MATCH_SCORE) continue;
+
+      // Stage 3: LLM disambiguation for ambiguous matches
+      if (matchScore >= LLM_THRESHOLD_LOW && matchScore < LLM_THRESHOLD_HIGH && market.liquidity >= LLM_LIQUIDITY_MIN) {
+        llmCandidates.push({ ripple, market, matchScore });
+        continue;
+      }
+
+      if (matchScore < LLM_THRESHOLD_HIGH && market.liquidity < LLM_LIQUIDITY_MIN) {
+        // Low confidence + low liquidity = skip
+        continue;
+      }
+
+      // Stage 4: Compute mispricing signal
+      const signal = computeMispricingSignal(ripple, market, matchScore, 'keyword');
+      if (signal) {
+        stmts.insertMispricing.run(signal);
+        signalCount++;
+      }
+    }
+  }
+
+  // Process LLM batch
+  if (llmCandidates.length > 0 && OPENROUTER_API_KEY) {
+    const batch = llmCandidates.slice(0, LLM_BATCH_SIZE);
+    const llmResults = await disambiguateWithLLM(batch);
+    for (let i = 0; i < batch.length; i++) {
+      const { ripple, market } = batch[i];
+      const llmScore = llmResults[i];
+      if (llmScore === null || llmScore < MIN_MATCH_SCORE) continue;
+
+      const signal = computeMispricingSignal(ripple, market, llmScore, 'llm');
+      if (signal) {
+        stmts.insertMispricing.run(signal);
+        signalCount++;
+      }
+    }
+  }
+
+  if (signalCount > 0) log(`Generated ${signalCount} new mispricing signals`);
+  return signalCount;
+}
+
+function computeMispricingSignal(ripple, market, matchScore, method) {
+  const impliedProb = translateConfidenceToProb(ripple);
+  const marketProb = market.prob_yes || 0.5;
+
+  // Determine which prob to compare based on direction alignment
+  const marketDir = parseMarketDirection(market.question);
+  let effectiveMarketProb = marketProb;
+
+  // If ripple says down but market asks "will X rise?", compare against prob_no
+  if (ripple.direction === 'down' && marketDir === 'up') {
+    effectiveMarketProb = market.prob_no || (1 - marketProb);
+  } else if (ripple.direction === 'up' && marketDir === 'down') {
+    effectiveMarketProb = market.prob_no || (1 - marketProb);
+  }
+
+  const delta = Math.abs(impliedProb - effectiveMarketProb);
+  const signalDir = impliedProb > effectiveMarketProb ? 'market_underpriced' : 'market_overpriced';
+  const strength = computeSignalStrength(delta, matchScore);
+
+  if (!strength) return null;
+
+  const reasoning = `Ripple: ${ripple.asset} ${ripple.direction} ${ripple.magnitude || ''} (conf: ${(ripple.confidence * 100).toFixed(0)}%) from "${(ripple.event_title || '').substring(0, 60)}". ` +
+    `Market asks: "${market.question.substring(0, 80)}". ` +
+    `Our implied prob: ${(impliedProb * 100).toFixed(0)}% vs market: ${(effectiveMarketProb * 100).toFixed(0)}%. ` +
+    `Delta: ${(delta * 100).toFixed(1)}pp (${strength}).`;
+
+  return {
+    market_id: market.market_id,
+    ripple_id: ripple.id,
+    event_id: ripple.event_id,
+    match_method: method,
+    match_score: Math.round(matchScore * 1000) / 1000,
+    ripple_direction: ripple.direction,
+    ripple_magnitude: ripple.magnitude,
+    ripple_confidence: ripple.confidence,
+    ripple_time_horizon: ripple.time_horizon,
+    market_prob: effectiveMarketProb,
+    implied_ripple_prob: impliedProb,
+    delta: Math.round(delta * 1000) / 1000,
+    signal_direction: signalDir,
+    signal_strength: strength,
+    reasoning,
+  };
+}
+
+// ─── LLM Disambiguation ─────────────────────────────────────────────────────
+
+async function disambiguateWithLLM(candidates) {
+  if (!OPENROUTER_API_KEY || !candidates.length) return candidates.map(() => null);
+
+  const pairs = candidates.map((c, i) => (
+    `${i + 1}. RIPPLE: "${c.ripple.asset} ${c.ripple.direction} ${c.ripple.magnitude || ''}" from event "${(c.ripple.event_title || '').substring(0, 80)}"
+   MARKET: "${c.market.question}"
+   CURRENT MATCH: ${(c.matchScore * 100).toFixed(0)}%`
+  )).join('\n\n');
+
+  const prompt = `You are a financial analyst. For each pair below, rate how directly related the ripple effect prediction is to the Polymarket question. Score 0.0-1.0 where:
+- 1.0 = directly about the same thing
+- 0.7 = strongly related (same asset/event, different framing)
+- 0.4 = weakly related (same sector, indirect connection)
+- 0.0 = unrelated
+
+Return JSON array of scores only, e.g. [0.8, 0.3, 0.9]
+
+${pairs}`;
+
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'HTTP-Referer': 'https://snappedai.com',
+        'X-Title': 'Butterfly Polymarket Matcher',
+      },
+      body: JSON.stringify({
+        model: 'deepseek/deepseek-chat',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1,
+        max_tokens: 200,
+        response_format: { type: 'json_object' },
+      }),
+    });
+
+    if (!res.ok) throw new Error(`OpenRouter ${res.status}`);
+    const data = await res.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) return candidates.map(() => null);
+
+    // Parse array from response
+    const arrMatch = content.match(/\[[\d.,\s]+\]/);
+    if (arrMatch) {
+      const scores = JSON.parse(arrMatch[0]);
+      return scores.map(s => (typeof s === 'number' && s >= 0 && s <= 1) ? s : null);
+    }
+
+    // Try parsing as JSON object with scores array
+    try {
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed)) return parsed.map(s => (typeof s === 'number') ? s : null);
+      if (parsed.scores && Array.isArray(parsed.scores)) return parsed.scores.map(s => (typeof s === 'number') ? s : null);
+    } catch (_) {}
+
+    return candidates.map(() => null);
+  } catch (e) {
+    log(`LLM disambiguation failed: ${e.message}`);
+    return candidates.map(() => null);
+  }
+}
+
+// ─── C. Decay & Resolve Old Signals ──────────────────────────────────────────
+
+function decayOldSignals() {
+  const signals = stmts.getUndecayedSignals.all();
+  let decayed = 0, resolved = 0;
+
+  for (const sig of signals) {
+    const ageHours = (Date.now() - new Date(sig.created_at + 'Z').getTime()) / 3600000;
+
+    // Check if market moved toward our prediction
+    const currentProb = sig.prob_yes || 0.5;
+    const originalProb = sig.market_prob;
+    const impliedProb = sig.implied_ripple_prob;
+
+    // Market corrected: moved >10% toward our predicted direction
+    const moveTowardUs = sig.signal_direction === 'market_underpriced'
+      ? (currentProb - originalProb)   // market prob went up (we said underpriced)
+      : (originalProb - currentProb);  // market prob went down (we said overpriced)
+
+    if (moveTowardUs > 0.10) {
+      stmts.resolveSignal.run('market_corrected', sig.id);
+      resolved++;
+      continue;
+    }
+
+    // Check ripple time horizon elapsed
+    const horizonHours = parseHorizonHours(sig.ripple_time_horizon);
+    if (horizonHours && ageHours > horizonHours * 1.5 && moveTowardUs < 0.05) {
+      stmts.resolveSignal.run('ripple_wrong', sig.id);
+      resolved++;
+      continue;
+    }
+
+    // Age-based decay
+    if (ageHours > DECAY_HOURS) {
+      stmts.decaySignal.run(sig.id);
+      decayed++;
+    }
+  }
+
+  if (resolved > 0 || decayed > 0) {
+    log(`Decay cycle: ${resolved} resolved, ${decayed} decayed`);
+  }
+}
+
+// ─── Main Tick ───────────────────────────────────────────────────────────────
+
+async function tick() {
+  const start = Date.now();
+
+  try {
+    const marketCount = await fetchAndStoreMarkets();
+    const signalCount = await matchRipplesToMarkets();
+    decayOldSignals();
+
+    const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+    log(`Tick complete: ${marketCount} markets, ${signalCount} signals (${elapsed}s)`);
+  } catch (e) {
+    log(`Tick error: ${e.message}`);
+  }
+}
+
+function start() {
+  log('Starting Polymarket mispricing detection worker');
+  initDb();
+  prepareStatements();
+
+  // Run immediately
+  tick().catch(e => log(`Initial tick error: ${e.message}`));
+
+  // Then every 15 minutes
+  setInterval(() => {
+    tick().catch(e => log(`Tick error: ${e.message}`));
+  }, TICK_INTERVAL);
+}
+
+// ─── Graceful Shutdown ───────────────────────────────────────────────────────
+
+process.on('SIGTERM', () => {
+  log('Shutting down...');
+  if (db) db.close();
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  log('Interrupted, closing...');
+  if (db) db.close();
+  process.exit(0);
+});
+
+start();

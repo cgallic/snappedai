@@ -1,0 +1,272 @@
+{
+  "event_templates": [
+    {
+      "id": "hormuz_disruption",
+      "pattern": ["hormuz", "strait", "tanker attack", "iran blockade"],
+      "category": "energy_supply",
+      "first_order": [
+        { "asset": "CL=F", "direction": "up", "magnitude": "3-8%", "confidence": 0.85 },
+        { "asset": "BZ=F", "direction": "up", "magnitude": "3-8%", "confidence": 0.85 },
+        { "asset": "FRO", "direction": "up", "magnitude": "5-15%", "confidence": 0.7 },
+        { "asset": "STNG", "direction": "up", "magnitude": "5-15%", "confidence": 0.7 }
+      ],
+      "second_order": [
+        { "asset": "USDJPY=X", "direction": "up", "magnitude": "1-3%", "confidence": 0.6, "reasoning": "JPY weakens on energy import costs" },
+        { "asset": "GC=F", "direction": "up", "magnitude": "1-3%", "confidence": 0.65, "reasoning": "Safe haven demand" },
+        { "asset": "^VIX", "direction": "up", "magnitude": "10-30%", "confidence": 0.7, "reasoning": "Fear spike" }
+      ],
+      "third_order": [
+        { "asset": "^SPX", "direction": "down", "magnitude": "1-3%", "confidence": 0.5, "reasoning": "Risk-off cascade from energy shock" }
+      ]
+    },
+    {
+      "id": "fed_rate_cut",
+      "pattern": ["fed cut", "rate cut", "dovish fed", "powell dovish"],
+      "category": "monetary_policy",
+      "first_order": [
+        { "asset": "^SPX", "direction": "up", "magnitude": "1-3%", "confidence": 0.75 },
+        { "asset": "BTC-USD", "direction": "up", "magnitude": "3-8%", "confidence": 0.7 },
+        { "asset": "GC=F", "direction": "up", "magnitude": "1-3%", "confidence": 0.7 }
+      ],
+      "second_order": [
+        { "asset": "DX-Y.NYB", "direction": "down", "magnitude": "0.5-1.5%", "confidence": 0.7 },
+        { "asset": "^TNX", "direction": "down", "magnitude": "2-5%", "confidence": 0.65 }
+      ],
+      "third_order": [
+        { "asset": "EURUSD=X", "direction": "up", "magnitude": "0.5-1%", "confidence": 0.5 }
+      ]
+    },
+    {
+      "id": "fed_rate_hike",
+      "pattern": ["fed hike", "rate hike", "hawkish fed", "powell hawkish", "inflation hot"],
+      "category": "monetary_policy",
+      "first_order": [
+        { "asset": "^SPX", "direction": "down", "magnitude": "1-3%", "confidence": 0.7 },
+        { "asset": "BTC-USD", "direction": "down", "magnitude": "3-8%", "confidence": 0.65 },
+        { "asset": "DX-Y.NYB", "direction": "up", "magnitude": "0.5-1.5%", "confidence": 0.7 }
+      ],
+      "second_order": [
+        { "asset": "GC=F", "direction": "down", "magnitude": "1-2%", "confidence": 0.55 },
+        { "asset": "^TNX", "direction": "up", "magnitude": "2-5%", "confidence": 0.65 }
+      ],
+      "third_order": []
+    },
+    {
+      "id": "china_taiwan_tension",
+      "pattern": ["taiwan strait", "china military", "taiwan invasion", "china drill", "pla exercise"],
+      "category": "geopolitics",
+      "first_order": [
+        { "asset": "^VIX", "direction": "up", "magnitude": "15-40%", "confidence": 0.8 },
+        { "asset": "GC=F", "direction": "up", "magnitude": "2-5%", "confidence": 0.75 }
+      ],
+      "second_order": [
+        { "asset": "^SPX", "direction": "down", "magnitude": "2-5%", "confidence": 0.65 },
+        { "asset": "USDCNY=X", "direction": "up", "magnitude": "1-3%", "confidence": 0.6 }
+      ],
+      "third_order": [
+        { "asset": "BTC-USD", "direction": "volatile", "magnitude": "5-10%", "confidence": 0.4 }
+      ]
+    },
+    {
+      "id": "oil_facility_attack",
+      "pattern": ["aramco attack", "refinery attack", "oil facility", "pipeline sabotage", "drone attack oil"],
+      "category": "energy_supply",
+      "first_order": [
+        { "asset": "CL=F", "direction": "up", "magnitude": "2-6%", "confidence": 0.8 },
+        { "asset": "BZ=F", "direction": "up", "magnitude": "2-6%", "confidence": 0.8 }
+      ],
+      "second_order": [
+        { "asset": "LMT", "direction": "up", "magnitude": "1-3%", "confidence": 0.55 },
+        { "asset": "GC=F", "direction": "up", "magnitude": "0.5-2%", "confidence": 0.5 }
+      ],
+      "third_order": []
+    },
+    {
+      "id": "russia_ukraine_escalation",
+      "pattern": ["russia escalat", "ukraine offensive", "nuclear threat", "russia nato"],
+      "category": "geopolitics",
+      "first_order": [
+        { "asset": "NG=F", "direction": "up", "magnitude": "3-10%", "confidence": 0.7 },
+        { "asset": "GC=F", "direction": "up", "magnitude": "1-3%", "confidence": 0.7 },
+        { "asset": "^VIX", "direction": "up", "magnitude": "10-25%", "confidence": 0.7 }
+      ],
+      "second_order": [
+        { "asset": "EURUSD=X", "direction": "down", "magnitude": "0.5-1.5%", "confidence": 0.6 },
+        { "asset": "LMT", "direction": "up", "magnitude": "2-5%", "confidence": 0.6 }
+      ],
+      "third_order": []
+    },
+    {
+      "id": "crypto_regulation",
+      "pattern": ["sec crypto", "bitcoin ban", "crypto regulation", "stablecoin ban", "cbdc launch"],
+      "category": "regulation",
+      "first_order": [
+        { "asset": "BTC-USD", "direction": "down", "magnitude": "5-15%", "confidence": 0.65 },
+        { "asset": "ETH-USD", "direction": "down", "magnitude": "5-15%", "confidence": 0.65 }
+      ],
+      "second_order": [],
+      "third_order": []
+    },
+    {
+      "id": "crypto_etf_approval",
+      "pattern": ["bitcoin etf", "eth etf", "crypto etf approved", "spot etf"],
+      "category": "regulation",
+      "first_order": [
+        { "asset": "BTC-USD", "direction": "up", "magnitude": "5-15%", "confidence": 0.7 },
+        { "asset": "ETH-USD", "direction": "up", "magnitude": "5-15%", "confidence": 0.65 }
+      ],
+      "second_order": [],
+      "third_order": []
+    },
+    {
+      "id": "major_sanctions",
+      "pattern": ["sanctions imposed", "trade embargo", "asset freeze", "swift ban"],
+      "category": "sanctions",
+      "first_order": [
+        { "asset": "DX-Y.NYB", "direction": "up", "magnitude": "0.3-1%", "confidence": 0.55 },
+        { "asset": "GC=F", "direction": "up", "magnitude": "0.5-2%", "confidence": 0.6 }
+      ],
+      "second_order": [
+        { "asset": "CL=F", "direction": "up", "magnitude": "1-4%", "confidence": 0.5, "reasoning": "Supply disruption fears" }
+      ],
+      "third_order": []
+    },
+    {
+      "id": "natural_disaster",
+      "pattern": ["earthquake", "tsunami", "hurricane", "typhoon", "flood major"],
+      "category": "natural_disaster",
+      "first_order": [
+        { "asset": "^VIX", "direction": "up", "magnitude": "5-15%", "confidence": 0.5 }
+      ],
+      "second_order": [],
+      "third_order": []
+    },
+    {
+      "id": "opec_cut",
+      "pattern": ["opec cut", "production cut", "opec+ reduce", "saudi cut"],
+      "category": "energy_supply",
+      "first_order": [
+        { "asset": "CL=F", "direction": "up", "magnitude": "2-5%", "confidence": 0.75 },
+        { "asset": "BZ=F", "direction": "up", "magnitude": "2-5%", "confidence": 0.75 }
+      ],
+      "second_order": [
+        { "asset": "FRO", "direction": "down", "magnitude": "1-3%", "confidence": 0.45, "reasoning": "Less volume to ship" }
+      ],
+      "third_order": []
+    },
+    {
+      "id": "opec_increase",
+      "pattern": ["opec increase", "production increase", "opec+ boost", "saudi boost"],
+      "category": "energy_supply",
+      "first_order": [
+        { "asset": "CL=F", "direction": "down", "magnitude": "2-5%", "confidence": 0.7 },
+        { "asset": "BZ=F", "direction": "down", "magnitude": "2-5%", "confidence": 0.7 }
+      ],
+      "second_order": [
+        { "asset": "FRO", "direction": "up", "magnitude": "1-3%", "confidence": 0.45, "reasoning": "More volume to ship" }
+      ],
+      "third_order": []
+    },
+    {
+      "id": "bank_crisis",
+      "pattern": ["bank collapse", "bank run", "svb", "credit suisse", "banking crisis", "bank failure"],
+      "category": "financial_crisis",
+      "first_order": [
+        { "asset": "^VIX", "direction": "up", "magnitude": "20-50%", "confidence": 0.8 },
+        { "asset": "^SPX", "direction": "down", "magnitude": "2-5%", "confidence": 0.75 },
+        { "asset": "GC=F", "direction": "up", "magnitude": "2-5%", "confidence": 0.75 },
+        { "asset": "BTC-USD", "direction": "up", "magnitude": "5-10%", "confidence": 0.55, "reasoning": "Anti-bank narrative" }
+      ],
+      "second_order": [
+        { "asset": "^TNX", "direction": "down", "magnitude": "3-8%", "confidence": 0.65, "reasoning": "Flight to safety" }
+      ],
+      "third_order": []
+    },
+    {
+      "id": "tariff_escalation",
+      "pattern": ["tariff", "trade war", "import duty", "retaliatory tariff"],
+      "category": "trade_policy",
+      "first_order": [
+        { "asset": "^SPX", "direction": "down", "magnitude": "1-3%", "confidence": 0.6 },
+        { "asset": "USDCNY=X", "direction": "up", "magnitude": "0.5-2%", "confidence": 0.55 }
+      ],
+      "second_order": [
+        { "asset": "GC=F", "direction": "up", "magnitude": "0.5-1.5%", "confidence": 0.5 }
+      ],
+      "third_order": []
+    },
+    {
+      "id": "election_result",
+      "pattern": ["election result", "president elect", "landslide victory", "contested election"],
+      "category": "politics",
+      "first_order": [
+        { "asset": "^VIX", "direction": "volatile", "magnitude": "5-20%", "confidence": 0.6 }
+      ],
+      "second_order": [],
+      "third_order": []
+    },
+    {
+      "id": "inflation_surprise",
+      "pattern": ["cpi higher", "inflation surprise", "cpi beat", "inflation accelerat"],
+      "category": "economic_data",
+      "first_order": [
+        { "asset": "^TNX", "direction": "up", "magnitude": "2-5%", "confidence": 0.7 },
+        { "asset": "GC=F", "direction": "up", "magnitude": "1-2%", "confidence": 0.6 },
+        { "asset": "^SPX", "direction": "down", "magnitude": "0.5-2%", "confidence": 0.6 }
+      ],
+      "second_order": [
+        { "asset": "DX-Y.NYB", "direction": "up", "magnitude": "0.3-1%", "confidence": 0.55 }
+      ],
+      "third_order": []
+    },
+    {
+      "id": "jobs_surprise_strong",
+      "pattern": ["nfp beat", "jobs beat", "employment surge", "payrolls beat"],
+      "category": "economic_data",
+      "first_order": [
+        { "asset": "DX-Y.NYB", "direction": "up", "magnitude": "0.3-0.8%", "confidence": 0.6 },
+        { "asset": "^TNX", "direction": "up", "magnitude": "1-3%", "confidence": 0.6 }
+      ],
+      "second_order": [
+        { "asset": "GC=F", "direction": "down", "magnitude": "0.5-1.5%", "confidence": 0.5 }
+      ],
+      "third_order": []
+    },
+    {
+      "id": "houthi_attack",
+      "pattern": ["houthi", "red sea attack", "yemen attack", "bab el mandeb"],
+      "category": "shipping_disruption",
+      "first_order": [
+        { "asset": "FRO", "direction": "up", "magnitude": "3-8%", "confidence": 0.7 },
+        { "asset": "STNG", "direction": "up", "magnitude": "3-8%", "confidence": 0.7 },
+        { "asset": "CL=F", "direction": "up", "magnitude": "1-3%", "confidence": 0.6 }
+      ],
+      "second_order": [
+        { "asset": "LMT", "direction": "up", "magnitude": "1-2%", "confidence": 0.45 }
+      ],
+      "third_order": []
+    },
+    {
+      "id": "tech_earnings_miss",
+      "pattern": ["earnings miss", "revenue miss", "guidance lower", "profit warning"],
+      "category": "earnings",
+      "first_order": [
+        { "asset": "^IXIC", "direction": "down", "magnitude": "1-3%", "confidence": 0.6 },
+        { "asset": "^SPX", "direction": "down", "magnitude": "0.5-1.5%", "confidence": 0.55 }
+      ],
+      "second_order": [],
+      "third_order": []
+    },
+    {
+      "id": "coup_or_regime_change",
+      "pattern": ["coup", "military takeover", "regime change", "overthrow", "martial law"],
+      "category": "geopolitics",
+      "first_order": [
+        { "asset": "GC=F", "direction": "up", "magnitude": "0.5-2%", "confidence": 0.5 },
+        { "asset": "^VIX", "direction": "up", "magnitude": "3-10%", "confidence": 0.45 }
+      ],
+      "second_order": [],
+      "third_order": []
+    }
+  ]
+}

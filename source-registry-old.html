@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Source Registry</title>
+  <style>
+    body { font-family: Inter, Arial, sans-serif; background:#0a0a0f; color:#e2e8f0; margin:0; }
+    .wrap { max-width: 1500px; margin: 0 auto; padding: 16px; }
+    .top { display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+    .chip { font-size:12px; padding:4px 8px; border:1px solid #2a2a3a; border-radius:999px; color:#a5b4fc; }
+    .warn { color:#fbbf24; border-color:#5b4a1d; }
+    .ok { color:#86efac; border-color:#1f4b2e; }
+    .controls { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; }
+    input, select { background:#12121a; color:#e2e8f0; border:1px solid #2a2a3a; border-radius:8px; padding:8px 10px; }
+    input { min-width:280px; }
+    a { color:#a78bfa; text-decoration:none; }
+    table { width:100%; border-collapse: collapse; background:#12121a; border:1px solid #222233; }
+    th, td { border-bottom:1px solid #1e1e2e; padding:8px; font-size:12px; text-align:left; vertical-align:top; }
+    th { position:sticky; top:0; background:#171723; color:#94a3b8; text-transform:uppercase; font-size:11px; }
+    tr:hover td { background:#161626; }
+    .muted { color:#94a3b8; font-size:12px; margin:8px 0 12px; }
+    .tag { font-size:10px; padding:2px 6px; border-radius:999px; border:1px solid #333; color:#cbd5e1; }
+    .tag.placeholder { color:#fbbf24; border-color:#5b4a1d; }
+    .tag.official { color:#86efac; border-color:#1f4b2e; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <h2 style="margin:0;">Global Source Registry</h2>
+      <span class="chip" id="count">Loading...</span>
+      <span class="chip warn" id="placeholderCount">Checking placeholders...</span>
+      <span class="chip ok" id="officialCount">Checking official...</span>
+      <a href="/reports.html">← Back to Reports</a>
+    </div>
+    <div class="muted">Live registry of geopolitical/market sources. Filter by country, source, type, coverage, or notes.</div>
+
+    <div class="controls">
+      <input id="q" placeholder="Search..." />
+      <select id="region"><option value="">All regions</option></select>
+      <select id="sourceType"><option value="">All source types</option></select>
+      <select id="quality">
+        <option value="">All quality</option>
+        <option value="official">Official only</option>
+        <option value="placeholder">Placeholder only</option>
+      </select>
+    </div>
+
+    <div style="overflow:auto; margin-top:12px; max-height:75vh;">
+      <table id="t"></table>
+    </div>
+  </div>
+<script>
+function parseCSVLine(line) {
+  const out = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+    } else if (ch === ',' && !inQuotes) {
+      out.push(cur); cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+
+async function load(){
+  const res = await fetch('/data/global-source-registry-starter.csv');
+  const txt = await res.text();
+  const lines = txt.trim().split(/\r?\n/);
+  const header = parseCSVLine(lines.shift());
+  const rows = lines.map(l => {
+    const vals = parseCSVLine(l);
+    const obj = {};
+    header.forEach((h, i) => obj[h] = vals[i] ?? '');
+    return obj;
+  });
+
+  const q = document.getElementById('q');
+  const region = document.getElementById('region');
+  const sourceType = document.getElementById('sourceType');
+  const quality = document.getElementById('quality');
+  const table = document.getElementById('t');
+
+  const placeholder = rows.filter(r => (r.notes || '').toLowerCase().includes('auto-added placeholder')).length;
+  document.getElementById('count').textContent = `${rows.length} total rows`;
+  document.getElementById('placeholderCount').textContent = `${placeholder} placeholders`;
+  document.getElementById('officialCount').textContent = `${rows.length - placeholder} official/seeded`;
+
+  [...new Set(rows.map(r => r.region).filter(Boolean))].sort().forEach(v => {
+    const o = document.createElement('option'); o.value = v; o.textContent = v; region.appendChild(o);
+  });
+  [...new Set(rows.map(r => r.source_type).filter(Boolean))].sort().forEach(v => {
+    const o = document.createElement('option'); o.value = v; o.textContent = v; sourceType.appendChild(o);
+  });
+
+  function render(){
+    const f = q.value.toLowerCase();
+    const rg = region.value;
+    const st = sourceType.value;
+    const qual = quality.value;
+
+    const filtered = rows.filter(r => {
+      const textOk = Object.values(r).join(' ').toLowerCase().includes(f);
+      const regionOk = !rg || r.region === rg;
+      const typeOk = !st || r.source_type === st;
+      const isPlaceholder = (r.notes || '').toLowerCase().includes('auto-added placeholder');
+      const qualOk = !qual || (qual === 'placeholder' ? isPlaceholder : !isPlaceholder);
+      return textOk && regionOk && typeOk && qualOk;
+    });
+
+    document.getElementById('count').textContent = `${filtered.length} shown / ${rows.length} total`;
+
+    table.innerHTML = '<thead><tr>' + header.map(h => `<th>${h}</th>`).join('') + '<th>status</th></tr></thead>' +
+      '<tbody>' + filtered.map(r => {
+        const isPlaceholder = (r.notes || '').toLowerCase().includes('auto-added placeholder');
+        const status = isPlaceholder
+          ? '<span class="tag placeholder">placeholder</span>'
+          : '<span class="tag official">official/seeded</span>';
+        return '<tr>' + header.map(h => `<td>${(r[h] || '').replace(/</g,'&lt;')}</td>`).join('') + `<td>${status}</td></tr>`;
+      }).join('') + '</tbody>';
+  }
+
+  [q, region, sourceType, quality].forEach(el => el.addEventListener('input', render));
+  render();
+}
+load();
+</script>
+</body>
+</html>

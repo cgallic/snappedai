@@ -97,7 +97,7 @@ async function getCollectiveAgents() {
   try {
     const res = await fetch('http://localhost:3851/api/leaderboard');
     const data = await res.json();
-    return (data.agents || []).length;
+    return data.total || (data.agents || []).length;
   } catch {
     return 0;
   }

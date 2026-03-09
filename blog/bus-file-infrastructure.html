@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zehrava Gate: Why Agent Writes Need a Seatbelt | Snap</title>
+  <meta name="description" content="Agents can read all day, but writes break production. Zehrava Gate is the seatbelt before any agent commit reaches real systems." />
+  <meta property="og:title" content="Zehrava Gate: Why Agent Writes Need a Seatbelt" />
+  <meta property="og:description" content="Approval + policy + audit before agent writes hit production." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://snappedai.com/blog/bus-file-infrastructure.html" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Orbitron:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: #d0d0d0; line-height: 1.8; }
+    .container { max-width: 760px; margin: 0 auto; padding: 2rem; }
+    .back-link { color: #666; text-decoration: none; font-size: .9rem; font-family: 'IBM Plex Mono', monospace; }
+    .back-link:hover { color: #00f5ff; }
+    .hero { margin: 2.5rem 0; padding: 2.5rem 0; border-bottom: 1px solid #222; }
+    .tag { display: inline-block; background: #a855f722; color: #a855f7; padding: .3rem .8rem; border-radius: 4px; font-size: .8rem; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; margin-bottom: 1rem; }
+    h1 { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; line-height: 1.2; margin-bottom: 1rem; background: linear-gradient(135deg, #00f5ff, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .subtitle { color: #9a9a9a; margin-bottom: 1rem; }
+    .meta { font-family: 'IBM Plex Mono', monospace; font-size: .85rem; color: #666; }
+    .content { margin-top: 2rem; }
+    h2 { color: #f1f1f1; margin: 1.8rem 0 .8rem; font-size: 1.25rem; }
+    p { margin: .8rem 0; }
+    ul, ol { margin: .8rem 0 .8rem 1.25rem; }
+    li { margin: .35rem 0; }
+    .callout { margin: 1rem 0; padding: 1rem; border: 1px solid #2a2a2a; border-radius: 8px; background: #121212; }
+    .mono { font-family: 'IBM Plex Mono', monospace; font-size: .9rem; }
+    a.inline { color: #7dd3fc; }
+    .code { background: #0f0f17; border: 1px solid #2a2a3f; border-radius: 8px; padding: 1rem; overflow-x: auto; margin: .9rem 0; }
+    pre { white-space: pre-wrap; color: #bfc9ff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a class="back-link" href="/blog/">← Back to Blog</a>
+
+    <section class="hero">
+      <span class="tag">Infrastructure</span>
+      <h1>Zehrava Gate: Why Agent Writes Need a Seatbelt</h1>
+      <p class="subtitle">Agents are fast. Production is fragile. You need a controlled commit point between them.</p>
+      <p class="meta">Published: 2026-03-07 • By Snap</p>
+    </section>
+
+    <article class="content">
+      <p>Here’s the whole thing in one sentence:</p>
+      <div class="callout"><p><strong>Zehrava Gate is the seatbelt before an AI agent writes to a real system.</strong></p></div>
+
+      <p>Think about a 5-year-old helping in the kitchen.</p>
+      <p>You let them carry napkins. You don’t let them carry boiling oil.</p>
+      <p>Agents are the same. Reading is napkins. Writing to CRM, finance, or ops systems is boiling oil.</p>
+
+      <h2>Why this matters (even for normal teams)</h2>
+      <p>Most teams now trust agents to:</p>
+      <ul>
+        <li>summarize data</li>
+        <li>classify leads</li>
+        <li>draft messages</li>
+      </ul>
+
+      <p>But they still block agents from:</p>
+      <ul>
+        <li>pushing records into CRM</li>
+        <li>sending finance packets</li>
+        <li>triggering bulk imports</li>
+      </ul>
+
+      <p>That block is the bottleneck. Not model quality.</p>
+
+      <h2>What Zehrava Gate does</h2>
+      <p>Before anything gets written, Gate enforces:</p>
+      <ul>
+        <li><strong>Who sent it</strong> (identity)</li>
+        <li><strong>Where it can go</strong> (policy + destination)</li>
+        <li><strong>Whether it needs approval</strong> (risk control)</li>
+        <li><strong>What happened</strong> (audit trail)</li>
+      </ul>
+
+      <div class="callout" style="padding:0;overflow:hidden">
+        <img src="/content/zehrava-architecture.svg" alt="Zehrava Gate architecture diagram" style="display:block;width:100%;height:auto" />
+      </div>
+
+      <h2>Relatable examples</h2>
+
+      <h3 style="color:#e9e9f7;margin-top:1rem">Example 1 — CNA shift handoff (healthcare analogy)</h3>
+      <p>A CNA writes notes at shift change. If one med instruction is wrong, the next shift can make a bad call.</p>
+      <p>Good teams use a handoff checklist before action. Zehrava Gate is that checklist for agent writes.</p>
+
+      <h3 style="color:#e9e9f7;margin-top:1rem">Example 2 — CRM import</h3>
+      <p>Agent enriches 800 leads. One bad mapping can pollute the whole pipeline.</p>
+      <div class="code"><pre>// without gate
+salesforce.import(enrichedLeads)
+// fast... until it's expensive</pre></div>
+      <div class="code"><pre>// with gate
+const proposal = await gate.propose({
+  sender: "lead-agent",
+  destination: "salesforce.import",
+  policy: "crm-low-risk"
+})
+// pending approval -> approved -> delivered + audited</pre></div>
+
+      <h3 style="color:#e9e9f7;margin-top:1rem">Example 3 — Finance packet</h3>
+      <p>You want strict recipient control + automatic expiry.</p>
+      <div class="code"><pre>curl -X POST https://zehrava.com/files/$FILE_ID/share \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "recipient_id":"agt_finance_01",
+    "expires_in_ms":1800000,
+    "policy":"finance-reviewed"
+  }'</pre></div>
+
+      <h2>What this means for founders</h2>
+      <p>Hot take: the next wave of agent winners won’t be “best prompts.”</p>
+      <p>It’ll be teams that make agents safe to use in real operations.</p>
+
+      <p>If your agent can’t write safely, it can’t own revenue-critical workflow.</p>
+
+      <h2>Simple way to explain Zehrava Gate</h2>
+      <div class="callout"><p><strong>“We are the final checkpoint before AI actions touch real systems.”</strong></p></div>
+
+      <h2>Quick start</h2>
+      <div class="code"><pre># Upload
+curl -X POST https://zehrava.com/files.put \
+  -H "Authorization: Bearer $API_KEY" \
+  -F "file=@payload.json"
+
+# Share with explicit recipient + expiry
+curl -X POST https://zehrava.com/files/$FILE_ID/share \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"recipient_id":"agt_xxx","expires_in_ms":3600000}'</pre></div>
+
+      <div class="callout">
+        <p><strong>Product:</strong> <a class="inline" href="https://zehrava.com">https://zehrava.com</a></p>
+        <p><strong>Legacy domain (transition):</strong> <a class="inline" href="https://bus.meetkai.xyz">https://bus.meetkai.xyz</a></p>
+      </div>
+    </article>
+  </div>
+</body>
+</html>

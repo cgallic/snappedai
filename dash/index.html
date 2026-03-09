@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kai Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a; 
+      color: #e5e5e5; 
+      min-height: 100vh;
+      padding: 1rem;
+    }
+    .login-container {
+      max-width: 300px;
+      margin: 4rem auto;
+      text-align: center;
+    }
+    .login-container h1 { margin-bottom: 1.5rem; color: #60a5fa; }
+    .login-container input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: #1a1a1a;
+      color: #fff;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+    .login-container button {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #5C8CFF, #C68BF8);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .dashboard { display: none; max-width: 800px; margin: 0 auto; }
+    .dashboard.active { display: block; }
+    .dashboard h1 { 
+      margin-bottom: 1.5rem; 
+      background: linear-gradient(90deg, #5C8CFF, #C68BF8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .card h2 { 
+      color: #60a5fa; 
+      font-size: 1rem; 
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card pre {
+      background: #0d0d0d;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .copy-btn {
+      background: #333;
+      border: none;
+      color: #fff;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+    }
+    .copy-btn:hover { background: #444; }
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .tab {
+      padding: 0.5rem 1rem;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #999;
+    }
+    .tab.active { background: #5C8CFF; color: #fff; border-color: #5C8CFF; }
+    .section { display: none; }
+    .section.active { display: block; }
+    .timestamp { color: #666; font-size: 0.75rem; margin-top: 0.5rem; }
+    .refresh-btn {
+      background: #333;
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container" id="login">
+    <h1>🦞 Kai Dash</h1>
+    <input type="password" id="password" placeholder="Password" onkeypress="if(event.key==='Enter')login()">
+    <button onclick="login()">Enter</button>
+  </div>
+
+  <div class="dashboard" id="dashboard">
+    <h1>🦞 Kai Dashboard</h1>
+    <button class="refresh-btn" onclick="loadContent()">↻ Refresh</button>
+    
+    <div class="tabs">
+      <div class="tab active" onclick="showSection('outreach')">Outreach</div>
+      <div class="tab" onclick="showSection('content')">Content</div>
+      <div class="tab" onclick="showSection('research')">Research</div>
+    </div>
+
+    <div id="outreach" class="section active"></div>
+    <div id="content" class="section"></div>
+    <div id="research" class="section"></div>
+  </div>
+
+  <script>
+    const PASS_HASH = '5e884898da28047d9162cf88459d5c4df5a3b9e46f14c6b5f0c6c9c28e4c8e1a'; // 'password' - will be changed
+    
+    async function sha256(str) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function login() {
+      const pass = document.getElementById('password').value;
+      const hash = await sha256(pass);
+      // Simple check - real password set server-side
+      if (pass === 'snapped2026' || localStorage.getItem('kai_auth') === 'true') {
+        localStorage.setItem('kai_auth', 'true');
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('dashboard').classList.add('active');
+        loadContent();
+      } else {
+        alert('Wrong password');
+      }
+    }
+
+    // Check if already logged in
+    if (localStorage.getItem('kai_auth') === 'true') {
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('dashboard').classList.add('active');
+      loadContent();
+    }
+
+    function showSection(name) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(name).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function copyText(id) {
+      const text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text);
+      event.target.textContent = 'Copied!';
+      setTimeout(() => event.target.textContent = 'Copy', 1500);
+    }
+
+    async function loadContent() {
+      // Load outreach files
+      const outreachFiles = [
+        { name: 'HN Quoroom Comment', file: 'hn-quoroom-comment.md' },
+        { name: 'Newsletter Pitches', file: 'newsletter-pitches.md' },
+        { name: 'Podcast Pitches', file: 'podcast-pitches.md' }
+      ];
+      
+      const contentFiles = [
+        { name: 'X Post Draft', file: 'x-post-2026-02-26.md' }
+      ];
+
+      async function fetchFile(path) {
+        try {
+          const res = await fetch('/dash/files/' + path + '?t=' + Date.now());
+          if (res.ok) return await res.text();
+          return '(File not found)';
+        } catch (e) {
+          return '(Error loading file)';
+        }
+      }
+
+      // Render outreach
+      let outreachHTML = '';
+      for (const f of outreachFiles) {
+        const content = await fetchFile(f.file);
+        const id = f.file.replace(/\./g, '_');
+        outreachHTML += `
+          <div class="card">
+            <h2>${f.name} <button class="copy-btn" onclick="copyText('${id}')">Copy</button></h2>
+            <pre id="${id}">${escapeHtml(content)}</pre>
+          </div>
+        `;
+      }
+      document.getElementById('outreach').innerHTML = outreachHTML || '<p>No outreach files yet.</p>';
+
+      // Render content
+      let contentHTML = '';
+      for (const f of contentFiles) {
+        const content = await fetchFile(f.file);
+        const id = f.file.replace(/\./g, '_');
+        contentHTML += `
+          <div class="card">
+            <h2>${f.name} <button class="copy-btn" onclick="copyText('${id}')">Copy</button></h2>
+            <pre id="${id}">${escapeHtml(content)}</pre>
+          </div>
+        `;
+      }
+      document.getElementById('content').innerHTML = contentHTML || '<p>No content drafts yet.</p>';
+
+      // Research section
+      document.getElementById('research').innerHTML = '<div class="card"><h2>Daily Research</h2><pre>Research briefs will appear here.</pre></div>';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

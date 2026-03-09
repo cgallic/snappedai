@@ -1,0 +1,251 @@
+{
+  "regions": {
+    "asia": {
+      "name": "Asia-Pacific",
+      "stories": [
+        {
+          "title": "China vows to stabilise oil and gas output in new 5-year plan as global risks mount",
+          "source": "SCMP China",
+          "link": "https://www.scmp.com/economy/global-economy/article/3345995/china-vows-stabilise-oil-and-gas-output-new-5-year-plan-global-risks-mount?utm_source=rss_feed",
+          "keywords": [
+            "china"
+          ],
+          "pubDate": "Mon, 09 Mar 2026 14:30:07 +0000"
+        },
+        {
+          "title": "China’s CATL profit surges 42% as battery sales and expansion boost global lead",
+          "source": "SCMP China",
+          "link": "https://www.scmp.com/business/climate-and-energy/article/3346013/chinas-catl-profit-surges-42-battery-sales-and-expansion-boost-global-lead?utm_source=rss_feed",
+          "keywords": [
+            "china"
+          ],
+          "pubDate": "Mon, 09 Mar 2026 14:01:09 +0000"
+        },
+        {
+          "title": "(2nd LD) (WBC) Going to Miami: S. Korea beats Australia to reach quarterfinals",
+          "source": "Yonhap Korea",
+          "link": "https://en.yna.co.kr/view/AEN20260309012252315",
+          "keywords": [
+            "korea"
+          ],
+          "pubDate": "Mon, 9 Mar 2026 23:21:19 +0900"
+        },
+        {
+          "title": "(WBC) Much-maligned S. Korean pitchers come through in high-stakes game",
+          "source": "Yonhap Korea",
+          "link": "https://en.yna.co.kr/view/AEN20260309012400315",
+          "keywords": [
+            "korea"
+          ],
+          "pubDate": "Mon, 9 Mar 2026 23:20:58 +0900"
+        },
+        {
+          "title": "(WBC) Bats wake up just in time for S. Korea",
+          "source": "Yonhap Korea",
+          "link": "https://en.yna.co.kr/view/AEN20260309012300315",
+          "keywords": [
+            "korea"
+          ],
+          "pubDate": "Mon, 9 Mar 2026 23:06:46 +0900"
+        },
+        {
+          "title": "(LEAD) (WBC) Going to Miami: S. Korea beats Australia to reach quarterfinals",
+          "source": "Yonhap Korea",
+          "link": "https://en.yna.co.kr/view/AEN20260309012251315",
+          "keywords": [
+            "korea"
+          ],
+          "pubDate": "Mon, 9 Mar 2026 23:03:01 +0900"
+        },
+        {
+          "title": "(WBC) Going to Miami: S. Korea beats Australia to reach quarterfinals",
+          "source": "Yonhap Korea",
+          "link": "https://en.yna.co.kr/view/AEN20260309012200315",
+          "keywords": [
+            "korea"
+          ],
+          "pubDate": "Mon, 9 Mar 2026 22:14:01 +0900"
+        },
+        {
+          "title": "'Because of H1B visas': MAGA enraged at 35,000 Indian-Americans dominating schools and offices in Fo",
+          "source": "Times of India",
+          "link": "",
+          "keywords": [
+            "india"
+          ],
+          "pubDate": "2026-03-09T18:28:03+05:30"
+        }
+      ],
+      "count": 8,
+      "lastScan": "2026-03-09T14:36:15.615Z"
+    },
+    "europe": {
+      "name": "Europe",
+      "stories": [
+        {
+          "title": "Germany: Meteorite punches through a house in Koblenz",
+          "source": "DW Germany",
+          "link": "https://www.dw.com/en/germany-meteorite-punches-through-a-house-in-koblenz/a-76275189?maca=en-rss-en-all-1573-xml-mrss",
+          "keywords": [
+            "germany"
+          ],
+          "pubDate": "Mon, 9 Mar 2026 11:46:00 GMT"
+        },
+        {
+          "title": "Germany news: Greens snatch victory in Baden-Württemberg",
+          "source": "DW Germany",
+          "link": "https://www.dw.com/en/germany-news-greens-snatch-victory-in-baden-württemberg/live-76273260?maca=en-rss-en-all-1573-xml-mrss",
+          "keywords": [
+            "germany"
+          ],
+          "pubDate": "Mon, 9 Mar 2026 09:17:00 GMT"
+        }
+      ],
+      "count": 2,
+      "lastScan": "2026-03-09T14:36:19.240Z"
+    },
+    "americas": {
+      "name": "Americas",
+      "stories": [],
+      "count": 0,
+      "lastScan": "2026-03-09T14:36:21.310Z"
+    },
+    "africa": {
+      "name": "Africa",
+      "stories": [],
+      "count": 0,
+      "lastScan": "2026-03-09T14:36:22.778Z"
+    },
+    "middleEast": {
+      "name": "Middle East",
+      "stories": [
+        {
+          "title": "IDF expects Iran can keep up fire for extended period despite 75% reduction in ballistic missiles",
+          "source": "Jerusalem Post",
+          "link": "https://www.jpost.com/israel-news/defense-news/article-889370",
+          "keywords": [
+            "iran"
+          ],
+          "pubDate": "Mon, 09 Mar 2026 15:49:54 GMT"
+        },
+        {
+          "title": "Two killed, another seriously wounded by cluster munitions as Iranian attack targets central Israel",
+          "source": "Jerusalem Post",
+          "link": "https://www.jpost.com/israel-news/article-889295",
+          "keywords": [
+            "iran",
+            "israel",
+            "attack"
+          ],
+          "pubDate": "Mon, 09 Mar 2026 02:25:09 GMT"
+        },
+        {
+          "title": "Saudi Arabia warns Iran against further attacks, or it will bear 'the heaviest consequences'",
+          "source": "Jerusalem Post",
+          "link": "https://www.jpost.com/middle-east/article-889358",
+          "keywords": [
+            "iran",
+            "saudi",
+            "attack"
+          ],
+          "pubDate": "Mon, 09 Mar 2026 14:18:14 GMT"
+        }
+      ],
+      "count": 3,
+      "lastScan": "2026-03-09T14:36:25.500Z"
+    },
+    "yahoo": {
+      "name": "Yahoo Finance",
+      "stories": [
+        {
+          "title": "Stock Market Today: Dow Dives As Oil Prices Surge On Iran War; Transport Stocks Knife Lower (Live Co",
+          "source": "Yahoo Finance",
+          "link": "https://www.investors.com/market-trend/stock-market-today/dow-jones-sp500-nasdaq-us-iran-news-oil-prices-nvidia-stock/?src=A00220&amp;yptr=yahoo",
+          "keywords": [
+            "market",
+            "stock",
+            "oil"
+          ],
+          "pubDate": "2026-03-09T14:18:48Z"
+        },
+        {
+          "title": "Advance Auto Parts (AAP) is Hurt by Inflation Dynamics and Consumer Behavior",
+          "source": "Yahoo Finance",
+          "link": "https://finance.yahoo.com/news/advance-auto-parts-aap-hurt-141842693.html",
+          "keywords": [
+            "inflation"
+          ],
+          "pubDate": "2026-03-09T14:18:42Z"
+        },
+        {
+          "title": "Stock Market Today: Dow Dives As Oil Prices Surge On Iran War; Transport Stocks Knife Lower (Live Co",
+          "source": "Yahoo Top Stories",
+          "link": "https://www.investors.com/market-trend/stock-market-today/dow-jones-sp500-nasdaq-us-iran-news-oil-prices-nvidia-stock/?src=A00220&amp;yptr=yahoo",
+          "keywords": [
+            "market",
+            "stock",
+            "oil"
+          ],
+          "pubDate": "2026-03-09T14:18:48Z"
+        },
+        {
+          "title": "Advance Auto Parts (AAP) is Hurt by Inflation Dynamics and Consumer Behavior",
+          "source": "Yahoo Top Stories",
+          "link": "https://finance.yahoo.com/news/advance-auto-parts-aap-hurt-141842693.html",
+          "keywords": [
+            "inflation"
+          ],
+          "pubDate": "2026-03-09T14:18:42Z"
+        },
+        {
+          "title": "Stock Market Today: Dow Dives As Oil Prices Surge On Iran War; Transport Stocks Knife Lower (Live Co",
+          "source": "Yahoo Markets",
+          "link": "https://www.investors.com/market-trend/stock-market-today/dow-jones-sp500-nasdaq-us-iran-news-oil-prices-nvidia-stock/?src=A00220&amp;yptr=yahoo",
+          "keywords": [
+            "market",
+            "stock",
+            "oil"
+          ],
+          "pubDate": "2026-03-09T14:18:48Z"
+        },
+        {
+          "title": "Advance Auto Parts (AAP) is Hurt by Inflation Dynamics and Consumer Behavior",
+          "source": "Yahoo Markets",
+          "link": "https://finance.yahoo.com/news/advance-auto-parts-aap-hurt-141842693.html",
+          "keywords": [
+            "inflation"
+          ],
+          "pubDate": "2026-03-09T14:18:42Z"
+        }
+      ],
+      "count": 6,
+      "lastScan": "2026-03-09T14:36:28.677Z"
+    },
+    "marketwatch": {
+      "name": "MarketWatch",
+      "stories": [
+        {
+          "title": "G-7 hasn&#x2019;t yet agreed on deploying unprecedented oil reserves as prices soar",
+          "source": "MarketWatch Top",
+          "link": "https://www.marketwatch.com/story/g-7-scrambles-emergency-meeting-and-could-deploy-unprecedented-oil-reserves-as-prices-soar-report-1a5aa206?mod=mw_rss_topstories",
+          "keywords": [
+            "oil"
+          ],
+          "pubDate": "Mon, 09 Mar 2026 14:30:00 GMT"
+        },
+        {
+          "title": "Hims &amp; Hers&#x2019; stock rockets as weight-loss-drug dispute with Novo Nordisk ends",
+          "source": "MarketWatch Top",
+          "link": "https://www.marketwatch.com/story/hims-hers-stock-rockets-on-reported-end-to-novo-nordisk-weight-loss-drug-dispute-debbfade?mod=mw_rss_topstories",
+          "keywords": [
+            "stock"
+          ],
+          "pubDate": "Mon, 09 Mar 2026 13:38:00 GMT"
+        }
+      ],
+      "count": 2,
+      "lastScan": "2026-03-09T14:36:31.433Z"
+    }
+  },
+  "lastUpdate": "2026-03-09T14:36:31.433Z"
+}
