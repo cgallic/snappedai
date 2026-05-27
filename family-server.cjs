@@ -88,9 +88,17 @@ function initSchema(db) {
 module.exports = function attachFamily(app, db) {
   initSchema(db);
 
-  const TOKEN = process.env.FAMILY_INGEST_TOKEN || '';
-  const APT_SLUG = process.env.FAMILY_APT_SLUG || '';
-  const FLT_SLUG = process.env.FAMILY_FLT_SLUG || '';
+  // Fall back to reading .env directly since the host doesn't populate process.env from it.
+  let envText = '';
+  try { envText = require('fs').readFileSync(process.env.ENV_PATH || '/var/www/snap/.env', 'utf8'); } catch {}
+  function envOr(key) {
+    if (process.env[key]) return process.env[key];
+    const m = envText.match(new RegExp('^' + key + '=(.+)$', 'm'));
+    return m ? m[1].trim() : '';
+  }
+  const TOKEN    = envOr('FAMILY_INGEST_TOKEN');
+  const APT_SLUG = envOr('FAMILY_APT_SLUG');
+  const FLT_SLUG = envOr('FAMILY_FLT_SLUG');
 
   function requireToken(req, res) {
     if (!TOKEN) { res.status(503).json({ error: 'family ingest not configured' }); return false; }
