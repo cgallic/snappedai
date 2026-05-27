@@ -727,7 +727,7 @@ app.use(cors());
 app.use(express.json());
 
 // --- family-scanner module (apartment + flight pages) ---
-try { require('./family-server')(app, db); } catch (e) { console.error('[FAMILY] mount failed:', e.message); }
+try { require('./family-server.cjs')(app, db); } catch (e) { console.error('[FAMILY] mount failed:', e.message); }
 
 
 // Health
