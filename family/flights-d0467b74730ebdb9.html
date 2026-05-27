@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Flight deals · family scanner</title>
+<style>
+  :root {
+    --bg: #fafaf9; --card: #ffffff; --text: #1c1917; --muted: #78716c;
+    --line: #e7e5e4; --accent: #0c4a6e; --accent-soft: #e0f2fe;
+    --chip: #f5f5f4; --chip-on: #0c4a6e; --chip-on-fg: #ffffff;
+    --good: #166534; --good-soft: #dcfce7; --warn: #b45309; --warn-soft: #fef3c7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0a09; --card: #1c1917; --text: #fafaf9; --muted: #a8a29e;
+      --line: #292524; --accent: #38bdf8; --accent-soft: #082f49;
+      --chip: #292524; --chip-on: #38bdf8; --chip-on-fg: #0c0a09;
+      --good: #4ade80; --good-soft: #052e16; --warn: #fbbf24; --warn-soft: #451a03;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 16px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  h1 { font-size: 20px; margin: 0; letter-spacing: -0.01em; }
+  h2 { font-size: 15px; margin: 24px 0 10px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--muted); font-weight: 600; }
+  .meta { color: var(--muted); font-size: 13px; }
+  .filters { display: flex; flex-direction: column; gap: 10px; padding: 14px 0; }
+  .filter-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .filter-row label { color: var(--muted); font-size: 12px; text-transform: uppercase;
+    letter-spacing: 0.05em; margin-right: 4px; min-width: 70px; }
+  .chip { display: inline-block; padding: 5px 11px; border-radius: 999px; background: var(--chip);
+    color: var(--text); font-size: 13px; cursor: pointer; border: 1px solid transparent;
+    user-select: none; transition: all 0.1s; }
+  .chip:hover { border-color: var(--accent); }
+  .chip.on { background: var(--chip-on); color: var(--chip-on-fg); }
+  .search { flex: 1; min-width: 180px; padding: 7px 11px; border: 1px solid var(--line);
+    border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px; }
+  .summary { color: var(--muted); font-size: 13px; padding: 6px 0 10px; }
+  .grid { display: grid; gap: 10px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .card.deal { border-color: var(--good); background: linear-gradient(0deg, var(--good-soft) 0%, var(--card) 30%); }
+  .card.errorfare { border-color: var(--warn); background: linear-gradient(0deg, var(--warn-soft) 0%, var(--card) 30%); }
+  .card a.title { color: var(--text); text-decoration: none; font-weight: 500;
+    line-height: 1.35; display: block; }
+  .card a.title:hover { color: var(--accent); }
+  .row { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .route { font-size: 16px; font-weight: 600; }
+  .price { font-size: 18px; font-weight: 600; color: var(--accent); }
+  .price.deal { color: var(--good); }
+  .tag { font-size: 12px; padding: 2px 8px; border-radius: 4px; background: var(--chip); color: var(--muted); }
+  .tag.deal { background: var(--good-soft); color: var(--good); }
+  .tag.warn { background: var(--warn-soft); color: var(--warn); }
+  .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .err { background: #fee2e2; color: #991b1b; padding: 10px 14px; border-radius: 8px; margin: 16px 0; }
+  @media (prefers-color-scheme: dark) { .err { background: #450a0a; color: #fca5a5; } }
+  footer { padding: 20px 0; color: var(--muted); font-size: 12px; text-align: center; }
+  .legend { font-size: 12px; color: var(--muted); margin-left: auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Flight deals</h1>
+      <div class="meta">SJU · BQN · EWR origins · price drops vs historical median</div>
+    </div>
+    <div class="meta" id="updated"></div>
+  </header>
+
+  <div class="filters">
+    <div class="filter-row">
+      <label>Origin</label>
+      <span class="chip on" data-origin="">all</span>
+      <span class="chip" data-origin="SJU">SJU</span>
+      <span class="chip" data-origin="BQN">BQN</span>
+      <span class="chip" data-origin="EWR">EWR</span>
+    </div>
+    <div class="filter-row">
+      <label>Stops</label>
+      <span class="chip on" data-stops="-1">any</span>
+      <span class="chip" data-stops="0">nonstop</span>
+      <span class="chip" data-stops="1">≤1 stop</span>
+    </div>
+    <div class="filter-row">
+      <label>Show</label>
+      <span class="chip on" data-mode="all">everything</span>
+      <span class="chip" data-mode="deals">deals only</span>
+    </div>
+    <div class="filter-row">
+      <label>Max price</label>
+      <input type="number" id="pmax" placeholder="$" min="0" step="50" class="search" style="max-width:130px">
+      <label style="margin-left:12px">Dest</label>
+      <input type="text" id="dest" class="search" placeholder="airport code (e.g. MIA)" style="max-width:240px">
+      <label style="margin-left:12px">Sort</label>
+      <select id="sort" class="search" style="max-width:180px">
+        <option value="best">deals first, then cheapest</option>
+        <option value="price-asc">cheapest first</option>
+        <option value="discount">biggest discount first</option>
+        <option value="dep">soonest departure first</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="err"></div>
+
+  <div class="summary" id="summary"></div>
+  <div class="grid" id="deals-grid"></div>
+
+  <h2 id="ef-title" style="display:none">Error fares (mistake-fare alerts)</h2>
+  <div class="grid" id="ef-grid"></div>
+
+  <footer>Cached prices update daily, error fares every 30 min. Private family link — please don't share publicly.</footer>
+</div>
+
+<script>
+const SLUG = 'd0467b74730ebdb9';
+const API = '/api/family/' + SLUG + '/flights';
+let DATA = { deals: [], errorfares: [], snapshots: [], last_ingest: null };
+
+const state = { origin: '', stops: -1, mode: 'all', pmax: null, dest: '', sort: 'best' };
+
+function fmtMoney(n) { return n == null ? '—' : '$' + Math.round(n).toLocaleString(); }
+function fmtDate(iso) {
+  if (!iso) return '?';
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+function fmtRelative(iso) {
+  if (!iso) return '';
+  const dh = (Date.now() - new Date(iso).getTime()) / 36e5;
+  if (dh < 1) return Math.max(1, Math.floor(dh * 60)) + 'm ago';
+  if (dh < 48) return Math.floor(dh) + 'h ago';
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+async function load() {
+  try {
+    const r = await fetch(API, { cache: 'no-store' });
+    if (!r.ok) throw new Error('http ' + r.status);
+    DATA = await r.json();
+  } catch (e) {
+    document.getElementById('err').innerHTML =
+      '<div class="err">Failed to load: ' + e.message + '</div>';
+    return;
+  }
+  if (DATA.last_ingest) {
+    document.getElementById('updated').textContent = 'updated ' + fmtRelative(DATA.last_ingest);
+  }
+  attachChipHandlers();
+  render();
+}
+
+function attachChipHandlers() {
+  document.querySelectorAll('.chip').forEach(c => {
+    c.onclick = () => {
+      ['origin', 'stops', 'mode'].forEach(k => {
+        if (c.dataset[k] !== undefined) {
+          state[k] = k === 'stops' ? parseInt(c.dataset[k], 10) : c.dataset[k];
+          document.querySelectorAll('[data-' + k + ']').forEach(el => {
+            el.classList.toggle('on', el.dataset[k] === c.dataset[k]);
+          });
+        }
+      });
+      render();
+    };
+  });
+}
+
+function applyFilters(rows) {
+  let out = rows.slice();
+  if (state.origin) out = out.filter(r => r.origin === state.origin);
+  if (state.stops >= 0) out = out.filter(r => (r.transfers || 0) <= state.stops);
+  if (state.mode === 'deals') out = out.filter(r => r.is_deal === 1);
+  if (state.pmax != null) out = out.filter(r => r.price <= state.pmax);
+  if (state.dest) {
+    const d = state.dest.toUpperCase();
+    out = out.filter(r => r.destination.toUpperCase().includes(d));
+  }
+  switch (state.sort) {
+    case 'price-asc':  out.sort((a,b)=>a.price-b.price); break;
+    case 'discount':   out.sort((a,b)=>((a.ratio??9)-(b.ratio??9)) || (a.price-b.price)); break;
+    case 'dep':        out.sort((a,b)=>(a.departure_at||'').localeCompare(b.departure_at||'')); break;
+    default:           out.sort((a,b)=>(b.is_deal-a.is_deal) || ((a.ratio??9)-(b.ratio??9)) || (a.price-b.price));
+  }
+  return out;
+}
+
+function dealTag(d) {
+  if (d.is_deal && d.ratio != null && d.median != null) {
+    const pct = Math.round((1 - d.ratio) * 100);
+    return '<span class="tag deal">↓' + pct + '% vs $' + Math.round(d.median) + ' median</span>';
+  }
+  if (d.median != null && d.samples != null) {
+    return '<span class="tag">~$' + Math.round(d.median) + ' median (n=' + d.samples + ')</span>';
+  }
+  return '<span class="tag">no baseline yet</span>';
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+}
+
+function googleFlightsUrl(d) {
+  const dep = (d.departure_at || '').slice(0, 10);
+  const ret = (d.return_at || '').slice(0, 10);
+  if (!dep) return null;
+  if (ret) return `https://www.google.com/travel/flights?q=Flights%20to%20${d.destination}%20from%20${d.origin}%20on%20${dep}%20returning%20${ret}`;
+  return `https://www.google.com/travel/flights?q=Flights%20to%20${d.destination}%20from%20${d.origin}%20on%20${dep}`;
+}
+
+function render() {
+  const filtered = applyFilters(DATA.deals || []);
+  document.getElementById('summary').textContent =
+    filtered.length + ' of ' + (DATA.deals || []).length + ' fares' +
+    ((DATA.snapshots || []).length ? ' · sources: ' + DATA.snapshots.map(s => s.source).join(', ') : '');
+  const grid = document.getElementById('deals-grid');
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty">No fares match your filters.</div>';
+  } else {
+    grid.innerHTML = filtered.map(d => {
+      const stops = (d.transfers || 0) === 0 ? 'nonstop' : (d.transfers + ' stop' + (d.transfers > 1 ? 's' : ''));
+      const url = googleFlightsUrl(d);
+      const titleHtml = url
+        ? '<a class="title" href="' + url + '" target="_blank" rel="noopener">verify on Google Flights →</a>'
+        : '';
+      return (
+        '<div class="card' + (d.is_deal ? ' deal' : '') + '">' +
+          '<div class="row">' +
+            '<span class="route">' + d.origin + ' → ' + d.destination + '</span>' +
+            '<span class="price' + (d.is_deal ? ' deal' : '') + '">' + fmtMoney(d.price) + '</span>' +
+            '<span class="tag">' + escapeHtml(d.airline || '?') + '</span>' +
+            '<span class="tag">' + stops + '</span>' +
+            '<span class="tag" style="margin-left:auto">' + fmtDate(d.departure_at) +
+              (d.return_at ? ' → ' + fmtDate(d.return_at) : '') + '</span>' +
+          '</div>' +
+          '<div class="row">' + dealTag(d) + '</div>' +
+          titleHtml +
+        '</div>'
+      );
+    }).join('');
+  }
+  const ef = (DATA.errorfares || []);
+  const efTitle = document.getElementById('ef-title');
+  const efGrid = document.getElementById('ef-grid');
+  if (ef.length) {
+    efTitle.style.display = '';
+    efGrid.innerHTML = ef.map(e =>
+      '<div class="card errorfare">' +
+        '<div class="row">' +
+          '<span class="tag warn">🚨 error fare</span>' +
+          '<span class="tag" style="margin-left:auto">' + fmtRelative(e.first_seen_at) + '</span>' +
+        '</div>' +
+        '<a class="title" href="' + escapeHtml(e.link || '#') + '" target="_blank" rel="noopener">' +
+          escapeHtml(e.title) + '</a>' +
+      '</div>'
+    ).join('');
+  } else {
+    efTitle.style.display = 'none';
+    efGrid.innerHTML = '';
+  }
+}
+
+document.getElementById('pmax').addEventListener('input', e => {
+  state.pmax = e.target.value ? parseInt(e.target.value, 10) : null; render();
+});
+document.getElementById('dest').addEventListener('input', e => {
+  state.dest = e.target.value.trim(); render();
+});
+document.getElementById('sort').addEventListener('change', e => {
+  state.sort = e.target.value; render();
+});
+
+load();
+setInterval(load, 5 * 60_000);
+</script>
+</body>
+</html>

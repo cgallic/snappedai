@@ -726,6 +726,10 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json());
 
+// --- family-scanner module (apartment + flight pages) ---
+try { require('./family-server')(app, db); } catch (e) { console.error('[FAMILY] mount failed:', e.message); }
+
+
 // Health
 app.get('/api/health', (req, res) => {
   const sourceCount = db.prepare('SELECT COUNT(*) as c FROM sources').get().c;

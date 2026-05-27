@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>NJ apartments · family scanner</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --card: #ffffff;
+    --text: #1c1917;
+    --muted: #78716c;
+    --line: #e7e5e4;
+    --accent: #0c4a6e;
+    --accent-soft: #e0f2fe;
+    --chip: #f5f5f4;
+    --chip-on: #0c4a6e;
+    --chip-on-fg: #ffffff;
+    --good: #166534;
+    --good-soft: #dcfce7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0a09; --card: #1c1917; --text: #fafaf9; --muted: #a8a29e;
+      --line: #292524; --accent: #38bdf8; --accent-soft: #082f49;
+      --chip: #292524; --chip-on: #38bdf8; --chip-on-fg: #0c0a09;
+      --good: #4ade80; --good-soft: #052e16;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 16px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  h1 { font-size: 20px; margin: 0; letter-spacing: -0.01em; }
+  .meta { color: var(--muted); font-size: 13px; }
+  .filters { display: flex; flex-direction: column; gap: 10px; padding: 14px 0; }
+  .filter-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .filter-row label { color: var(--muted); font-size: 12px; text-transform: uppercase;
+    letter-spacing: 0.05em; margin-right: 4px; min-width: 56px; }
+  .chip { display: inline-block; padding: 5px 11px; border-radius: 999px; background: var(--chip);
+    color: var(--text); font-size: 13px; cursor: pointer; border: 1px solid transparent;
+    user-select: none; transition: all 0.1s; }
+  .chip:hover { border-color: var(--accent); }
+  .chip.on { background: var(--chip-on); color: var(--chip-on-fg); }
+  .search { flex: 1; min-width: 180px; padding: 7px 11px; border: 1px solid var(--line);
+    border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px; }
+  .price-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .price-row input[type=number] { width: 90px; padding: 5px 8px; border: 1px solid var(--line);
+    border-radius: 6px; background: var(--card); color: var(--text); font-size: 14px; }
+  .summary { color: var(--muted); font-size: 13px; padding: 6px 0 10px; }
+  .grid { display: grid; gap: 10px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .card a.title { color: var(--text); text-decoration: none; font-weight: 500;
+    line-height: 1.35; display: block; }
+  .card a.title:hover { color: var(--accent); }
+  .row { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .price { font-size: 18px; font-weight: 600; color: var(--accent); }
+  .tag { font-size: 12px; padding: 2px 8px; border-radius: 4px; background: var(--chip); color: var(--muted); }
+  .tag.new { background: var(--good-soft); color: var(--good); }
+  .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .err { background: #fee2e2; color: #991b1b; padding: 10px 14px; border-radius: 8px; margin: 16px 0; }
+  @media (prefers-color-scheme: dark) { .err { background: #450a0a; color: #fca5a5; } }
+  footer { padding: 20px 0; color: var(--muted); font-size: 12px; text-align: center; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>NJ apartments</h1>
+      <div class="meta">Morris · Union · Somerset · Rt-78 corridor</div>
+    </div>
+    <div class="meta" id="updated"></div>
+  </header>
+
+  <div class="filters">
+    <div class="filter-row">
+      <label>Beds</label>
+      <span class="chip" data-beds="0">any</span>
+      <span class="chip on" data-beds="2">2+</span>
+      <span class="chip" data-beds="3">3+</span>
+      <span class="chip" data-beds="4">4+</span>
+    </div>
+    <div class="filter-row price-row">
+      <label>Price</label>
+      <input type="number" id="pmin" placeholder="min" min="0" step="50">
+      <span class="meta">–</span>
+      <input type="number" id="pmax" placeholder="max" min="0" step="50" value="2000">
+    </div>
+    <div class="filter-row">
+      <label>City</label>
+      <span class="chip on" data-city="">all</span>
+      <span id="city-chips"></span>
+    </div>
+    <div class="filter-row">
+      <label>Source</label>
+      <span class="chip on" data-source="">all</span>
+      <span id="source-chips"></span>
+    </div>
+    <div class="filter-row">
+      <label>Search</label>
+      <input type="text" id="q" class="search" placeholder="title contains…">
+      <label style="margin-left:12px">Sort</label>
+      <select id="sort" class="search" style="max-width:180px">
+        <option value="new">newest first</option>
+        <option value="price-asc">cheapest first</option>
+        <option value="price-desc">most expensive first</option>
+        <option value="beds-desc">most bedrooms first</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="summary" id="summary"></div>
+  <div id="err"></div>
+  <div class="grid" id="grid"></div>
+  <footer>Updates every 6 hours. Private family link — please don't share publicly.</footer>
+</div>
+
+<script>
+const SLUG = '415b10e9ba403afe';
+const API = '/api/family/' + SLUG + '/apt';
+let DATA = { listings: [], last_ingest: null, sources: [] };
+
+const state = {
+  beds: 2,
+  pmin: null,
+  pmax: 2000,
+  city: '',
+  source: '',
+  q: '',
+  sort: 'new',
+};
+
+function fmtMoney(n) { return n == null ? '—' : '$' + n.toLocaleString(); }
+function fmtCity(s)  { return (s || '?').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); }
+function fmtRelative(iso) {
+  if (!iso) return '';
+  const t = new Date(iso).getTime();
+  const dh = (Date.now() - t) / 36e5;
+  if (dh < 1) return Math.max(1, Math.floor(dh * 60)) + 'm ago';
+  if (dh < 48) return Math.floor(dh) + 'h ago';
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+async function load() {
+  try {
+    const r = await fetch(API, { cache: 'no-store' });
+    if (!r.ok) throw new Error('http ' + r.status);
+    DATA = await r.json();
+  } catch (e) {
+    document.getElementById('err').innerHTML =
+      '<div class="err">Failed to load: ' + e.message + '</div>';
+    return;
+  }
+  if (DATA.last_ingest) {
+    document.getElementById('updated').textContent =
+      'updated ' + fmtRelative(DATA.last_ingest);
+  }
+  // Build city + source chips from data
+  const cities = [...new Set(DATA.listings.map(l => l.city).filter(Boolean))].sort();
+  const cityEl = document.getElementById('city-chips');
+  cityEl.innerHTML = cities.map(c =>
+    '<span class="chip" data-city="' + c + '">' + fmtCity(c) + '</span>'
+  ).join('');
+  const sources = DATA.sources || [];
+  const srcEl = document.getElementById('source-chips');
+  srcEl.innerHTML = sources.map(s =>
+    '<span class="chip" data-source="' + s + '">' + s.replace(/^craigslist-/, 'CL ') + '</span>'
+  ).join('');
+  attachChipHandlers();
+  render();
+}
+
+function attachChipHandlers() {
+  document.querySelectorAll('.chip').forEach(c => {
+    c.onclick = () => {
+      if (c.dataset.beds   !== undefined) toggleGroup('beds',   c.dataset.beds);
+      if (c.dataset.city   !== undefined) toggleGroup('city',   c.dataset.city);
+      if (c.dataset.source !== undefined) toggleGroup('source', c.dataset.source);
+    };
+  });
+}
+
+function toggleGroup(key, val) {
+  state[key] = key === 'beds' ? parseInt(val, 10) : val;
+  document.querySelectorAll('[data-' + key + ']').forEach(el => {
+    el.classList.toggle('on', el.dataset[key] === String(val));
+  });
+  render();
+}
+
+function applyFilters(rows) {
+  let out = rows.slice();
+  if (state.beds > 0) out = out.filter(r => (r.bedrooms || 0) >= state.beds);
+  if (state.pmin != null) out = out.filter(r => (r.price || 0) >= state.pmin);
+  if (state.pmax != null) out = out.filter(r => (r.price || 0) <= state.pmax);
+  if (state.city) out = out.filter(r => r.city === state.city);
+  if (state.source) out = out.filter(r => r.source === state.source);
+  if (state.q) {
+    const q = state.q.toLowerCase();
+    out = out.filter(r => (r.title || '').toLowerCase().includes(q));
+  }
+  switch (state.sort) {
+    case 'price-asc':  out.sort((a,b)=>(a.price||9e9)-(b.price||9e9)); break;
+    case 'price-desc': out.sort((a,b)=>(b.price||0)-(a.price||0)); break;
+    case 'beds-desc':  out.sort((a,b)=>(b.bedrooms||0)-(a.bedrooms||0)); break;
+    default:           out.sort((a,b)=>(b.first_seen_at||'').localeCompare(a.first_seen_at||''));
+  }
+  return out;
+}
+
+function render() {
+  const filtered = applyFilters(DATA.listings || []);
+  document.getElementById('summary').textContent =
+    filtered.length + ' of ' + (DATA.listings || []).length + ' listings';
+  const grid = document.getElementById('grid');
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty">No listings match your filters.</div>';
+    return;
+  }
+  const recentCutoff = Date.now() - 24 * 36e5;
+  grid.innerHTML = filtered.map(l => {
+    const isNew = l.first_seen_at && new Date(l.first_seen_at).getTime() > recentCutoff;
+    return (
+      '<div class="card">' +
+        '<div class="row">' +
+          '<span class="price">' + fmtMoney(l.price) + '</span>' +
+          '<span class="tag">' + (l.bedrooms || '?') + 'br' +
+            (l.bathrooms ? ' · ' + l.bathrooms + 'ba' : '') + '</span>' +
+          '<span class="tag">' + fmtCity(l.city) + '</span>' +
+          (isNew ? '<span class="tag new">new</span>' : '') +
+          '<span class="tag" style="margin-left:auto">' + fmtRelative(l.first_seen_at) + '</span>' +
+        '</div>' +
+        '<a class="title" href="' + l.url + '" target="_blank" rel="noopener">' +
+          (l.title || l.url).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])) +
+        '</a>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+// Input change wiring
+document.getElementById('pmin').addEventListener('input', e => {
+  state.pmin = e.target.value ? parseInt(e.target.value, 10) : null; render();
+});
+document.getElementById('pmax').addEventListener('input', e => {
+  state.pmax = e.target.value ? parseInt(e.target.value, 10) : null; render();
+});
+document.getElementById('q').addEventListener('input', e => {
+  state.q = e.target.value.trim(); render();
+});
+document.getElementById('sort').addEventListener('change', e => {
+  state.sort = e.target.value; render();
+});
+
+load();
+setInterval(load, 5 * 60_000);
+</script>
+</body>
+</html>
